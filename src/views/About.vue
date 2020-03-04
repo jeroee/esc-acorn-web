@@ -20,21 +20,3 @@
     </div>
 </template>
 
-<script>
-    export default {
-        name: "About",
-        data: () => ({
-            categories: [
-                'Acorn Products','Acorn Services','Acorn Applications'
-            ],
-        })
-    }
-</script>
-
-<style scoped>
-.about {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-</style>
