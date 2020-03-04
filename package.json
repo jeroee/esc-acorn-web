@@ -9,9 +9,13 @@
   },
   "dependencies": {
     "core-js": "^3.6.4",
+    "material-design-icons-iconfont": "^5.0.1",
     "rainbow-web-sdk": "^1.67.0",
     "vue": "^2.6.11",
-    "vue-router": "^3.1.5"
+
+    "vue-router": "^3.1.6",
+    "vuetify": "^2.2.11"
+
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.2.0",
@@ -22,7 +26,11 @@
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.1.2",
     "http-server": "^0.12.1",
-    "vue-template-compiler": "^2.6.11"
+    "sass": "^1.19.0",
+    "sass-loader": "^8.0.0",
+    "vue-cli-plugin-vuetify": "^2.0.5",
+    "vue-template-compiler": "^2.6.11",
+    "vuetify-loader": "^1.3.0"
   },
   "eslintConfig": {
     "root": true,
