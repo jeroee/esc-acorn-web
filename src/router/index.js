@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
+import Chatbot from '../views/Chatbot.vue';
+import FirstPage from './FirstPage.vue';
 
 Vue.use(VueRouter)
 
@@ -10,6 +12,10 @@ const routes = [
     name: 'Home',
     component: Home
   },
+  {path: '/Chatbot', component: Chatbot},
+  {path: '/FirstPage', component: FirstPage},
+
+
   {
     path: '/about',
     name: 'About',
