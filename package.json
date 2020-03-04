@@ -9,8 +9,10 @@
   },
   "dependencies": {
     "core-js": "^3.6.4",
+    "material-design-icons-iconfont": "^5.0.1",
     "rainbow-web-sdk": "^1.67.0",
     "vue": "^2.6.11",
+    "vue-router": "^3.1.6",
     "vuetify": "^2.2.11"
   },
   "devDependencies": {
