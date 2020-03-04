@@ -1,6 +1,6 @@
 <template>
     <div style="display: flex; flex-direction: column; justify-content: center; min-height: 100vh">
-        <v-container class="about">
+        <v-container class="home">
             <h1 class="display-3 acorn-title pb-10">Welcome to Acorn</h1>
             <v-select v-model="selected" v style="width: 400px"
                 :items="categories"
@@ -24,7 +24,7 @@
 import axios from 'axios'
 
 export default {
-    name: "About",
+    name: "Home",
     data: () => ({
         categories: [
             'Acorn Products','Acorn Services','Acorn Applications'
@@ -55,7 +55,7 @@ export default {
 </script>
 
 <style scoped>
-.about {
+.home {
     display: flex;
     flex-direction: column;
     align-items: center;

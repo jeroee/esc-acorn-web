@@ -22,7 +22,7 @@
                 function () {
                     this.$router.push({path: "/chat"});
                 }.bind(this),
-                2000
+                3000
             );
         }
     }

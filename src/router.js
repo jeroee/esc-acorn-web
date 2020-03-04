@@ -24,7 +24,7 @@ export default new Router({
         {
             path: '/chat',
             name: 'chat',
-            component: () => import(/* webpackChunkName: "chat" */ './views/Chatpage.vue')
+            component: () => import('./views/Chatpage.vue')
         }
     ]
 })
