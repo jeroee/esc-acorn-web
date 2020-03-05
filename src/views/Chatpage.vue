@@ -74,6 +74,8 @@
 
             /* Bootstrap the SDK */
             angular.bootstrap(document, ["sdk"]).get("rainbowSDK");
+
+
         }
     }
 </script>
