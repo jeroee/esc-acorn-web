@@ -12,6 +12,8 @@
                 <v-btn to="/home" x-large depressed class="ma-5 green white--text">
                     <v-icon left>message</v-icon> Get Chat Support
                 </v-btn>
+
+                
                 <v-btn x-large depressed class="ma-5 green white--text">
                     <v-icon left>phone</v-icon> Get Call Support
                 </v-btn>
