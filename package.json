@@ -8,9 +8,12 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "angular": "^1.7.9",
     "axios": "^0.19.2",
     "core-js": "^3.6.4",
+    "jquery": "^3.4.1",
     "material-design-icons-iconfont": "^5.0.1",
+    "moment": "^2.24.0",
     "rainbow-web-sdk": "^1.67.0",
     "vue": "^2.6.11",
     "vue-page-transition": "^0.2.2",
