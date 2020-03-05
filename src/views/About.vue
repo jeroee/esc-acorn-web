@@ -9,10 +9,10 @@
                 label="Choose a support category..."
             ></v-select>
             <div style="flex-direction: row">
-                <v-btn to="/home" x-large depressed class="ma-5 green white--text">
+                <v-btn @click.native="access" to="/chat" x-large depressed class="ma-5 green white--text">
                     <v-icon left>message</v-icon> Get Chat Support
                 </v-btn>
-                <v-btn x-large depressed class="ma-5 green white--text">
+                <v-btn to= "/call" x-large depressed class="ma-5 green white--text">
                     <v-icon left>phone</v-icon> Get Call Support
                 </v-btn>
             </div>
@@ -27,7 +27,12 @@
             categories: [
                 'Acorn Products','Acorn Services','Acorn Applications'
             ],
-        })
+        }),
+        methods:{
+            access(){
+                console.log("clicked");
+            }
+        }
     }
 </script>
 

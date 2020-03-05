@@ -15,6 +15,12 @@ $(function() {
     var onReady = function onReady() {
         console.log("[DEMO] :: On SDK Ready !");
         // do something when the SDK is ready
+        // var strLogin = "login";       
+        // var strPassword = "password"; 
+        // rainbowSDK.connection.signin(strLogin, strPassword)
+        // .then(function(account) {
+        //       console.log("sign in success!")
+        // })
     };
 
     /* Callback for handling the event 'RAINBOW_ONCONNECTIONSTATECHANGED' */
