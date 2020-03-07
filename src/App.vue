@@ -8,7 +8,7 @@
 </template>
 
 <script>
-export default {
+export default {      //declaring the page so that u can import later
   name: 'App',
 
   components: {
