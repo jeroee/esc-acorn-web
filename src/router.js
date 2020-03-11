@@ -24,14 +24,16 @@ export default new Router({
             component: () => import(/* webpackChunkName: "about" */ './views/About.vue')
         },
         {
-            path: '/chat',
+            path: '/chat/:selectedIndex',
             name: 'chat',
-            component: Chat
+            component: Chat,
+            props: true
         },
         {
-            path: '/call',
+            path: '/call/:selectedIndex',
             name: 'call',
-            component: Call
+            component: Call,
+            props: true
         }
     ]
 })

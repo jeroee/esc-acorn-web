@@ -1,6 +1,3 @@
-
-//import rainbowSDK from 'rainbow-web-sdk'
-
 // $(function() {
 //     console.log("[DEMO] :: Rainbow Application started!");
 
@@ -13,7 +10,7 @@
 //     console.log(applicationSecret);
 
 //     /* Bootstrap the SDK */
-//     //angular.bootstrap(document, ["sdk"]).get("rainbowSDK");
+//     angular.bootstrap(document, ["sdk"]).get("rainbowSDK");
 
 //     /* Callback for handling the event 'RAINBOW_ONREADY' */
 //     var onReady = function onReady() {

@@ -1,179 +1,116 @@
 <template>
-    <div class="chat">
-        <h1>Hey, lets chat</h1>
-        <li v-for= "post in posts" :key="post.body">
-            <br>
-            {{post.id}}
-            <br>
-            {{post.title}}
-            <br>
-            {{post.body}}
-            <br>
-            <!-- {{post.body}} -->
-        </li>
-    </div>
+  <div class="chat">
+    <h1>Hey, lets chat</h1>
+    <p>Category selected is {{selectedIndex}}</p>
+    <!-- <li v-for="post in posts" :key="post.body">
+      <br />
+      {{post.id}}
+      <br />
+      {{post.title}}
+      <br />
+      {{post.body}}
+      <br />
+      {{post.body}} -->
+    <!-- </li> -->
+  </div>
 </template>
 
 <script>
-    import rainbowSDK from 'rainbow-web-sdk'
-   import axios from 'axios';
-    export default {
-        name: "Chat",
-        data(){
-            return {
-                posts:[]
-            }
-        },
-    created(){
-        console.log("page created");
-
-            // Activate full SDK log
-        rainbowSDK.setVerboseLog(false);
-        var applicationID = "a58cfac05b0711eabf7e77d14e87b936",
-        applicationSecret = "JnjQaOpCW9Pc3u2IUQAvyjyiAEINpBo47Vb5S3jSUxHdgQkc3pqFFXGHJPojXbGu";
-        rainbowSDK
-            .initialize(applicationID, applicationSecret)
-            .then(function() {
-                console.log("[DEMO] :: Rainbow SDK is initialized!");
-            })
-            .catch(function(err) {
-                console.log("[DEMO] :: Something went wrong with the SDK...", err);
-            });
-
-        console.log("[DEMO] :: On SDK Ready !");
-        // do something when the SDK is ready
-        var strLogin = "aaronkhoo@live.com";        
-        var strPassword = "6]<epFf$Er'0"; 
-        rainbowSDK.connection.signin(strLogin, strPassword)
-        .then(function(account) {
-            console.log("sign in success!");
-            console.log(account)
-        })
-        .then(function(){
-        rainbowSDK.contacts.searchById("5e4950b6e9f12730636972b5")      //agent 5
-        .then(function(entityFound) {
-            console.log("entered search")
-            if(entityFound) {
-                console.log("found entity !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                console.log(entityFound);  
-                rainbowSDK.conversations.openConversationForContact(entityFound)
-                .then(function(conversations){
-                console.log("opening conversation");
-                console.log(conversations)
-                })
-                .catch(function(err){
-                console.log(err)
-                })
-            }
-            else {
-                console.log("no entitiy!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            }
-        })
+import rainbowSDK from "rainbow-web-sdk";
+import axios from "axios";
+export default {
+  name: "Chat",
+  props: ["selectedIndex"],
+  data() {
+    // return {
+    //   posts: []
+    // }
+  },
+created() {
+    //somehow initialise doesnt complete fully to trigger RAINBOW_ONREADY, hence run getConnection;
+    //document.addEventListener(rainbowSDK.RAINBOW_ONREADY, this.getConnection);
+    document.addEventListener(rainbowSDK.RAINBOW_ONLOADED, this.onLoaded);
+    rainbowSDK.load();
+    this.getConnection();
+  },
+  methods: {
+    onLoaded: function() {
+      var applicationID = "a58cfac05b0711eabf7e77d14e87b936";
+      var applicationSecret =
+        "JnjQaOpCW9Pc3u2IUQAvyjyiAEINpBo47Vb5S3jSUxHdgQkc3pqFFXGHJPojXbGu";
+      rainbowSDK.setVerboseLog(false);
+      rainbowSDK
+        .initialize(applicationID, applicationSecret)
+        .then(function() {
+          console.log("[DEMO] :: Rainbow SDK is initialized!");
         })
         .catch(function(err) {
-            console.log("error signing in");
-            console.log(err)
-        })
-        axios.get(`http://jsonplaceholder.typicode.com/posts`)
-             .then(response => {this.posts = response.data})
-          
-    // rainbowSDK.contacts.searchById("5e4950b6e9f12730636972b5")
-    // .then(function(entityFound) {
-    //   console.log("entered search")
-    //   if(entityFound) {
-    //       console.log("found entity !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-    //       console.log(entityFound);          
-    //       // rainbowSDK.conversations.openCoversationForContact(entityFound)
-    //       // .then(function(conversations){
-    //       //   console.log("opening conversation");
-    //       //   console.log(conversations)
-    //       // })
-    //       // .catch(function(err){
-    //       //   console.log(err)
-    //       // })
-    //   }
-    //   else {
-    //       console.log("no entitiy!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    //   }
-    // })
-    // .catch(function(err){
-    //   console.log(err);
-    // });
-    //rainbowSDK.conversations.openCoversationforContact()
+          console.log("[DEMO] :: Something went wrong with the SDK...", err);
+        });
 
+      console.log("I'm in onLoaded");
+    },
 
-    
+    getConnection: async function() {
+      console.log("I'm in waitConnection");
+    //   var strLogin = "aaronkhoo@live.com";
+    //   var strPassword = "6]<epFf$Er'0";
+      let response = await axios.get(
+        `http://still-sea-41149.herokuapp.com/api/agentss?category=${this.selectedIndex}`  //obtain agent through category
+      );
+      let agent_id = response.data.agent.rainbowId;   //get agent id
+      let agent_name = response.data.agent.name;      //get agent name
+      let token = response.data.token;                //get guest token
+      console.log("agent ID is: ", agent_id);
+      console.log("agent name is: ", agent_name);
+      console.log("token is: ",token);
+      //need to swap signin with token instead of admin login and password
+      let account = await rainbowSDK.connection.signinSandBoxWithToken(token);           //login to rainbow server with guest token
+      if (account) {
+        console.log("sign in success");
+        let contact = await rainbowSDK.contacts.searchById(agent_id);                    //get contact from agent id
+        let conversation = await rainbowSDK.conversations.openConversationForContact(   //open conversation from contact
+          contact
+        );
+        await rainbowSDK.im.getMessagesFromConversation(conversation);                  //getting all messages from conversation
+        console.log(conversation);
 
+        document.addEventListener(
+          rainbowSDK.im.RAINBOW_ONNEWIMMESSAGERECEIVED,
+          this.receive
+        );
+        document.addEventListener(
+          rainbowSDK.im.RAINBOW_ONNEWIMRECEIPTRECEIVED,
+          this.receipt
+        );
+        let message = "Test message";                                                   //sample msg send to agent
+        await rainbowSDK.im.sendMessageToConversation(conversation, message);
+        console.log("message sent");
 
+      } else {
+        console.log("No account found!");
+      }
+    },
 
-    /* Bootstrap the SDK */
-    //angular.bootstrap(document, ["sdk"]).get("rainbowSDK");
+    //sendMessage: async function() {
+      //testing send message
+    //   let message = "Test message";
+    //   await rainbowSDK.im.sendMessageToConversation(conversation, message);
+    //   console.log("message sent");
+   // },
 
-    /* Callback for handling the event 'RAINBOW_ONREADY' */
-  //   var onReady = function onReady() {
-  //       console.log("[DEMO] :: On SDK Ready !");
-  //       //do something when the SDK is ready
-  //       var strLogin = "aaronkhoo@live.com";       
-  //       var strPassword = "6]<epFf$Er'0"; 
-  //       rainbowSDK.connection.signin(strLogin, strPassword)
-  //       .then(function(account) {
-  //             console.log("sign in success!");
-  //             console.log(account);
-  //       })
-  //       .catch(function(err) {
-  //           console.log("error signing in");
-  //           console.log(err);
-  //       })
-  //   };
+    receive: function(e) {
+      let message = e.detail.message;
+      console.log(message);
+    },
 
-  //   /* Callback for handling the event 'RAINBOW_ONCONNECTIONSTATECHANGED' */
-  //   var onLoaded = function onLoaded() {
-  //       console.log("[DEMO] :: On SDK Loaded !");
-
-  //       // Activate full SDK log
-  //       rainbowSDK.setVerboseLog(true);
-
-  //       rainbowSDK
-  //           .initialize(applicationID, applicationSecret)
-  //           .then(function() {
-  //               console.log("[DEMO] :: Rainbow SDK is initialized!");
-  //           })
-  //           .catch(function(err) {
-  //               console.log("[DEMO] :: Something went wrong with the SDK...", err);
-  //           });
-  //   };
-
-  //   /* Listen to the SDK event RAINBOW_ONREADY */
-  //   document.addEventListener(rainbowSDK.RAINBOW_ONREADY, onReady)
-
-  //   /* Listen to the SDK event RAINBOW_ONLOADED */
-  //   document.addEventListener(rainbowSDK.RAINBOW_ONLOADED, onLoaded)
-
-  //   /* Load the SDK */
-  //   rainbowSDK.load();
+    receipt: function(e) {
+      let message = e.detail.message.data;
+      console.log(message);
+    }
   }
-
-  
 };
-            
-//              rainbowSDK.contacts.searchById("5e495058e9f1273063697294").then(function(entityFound) {
-//                 if(entityFound) {
-//                     console.log("found entity !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-//                 }
-//                 else {
-//                     console.log("no entitiy!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-//                 }
-//             })
-
-//             axios.get(`http://jsonplaceholder.typicode.com/posts`)
-//             .then(response => {this.posts = response.data})
-            
-//         }
-//     }
 </script>
 
-
-
 <style scoped>
-
 </style>
