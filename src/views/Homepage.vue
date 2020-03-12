@@ -1,11 +1,15 @@
 <template>
-    <div style="display: flex; flex-direction: column; justify-content: center; min-height: 100vh">
-        <v-container class="home">
-            <h1 class="display-3 acorn-title pb-10">Welcome to Acorn</h1>
+    <div style="min-height: 100vh">
+        <div class="hero mb-10">
+            <v-container class="flex-col">
+                <h1 class="display-3 font-weight-medium">Welcome to Acorn Support</h1>
+            </v-container>
+        </div>
+        <v-container class="flex-col">
             <v-select v-model="selected" v style="width: 400px"
                 :items="categories"
                 outlined
-                :menu-props="{ offsetY:true }"
+                :menu-props="{ offsetY:true, openOnHover:true, openOnClick:false }"
                 label="Choose a support category..."
             ></v-select>
             <div style="flex-direction: row">
@@ -17,6 +21,7 @@
                 </v-btn>
             </div>
         </v-container>
+
     </div>
 </template>
 
@@ -55,9 +60,17 @@ export default {
 </script>
 
 <style scoped>
-.home {
+.flex-col {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+.hero{
+    background-image: url("../assets/acorn_bg.png");
+    height: 400px;
+    background-position: center;
+    background-size: cover;
 }
 </style>

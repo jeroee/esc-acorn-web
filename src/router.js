@@ -4,6 +4,8 @@ import Homepage from "./views/Homepage";
 
 Vue.use(Router);
 
+console.log("router loaded");
+
 export default new Router({
     mode: 'history',
     base: process.env.BASE_URL,

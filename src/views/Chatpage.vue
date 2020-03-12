@@ -1,7 +1,7 @@
 <template>
     <div class="chat">
-        <h1 class="font-weight-light ma-10" v-if="!chatting">Let's chat <v-icon x-large color="black">chat</v-icon></h1>
-        <div style="height:100%; width:100%; overflow:auto" id="chatBox">
+        <div class="chatBox" id="chatBox" ref="chatBox">
+            <h1 class="font-weight-light mb-5"  id="header" ref="header">Let's chat <v-icon x-large color="black">chat</v-icon></h1>
             <v-card class="ma-5 green white--text" v-bind:class="item.sender" flat width="500px" v-for="item in items" :key="item.message">
                 <v-card-subtitle class="white--text pb-0">{{item.sender}}</v-card-subtitle>
                 <v-card-title style="word-break: keep-all">
@@ -16,8 +16,8 @@
                     filled
                     hide-details
                     rows="1"
-                    style="font-size: 1.25rem"
                     loading
+                    style="font-size: 1.25rem"
                     color="green"
                     auto-grow
                     placeholder="Send a message..."
@@ -32,7 +32,6 @@
 <script>
     import $ from 'jquery'
     import moment from 'moment';
-    import angular from 'angular';
 
     export default {
         name: "Chatpage",
@@ -59,23 +58,25 @@
                     this.txt = "";
                     $("#chatBox").animate({scrollTop: $('#chatBox')[0].scrollHeight}, 500);
                 }
-            },
+            }
         },
         mounted() {
-            let self = this;
+            const self = this;
             window.addEventListener('keyup', function (event) {
                 if (event.keyCode === 13) {
                     self.message();
                 }
             });
+            console.log(self.$refs);
+            self.$refs["chatBox"].onscroll = function() {
+                if (self.$refs["chatBox"].scrollTop > 0) {
+                    self.$refs["header"].style.fontSize = "0px";
+                } else {
+                    self.$refs["header"].style.fontSize = "40px";
+                }
+            }
         },
         created() {
-            console.log("[DEMO] :: Starter-Kit of the Rainbow SDK for Web with Vue.js started!");
-
-            /* Bootstrap the SDK */
-            angular.bootstrap(document, ["sdk"]).get("rainbowSDK");
-
-
         }
     }
 </script>
@@ -92,5 +93,24 @@
 .you {
     margin-left: auto !important;
     background-color: green !important;
+}
+
+#header {
+    background-color: #f1f1f1;
+    text-align: center;
+    font-size: 60px;
+    width: 100%;
+    transition: 0.2s;
+}
+
+.chatBox {
+    height:100%;
+    width:100%;
+    overflow:auto;
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;  /* Firefox */
+}
+.chatBox::-webkit-scrollbar {
+    display: none;  /* Safari and Chrome */
 }
 </style>
