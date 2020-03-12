@@ -11,5 +11,3 @@ new Vue({
   render: h => h(App)     //which page to link
 }).$mount('#app');        //refered name
 
-
-
