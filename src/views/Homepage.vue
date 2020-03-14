@@ -13,7 +13,7 @@
                 label="Choose a support category..."
             ></v-select>
             <div style="flex-direction: row">
-                <v-btn to="/wait" @click="getAgentId" x-large depressed class="ma-5 green white--text">
+                <v-btn to="/chat" @click="getAgentId" x-large depressed class="ma-5 green white--text">
                     <v-icon left>message</v-icon> Get Chat Support
                 </v-btn>
                 <v-btn @click="alert" x-large depressed class="ma-5 green white--text">

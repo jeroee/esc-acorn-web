@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Homepage from "./views/Homepage";
-import Chat from "./views/Chat";
-import Call from "./views/Call"
+// import Chat from "./views/Chat";
+// import Call from "./views/Call"
 
 
 Vue.use(Router);
@@ -14,7 +14,7 @@ export default new Router({
     base: process.env.BASE_URL,
     routes: [
         {
-            path: '/home',
+            path: '/',
             name: 'home',
             component: Homepage
         },
@@ -27,9 +27,9 @@ export default new Router({
             component: () => import(/* webpackChunkName: "about" */ './views/Waitpage.vue')
         },
         {
-            path: '/call/:selectedIndex',
+            path: '/call',
             name: 'call',
-            component: Call,
+            // component: Call,
             props: true,
             component: () => import(/* webpackChunkName: "chat" */ './views/Chat.vue')
         },
