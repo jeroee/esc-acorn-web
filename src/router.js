@@ -27,13 +27,6 @@ export default new Router({
             component: () => import(/* webpackChunkName: "about" */ './views/Waitpage.vue')
         },
         {
-            path: '/call',
-            name: 'call',
-            // component: Call,
-            props: true,
-            component: () => import(/* webpackChunkName: "chat" */ './views/Chat.vue')
-        },
-        {
             path: '/chat',
             name: 'chat',
             component: () => import('./views/Chatpage.vue')
