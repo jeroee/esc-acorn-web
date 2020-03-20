@@ -1,4 +1,3 @@
-
 <template>
     <div style="min-height: 100vh">
         <div class="hero mb-10">
