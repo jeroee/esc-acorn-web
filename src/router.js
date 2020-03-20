@@ -31,12 +31,12 @@ export default new Router({
             name: 'call',
             // component: Call,
             props: true,
-            component: () => import(/* webpackChunkName: "chat" */ './views/Chat.vue')
+            component: () => import(/* webpackChunkName: "chat" */ './views/Call.vue')
         },
         {
             path: '/chat',
             name: 'chat',
-            component: () => import('./views/Chatpage.vue')
+            component: () => import('./views/Chat.vue')
         }
     ]
 })
