@@ -1,3 +1,4 @@
+
 <template>
 <div class= "call" id="app">
   <v-app id="inspire">
@@ -5,14 +6,9 @@
       <v-dialog max-width = "1000" v-model="dialog" width="500">
         
         <template v-slot:activator="{ on }">
-          <div class="page1">
-             <v-btn color="red lighten-2" dark v-on="on"> Start Call </v-btn>
-          </div>  
+          <v-btn class="ma-5 green white--text" x-large depressed  v-on="on"> 
+               <v-icon left>phone</v-icon> Start Call </v-btn>
         </template>
-
-        
-        
-  
         <v-card>
           <v-card-title class="headline grey lighten-2" primary-title> Customer Name</v-card-title>
           <v-card-text  class="headline grey lighten-2" process> Calling .....</v-card-text>
@@ -27,6 +23,7 @@
                     <v-btn class="mx-10" fab dark small color="grey dark-2">
                         <v-icon>mic_off</v-icon>
                     </v-btn>
+
                 </v-flex>
 
                 <br>
@@ -136,15 +133,5 @@
   margin-bottom:10px;
   opacity: 0.8;
 }
-
-/* .btn {
-   height: 200px;
-   width: 200px;
-   background: pink;
-   position: relative;
-
-} */
-
-
 
 </style>

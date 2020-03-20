@@ -30,6 +30,25 @@ export default new Router({
             path: '/chat',
             name: 'chat',
             component: () => import('./views/Chatpage.vue')
-        }
+        },
+
+        {
+            path: '/call',
+            name: 'call',
+            component: () => import('./views/Call.vue')
+        },
+
+        {
+            path: '/QandAPage1',
+            name: 'QandAPage1',
+            component: () => import('./views/QandAPage1.vue')
+        },
+
+        // {
+        //     path: '/Try',
+        //     name: 'Try',
+        //     component: () => import('./views/Try.vue')
+        // }
+
     ]
 })
