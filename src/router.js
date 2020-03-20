@@ -27,16 +27,22 @@ export default new Router({
             component: () => import(/* webpackChunkName: "about" */ './views/Waitpage.vue')
         },
         {
+            path: '/chat',
+            name: 'chat',
+            component: () => import('./views/Chatpage.vue')
+        },
+
+        {
             path: '/call',
             name: 'call',
-            // component: Call,
             props: true,
             component: () => import(/* webpackChunkName: "chat" */ './views/Call.vue')
         },
+
         {
-            path: '/chat',
-            name: 'chat',
-            component: () => import('./views/Chat.vue')
-        }
+            path: '/QandAPage1',
+            name: 'QandAPage1',
+            component: () => import('./views/QandAPage1.vue')
+        },
     ]
 })

@@ -9,6 +9,10 @@
              <v-btn color="red lighten-2" dark v-on="on"> Start Call </v-btn>
           </div>  
         </template>
+
+        
+        
+  
         <v-card>
           <v-card-title class="headline grey lighten-2" primary-title> Customer Name</v-card-title>
           <v-card-text  class="headline grey lighten-2" process> Calling .....</v-card-text>
@@ -97,6 +101,7 @@
     
 </template>
 
+<script>
 <script>
 import rainbowSDK from "rainbow-web-sdk";
 import axios from "axios";

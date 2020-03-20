@@ -1,5 +1,8 @@
 <template>
     <div class="chat">
+        <transition name="fade">
+            <Waitpage v-bind:connecting="connecting" v-bind:loading="loading" v-if="start"/>
+        </transition>
         <div class="chatBox" id="chatBox" ref="chatBox">
             <h1 class="font-weight-light mb-5"  id="header" ref="header">Let's chat <v-icon x-large color="black">chat</v-icon></h1>
             <v-card class="ma-5 green white--text" v-bind:class="item.sender" flat width="500px" v-for="item in items" :key="item.message">
@@ -32,14 +35,17 @@
 <script>
     import $ from 'jquery'
     import moment from 'moment';
+    import rainbowSDK from "rainbow-web-sdk";
+    import axios from "axios";
+    import Waitpage from "./Waitpage";
 
     export default {
         name: "Chatpage",
+        components: {Waitpage},
         data: () => ({
-            guestId: "5e5fc884d8084c29e64eb03b",
+            token: "",
             agentId: "",
-            agentFirstName: "Agent",
-            agentLastName: "One",
+            agentName: "Agent",
             chatting: false,
             items: [
                 {
@@ -48,35 +54,90 @@
                     time: moment().format("h:mm a")
                 },
             ],
-            txt: ""
+            txt: "",
+            selectedIndex: 0,
+            conversation:'',
+            start:true,
+            connecting:false,
+            loading:0
         }),
+
         methods: {
+            getConnection: async function() {
+                // console.log("I'm in waitConnection");
+                let response = await axios.get(
+                    `http://still-sea-41149.herokuapp.com/api/agentss?category=${this.selectedIndex}` //obtain agent through category
+                );
+                this.agentId = response.data.agent.rainbowId; //get agent id
+                this.agentName = response.data.agent.name; //get agent name
+                this.token = response.data.token; //get guest token
+                console.log("agent ID is: ", this.agentId);
+                console.log("agent name is: ", this.agentName);
+                console.log("token is: ", this.token);
+                this.connecting=true;
+                //need to swap signin with token instead of admin login and password
+                this.loading=50;
+                let account = await rainbowSDK.connection.signinSandBoxWithToken(this.token); //login to rainbow server with guest token
+                this.loading=100;
+                if (account) {
+                    let contact = await rainbowSDK.contacts.searchById(this.agentId); //get contact from agent id
+                    this.conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+
+                    await rainbowSDK.im.getMessagesFromConversation(this.conversation); //getting all messages from conversation
+                    this.start=false;
+                    document.addEventListener(
+                        rainbowSDK.im.RAINBOW_ONNEWIMMESSAGERECEIVED,
+                        this.receive
+                    );
+                    document.addEventListener(
+                        rainbowSDK.im.RAINBOW_ONNEWIMRECEIPTRECEIVED,
+                        this.receipt
+                    );
+                } else {
+                    console.log("No account found!");
+                }
+            },
             message() {
                 if (this.txt !== "") {
+                    let message= this.txt;
                     this.chatting = true;
-                    this.items.push({message: this.txt, sender: "you", time: moment().format("h:mm a")});
+                    // this.items.push({message: this.txt, sender: "you", time: moment().format("h:mm a")});
+                    rainbowSDK.im.sendMessageToConversation(this.conversation, message);
+                    this.items.push({message: message, sender: "you", time: moment().format("h:mm a")});
                     this.txt = "";
-                    $("#chatBox").animate({scrollTop: $('#chatBox')[0].scrollHeight}, 500);
                 }
+            },
+
+            receive: function(event) {     //this function works when u receive a message
+                let message = event.detail.message;
+                console.log(message.data);
+                console.log(message.side);
+                this.items.push({message: message.data, sender: "agent", time: moment().format("h:mm a")});
+                $("#chatBox").animate({scrollTop: $('#chatBox')[0].scrollHeight}, 500);
+            },
+
+            receipt: function(event) {      //this function works when u send out a message
+                let message = event.detail.message;
+                console.log(message.data);
+                console.log(message.side);
+                $("#chatBox").animate({scrollTop: $('#chatBox')[0].scrollHeight}, 500);
             }
         },
         mounted() {
             const self = this;
-            window.addEventListener('keyup', function (event) {
+            window.addEventListener('keyup', function (event) { // invoke message on enter
                 if (event.keyCode === 13) {
                     self.message();
                 }
             });
-            console.log(self.$refs);
             self.$refs["chatBox"].onscroll = function() {
                 if (self.$refs["chatBox"].scrollTop > 0) {
                     self.$refs["header"].style.fontSize = "0px";
                 } else {
                     self.$refs["header"].style.fontSize = "40px";
                 }
-            }
-        },
-        created() {
+            };
+            this.getConnection();
         }
     }
 </script>
@@ -112,5 +173,12 @@
 }
 .chatBox::-webkit-scrollbar {
     display: none;  /* Safari and Chrome */
+}
+
+.fade-enter-active, .fade-leave-active {
+    transition: opacity .5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+    opacity: 0;
 }
 </style>
