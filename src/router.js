@@ -44,11 +44,11 @@ export default new Router({
             component: () => import('./views/QandAPage1.vue')
         },
 
-        // {
-        //     path: '/Try',
-        //     name: 'Try',
-        //     component: () => import('./views/Try.vue')
-        // }
+        {
+            path: '/Try',
+            name: 'Try',
+            component: () => import('./views/Try.vue')
+        }
 
     ]
 })
