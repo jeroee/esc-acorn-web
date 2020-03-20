@@ -35,7 +35,8 @@ export default new Router({
         {
             path: '/call',
             name: 'call',
-            component: () => import('./views/Call.vue')
+            props: true,
+            component: () => import(/* webpackChunkName: "chat" */ './views/Call.vue')
         },
 
         {
@@ -43,12 +44,5 @@ export default new Router({
             name: 'QandAPage1',
             component: () => import('./views/QandAPage1.vue')
         },
-
-        // {
-        //     path: '/Try',
-        //     name: 'Try',
-        //     component: () => import('./views/Try.vue')
-        // }
-
     ]
 })
