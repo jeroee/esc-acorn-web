@@ -39,14 +39,17 @@
                     <v-btn to="/QandAPage1" @click="getAgentId" x-large depressed class="ma-5 green white--text">
                         <v-icon left>message</v-icon> Question and solution
                     </v-btn>
+                     <!-- This  is the full page for call -->
+                    <v-btn to="/call" @click="alert" x-large depressed class="ma-5 green white--text">
+                        <v-icon left>phone</v-icon> Get Call Support(link to waitting page)
+                    </v-btn> 
                 </div>
             </div>
+
+            <!-- This is the pop up call Page    -->
             <popup></popup>
            
-
-                <!-- <v-btn to="/call" @click="alert" x-large depressed class="ma-5 green white--text">
-                    <v-icon left>phone</v-icon> Get Call Support
-                </v-btn> -->   
+           
         </v-container>
 
     </div>

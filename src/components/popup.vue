@@ -1,14 +1,26 @@
 
 <template>
 <div class= "call" id="app">
+
+  <!--Step1 . From here , you will go to the call wait Page  -->
+   <!-- <transition name="fade">
+            <Waitpage v-bind:connecting="connecting" v-bind:loading="loading" v-if="start"/>
+   </transition> -->
+
+
+  
   <v-app id="inspire">
     <div class="text-xs-center">
       <v-dialog max-width = "1000" v-model="dialog" width="500">
         
+  <!--step2 .  Here is the template for dialog , inside here , add the waiiting page --then go the CallPage --then go to the feedBack Page  -->
         <template v-slot:activator="{ on }">
           <v-btn class="ma-5 green white--text" x-large depressed  v-on="on"> 
                <v-icon left>phone</v-icon> Start Call </v-btn>
         </template>
+
+
+        <!-- Here is the pop up things  -->
         <v-card>
           <v-card-title class="headline grey lighten-2" primary-title> Customer Name</v-card-title>
           <v-card-text  class="headline grey lighten-2" process> Calling .....</v-card-text>
@@ -84,6 +96,8 @@
           </v-container>
 
           <v-divider></v-divider>
+
+          <!-- Add the call-end button , then go to the MainPage  -->
           <v-card-actions><v-spacer></v-spacer>
             <button color="red lighten-2" flat @click="dialog = false" depressed  class=" btn"> 
                  <v-icon>call_end</v-icon>
@@ -92,6 +106,8 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
+
+
     </div>
   </v-app>
 </div>
@@ -99,14 +115,14 @@
 </template>
 
 <script>
-// export default {
-//      data () {
-//     return {
-//       dialog: false
-//     }
-//   }
+export default {
+     data () {
+    return {
+      dialog: false
+    }
+  }
     
-// }
+}
 
 </script>
 

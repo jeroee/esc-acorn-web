@@ -1,111 +1,102 @@
 <template>
-  <div class="call">
-    <transition name="fade">
-      <Waitpage v-bind:connecting="connecting" v-bind:loading="loading" v-if="start" />
-    </transition>
-    <div class="callbox" id="app">
-      <audio id="globalAudioTag" autoplay style="display:none;"></audio>     <!--to allow customer to receive audio from agent-->
-      <v-app id="inspire">
-        <div class="text-xs-center">
-          <v-dialog max-width="1000" v-model="dialog" width="500">
-            <template v-slot:activator="{ on }">
-              <div class="page1">
-                <v-btn @click="startCall" color="red lighten-2" dark v-on="on">Start Call</v-btn>
-                <v-btn @click="endCall"> End Call </v-btn>
-              </div>
-            </template>
+<!-- This is not a pop up page , is a full page for calling  -->
+<div class= "call" id="app">
+  <!-- step1 Add the transition Part  -->
+        <transition name="fade">
+            <CallWaitpage v-bind:connecting="connecting" v-bind:loading="loading" v-if="start"/>
+        </transition>
 
-            <v-card>
-              <v-card-title class="headline grey lighten-2" primary-title>Customer Name</v-card-title>
-              <v-card-text class="headline grey lighten-2" process>Calling .....</v-card-text>
-              <v-card-text>Here should put some functionality. Input Layout</v-card-text>
 
-              <v-divider></v-divider>
-              <v-container class="my-5">
-                <v-layout row>
-                  <v-flex xs12 md4>
-                    <v-btn class="mx-10" fab dark small color="grey dark-2">
-                      <v-icon>mic_off</v-icon>
-                    </v-btn>
-                  </v-flex>
+  <!--  step2 Add the Call Page  -->
+        <v-app id="inspire">
+        <audio id="globalAudioTag" autoplay style="display:none;"></audio>     <!--to allow customer to receive audio from agent-->
+          <div class="text-xs-center">
+              <v-card>
+                <v-card-title class="headline grey lighten-2" primary-title> Customer Name</v-card-title>
+                <v-card-text  class="headline grey lighten-2" process> Calling .....</v-card-text>
+                <v-card-text>
+                  Here should put some functionality. Input Layout 
+                </v-card-text>
 
-                  <br />
+                <v-divider></v-divider>
+                <v-container class = "my-5">
+                  <v-layout row>
+                      <v-flex xs12 md4>
+                          <v-btn class="mx-10" fab dark small color="grey dark-2">
+                              <v-icon>mic_off</v-icon>
+                          </v-btn>
 
-                  <v-flex xs6 md4>
-                    <v-btn class="mx-10" fab dark small color="grey dark-2">
-                      <v-icon>keyboard</v-icon>
-                    </v-btn>
-                    <br />
-                    <br />
-                  </v-flex>
+                      </v-flex>
 
-                  <v-flex xs6 md4>
-                    <!-- <button color="grey lighten-2" flat @click="dialog = false" depressed  class=" btn2"> 
-                    <v-icon>speaker_phone</v-icon>
-                    </button>-->
-                    <v-btn class="mx-10" fab dark small color="grey dark-2">
-                      <v-icon>speaker_phone</v-icon>
-                    </v-btn>
-                    <br />
-                    <br />
-                  </v-flex>
-                </v-layout>
+                      <br>
 
-                <v-layout row>
-                  <v-flex xs12 md4>
-                    <!-- <button color="grey lighten-2" flat @click="dialog = false" depressed  class=" btn2"> 
-                    <v-icon>add_ic_call</v-icon>
-                    </button>-->
-                    <v-btn class="mx-10" fab dark small color="grey dark-2">
-                      <v-icon>add_ic_call</v-icon>
-                    </v-btn>
-                    <br />
-                    <br />
-                  </v-flex>
+                      <v-flex xs6 md4>
+                          <v-btn class="mx-10" fab dark small color="grey dark-2">
+                          <v-icon>keyboard</v-icon>
+                          </v-btn>
+                          <br>
+                          <br>
+                      </v-flex>
 
-                  <v-flex xs6 md4>
-                    <!-- <button color="grey lighten-2" flat @click="dialog = false" depressed  class=" btn2"> 
-                    <v-icon>volume_down</v-icon>
-                    </button>-->
+                      <v-flex xs6 md4>
+                          <v-btn class="mx-10" fab dark small color="grey dark-2">
+                          <v-icon>speaker_phone</v-icon>
+                          </v-btn>
+                          <br>
+                          <br>
+                      </v-flex>
+                  </v-layout>
 
-                    <v-btn class="mx-10" fab dark small color="grey dark-2">
-                      <v-icon>volume_down</v-icon>
-                    </v-btn>
-                  </v-flex>
+                  <v-layout row>
+                      <v-flex xs12 md4>
+                          <v-btn class="mx-10" fab dark small color="grey dark-2">
+                          <v-icon>add_ic_call</v-icon>
+                          </v-btn>
+                          <br>
+                          <br>
+                      </v-flex>
 
-                  <v-flex xs6 md4>
-                    <!-- <button color="grey lighten-2" flat @click="dialog = false" depressed  class=" btn2"> 
-                    <v-icon>contact_phone</v-icon>
-                    </button>-->
+                      <v-flex xs6 md4>
+                          <v-btn class="mx-10" fab dark small color="grey dark-2">
+                          <v-icon>volume_down</v-icon>
+                          </v-btn>
 
-                    <v-btn class="mx-10" fab dark small color="grey dark-2">
-                      <v-icon>contact_phone</v-icon>
-                    </v-btn>
-                  </v-flex>
-                </v-layout>
-              </v-container>
+                      </v-flex>
 
-              <v-divider></v-divider>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <button color="red lighten-2" flat @click="dialog = false" depressed class="btn">
-                  <v-icon>call_end</v-icon>
-                </button>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-        </div>
-      </v-app>
-    </div>
-  </div>
+                      <v-flex xs6 md4>
+                          <v-btn class="mx-10" fab dark small color="grey dark-2">
+                          <v-icon>contact_phone</v-icon>
+                          </v-btn>
+                      </v-flex>
+                  </v-layout>
+                </v-container>
+
+                <v-divider></v-divider>
+                <v-card-actions><v-spacer></v-spacer>
+                  
+                  <v-btn to="/FeedBack" @click="alert" x-large depressed color =" red white--text" class="btn">
+                          <v-icon left>call_end</v-icon> reject
+                      </v-btn>  
+<!-- Step3 when you click 'Call_end', you will go to the feedback page  -->
+                  
+                </v-card-actions>
+              </v-card>
+          </div>
+        </v-app>
+</div>
+    
+    
 </template>
 
 <script>
+
+import CallWaitpage from "./CallWaitpage";
+
 import rainbowSDK from "rainbow-web-sdk";
-//import axios from "axios";
-import Waitpage from "./Waitpage";
+// import axios from "axios";
 
 export default {
+  components:{CallWaitpage},
   name: "Call",
   components: { Waitpage },
   data: () => ({
@@ -192,6 +183,7 @@ export default {
         console.log("sign in success");
         this.contact = await rainbowSDK.contacts.searchById(agent_id); //get contact from agent id
         console.log(this.contact);
+
         this.start = false;
         console.log(this.start);
         // var call = rainbowSDK.webRTC.callInAudio(this.contact);
