@@ -5,6 +5,8 @@
         <transition name="fade">
             <CallWaitpage v-bind:connecting="connecting" v-bind:loading="loading" v-if="start"/>
         </transition>
+
+
   <!--  step2 Add the Call Page  -->
         <v-app id="inspire">
           <div class="text-xs-center">
@@ -22,6 +24,7 @@
                           <v-btn class="mx-10" fab dark small color="grey dark-2">
                               <v-icon>mic_off</v-icon>
                           </v-btn>
+
                       </v-flex>
 
                       <br>
@@ -74,10 +77,7 @@
                           <v-icon left>call_end</v-icon> reject
                       </v-btn>  
 <!-- Step3 when you click 'Call_end', you will go to the feedback page  -->
-                  <!-- <button color="red lighten-2" flat @click="dialog = false" depressed  class=" btn"> 
-                      <v-icon>call_end</v-icon>
-                  </button> -->
-
+                  
                 </v-card-actions>
               </v-card>
           </div>
