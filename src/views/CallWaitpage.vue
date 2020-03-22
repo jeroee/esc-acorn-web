@@ -1,4 +1,5 @@
 <template>
+<!-- This is callPage  -->
     <div class="wait">
         <h1 v-if="!connecting" class="font-weight-light ma-10">Finding you an agent...</h1>
         <h1 v-if="connecting" class="font-weight-light ma-10">Connecting you with our agent now!</h1>
@@ -17,7 +18,7 @@
                 :rotate="-90"
                 color="green"
         >{{loading}}</v-progress-circular>
-        
+
         <v-btn @click="cancel" v-if="!connecting" x-large depressed class="ma-10 green white--text">
             <v-icon large left>close</v-icon>
             <h2 class="font-weight-medium">Cancel</h2>
