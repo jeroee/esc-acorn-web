@@ -4,6 +4,10 @@
       <Waitpage v-bind:connecting="connecting" v-bind:loading="loading" v-if="start" />
     </transition>
     <div class="callbox" id="app">
+      <video id="minivideo" autoplay muted></video>
+      <video id="largevideo" autoplay></video>
+      <video id="globalVideoTag" autoplay style="display:none;"></video>
+      <audio id="globalAudioTag" autoplay style="display:none;"></audio>
       <v-app id="inspire">
         <div class="text-xs-center">
           <v-dialog max-width="1000" v-model="dialog" width="500">
@@ -105,7 +109,7 @@ import Waitpage from "./Waitpage";
 
 export default {
   name: "Call",
-  components: {Waitpage},
+  components: { Waitpage },
   data: () => ({
     selectedIndex: 0,
     contact: "",
@@ -137,7 +141,7 @@ export default {
     },
 
     getConnection: async function() {
-      console.log("connecting: ",this.connecting);
+      console.log("connecting: ", this.connecting);
       console.log("start:", this.start);
       if (rainbowSDK.webRTC.canMakeAudioVideoCall()) {
         //check if browser is compatible for audio calls
@@ -203,8 +207,6 @@ export default {
         console.log("your call has been correctly initialised");
       }
     }
-
-    
   }
 };
 </script>
