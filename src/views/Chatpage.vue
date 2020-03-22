@@ -70,7 +70,7 @@
             getConnection: async function() {
                 // console.log("I'm in waitConnection");
                 let response = await axios.get(
-                    `http://still-sea-41149.herokuapp.com/api/agentss?category=${this.selectedIndex}` //obtain agent through category
+                    `https://still-sea-41149.herokuapp.com/api/agentss?category=${this.selectedIndex}` //obtain agent through category
                 );
                 this.agentId = response.data.agent.rainbowId; //get agent id
                 this.agentName = response.data.agent.name; //get agent name

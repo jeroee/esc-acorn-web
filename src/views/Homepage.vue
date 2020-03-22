@@ -37,11 +37,11 @@
                     </v-btn>
 
                     <v-btn to="/QandAPage1" @click="getAgentId" x-large depressed class="ma-5 green white--text">
-                        <v-icon left>message</v-icon> Question and solution
+                        <v-icon left>message</v-icon> FAQ
                     </v-btn>
                      <!-- This  is the full page for call -->
-                    <v-btn to="/call" @click="alert" x-large depressed class="ma-5 green white--text">
-                        <v-icon left>phone</v-icon> Get Call Support(link to waitting page)
+                    <v-btn to="/call" x-large depressed class="ma-5 green white--text">
+                        <v-icon left>phone</v-icon> Get Call Support
                     </v-btn> 
                 </div>
             </div>
