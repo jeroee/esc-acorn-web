@@ -45,6 +45,12 @@ export default new Router({
         },
 
         {
+            path: '/FeedBack',
+            name: 'FeedBack',
+            component: () => import('./views/FeedBack.vue')
+        },
+
+        {
             path: '/Try',
             name: 'Try',
             component: () => import('./views/Try.vue')

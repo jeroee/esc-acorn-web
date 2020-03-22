@@ -1,8 +1,11 @@
 <template>
     <div class="chat">
+        <!-- Add the transition Part  -->
         <transition name="fade">
             <Waitpage v-bind:connecting="connecting" v-bind:loading="loading" v-if="start"/>
         </transition>
+
+        <!-- This is the chatBox itself  -->
         <div class="chatBox" id="chatBox" ref="chatBox">
             <h1 class="font-weight-light mb-5"  id="header" ref="header">Let's chat <v-icon x-large color="black">chat</v-icon></h1>
             <v-card class="ma-5 green white--text" v-bind:class="item.sender" flat width="500px" v-for="item in items" :key="item.message">
@@ -13,6 +16,7 @@
                 <v-card-subtitle class="white--text text-right pr-2 pb-1">{{item.time}}</v-card-subtitle>
             </v-card>
         </div>
+        
         <v-footer width="100%" padless >
             <v-textarea
                     v-model="txt"
