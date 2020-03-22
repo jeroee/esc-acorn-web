@@ -4,16 +4,14 @@
       <Waitpage v-bind:connecting="connecting" v-bind:loading="loading" v-if="start" />
     </transition>
     <div class="callbox" id="app">
-      <video id="minivideo" autoplay muted></video>
-      <video id="largevideo" autoplay></video>
-      <video id="globalVideoTag" autoplay style="display:none;"></video>
-      <audio id="globalAudioTag" autoplay style="display:none;"></audio>
+      <audio id="globalAudioTag" autoplay style="display:none;"></audio>     <!--to allow customer to receive audio from agent-->
       <v-app id="inspire">
         <div class="text-xs-center">
           <v-dialog max-width="1000" v-model="dialog" width="500">
             <template v-slot:activator="{ on }">
               <div class="page1">
                 <v-btn @click="startCall" color="red lighten-2" dark v-on="on">Start Call</v-btn>
+                <v-btn @click="endCall"> End Call </v-btn>
               </div>
             </template>
 
@@ -113,6 +111,7 @@ export default {
   data: () => ({
     selectedIndex: 0,
     contact: "",
+    call:"",
     start: true,
     connecting: false,
     loading: 0
@@ -197,15 +196,18 @@ export default {
         console.log(this.start);
         // var call = rainbowSDK.webRTC.callInAudio(this.contact);
         // if (call.label === "OK") {
-        //   console.log("your call has been correctly initialised");
+        //   console.log("your call has een correctly initialised");
         // }`
       }
     },
     startCall: function() {
-      var call = rainbowSDK.webRTC.callInAudio(this.contact);
-      if (call.label === "OK") {
+      this.call = rainbowSDK.webRTC.callInAudio(this.contact);
+      if (this.call.label === "OK") {
         console.log("your call has been correctly initialised");
       }
+    },
+    endCall: function() {
+      rainbowSDK.webRTC.release(this.call);
     }
   }
 };
