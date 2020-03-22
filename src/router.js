@@ -35,7 +35,8 @@ export default new Router({
         {
             path: '/call',
             name: 'call',
-            component: () => import('./views/Call.vue')
+            props: true,
+            component: () => import(/* webpackChunkName: "chat" */ './views/Call.vue')
         },
 
         {
