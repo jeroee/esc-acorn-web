@@ -20,6 +20,32 @@ export default new Router({
             path: '/chat',
             name: 'chat',
             component: () => import('./views/Chatpage.vue')
+        },
+
+        {
+            path: '/call',
+            name: 'call',
+            props: true,
+            component: () => import(/* webpackChunkName: "chat" */ './views/Call.vue')
+        },
+
+        {
+            path: '/QandAPage1',
+            name: 'QandAPage1',
+            component: () => import('./views/QandAPage1.vue')
+        },
+
+        {
+            path: '/FeedBack',
+            name: 'FeedBack',
+            component: () => import('./views/FeedBack.vue')
+        },
+
+        {
+            path: '/Try',
+            name: 'Try',
+            component: () => import('./views/Try.vue')
         }
+
     ]
 })

@@ -1,3 +1,4 @@
+
 <template>
     <div style="min-height: 100vh">
         <div class="hero mb-10">
@@ -5,6 +6,10 @@
                 <h1 class="display-3 font-weight-medium">Welcome to Acorn Support</h1>
             </v-container>
         </div>
+        <div>
+            <CallButton></CallButton>
+        </div>
+
         <v-container class="flex-col">
             <v-select v-model="selected" style="width: 400px"
                 :items="categories"
@@ -16,19 +21,35 @@
                 <v-btn @click="setCategory" x-large depressed class="ma-5 green white--text" :disabled="isSelected">
                     <v-icon left>message</v-icon> Get Chat Support
                 </v-btn>
-                <v-btn @click="alert" x-large depressed class="ma-5 green white--text" :disabled="isSelected">
+<!--                <v-btn @click="alert" x-large depressed class="ma-5 green white&#45;&#45;text" :disabled="isSelected">-->
+<!--                    <v-icon left>phone</v-icon> Get Call Support-->
+<!--                </v-btn>-->
+                <v-btn to="/QandAPage1" @click="getAgentId" x-large depressed class="ma-5 green white--text">
+                    <v-icon left>message</v-icon> FAQ
+                </v-btn>
+                 <!-- This  is the full page for call -->
+                <v-btn to="/call" x-large depressed class="ma-5 green white--text">
                     <v-icon left>phone</v-icon> Get Call Support
                 </v-btn>
             </div>
+
+            <!-- This is the pop up call Page    -->
+            <popup></popup>
+
+
         </v-container>
 
     </div>
 </template>
 
 <script>
-// import axios from 'axios'
+import popup from '../components/popup'
+//import menu  from '../components/menu'
+import CallButton from '../components/CallButton'
+
 
 export default {
+    components:{popup,CallButton},
     name: "Home",
     data: () => ({
         categories: [
