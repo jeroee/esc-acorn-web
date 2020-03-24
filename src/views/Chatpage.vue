@@ -4,7 +4,7 @@
             <Waitpage v-bind:connecting="connecting" v-bind:loading="loading" v-if="!start"/>
         </transition>
         <div class="chatBox" id="chatBox" ref="chatBox">
-            <h1 class="font-weight-light mb-5"  id="header" ref="header">Let's chat <v-icon x-large color="black">chat</v-icon></h1>
+            <h1 class="font-weight-light mb-5" id="header" ref="header">Let's chat <v-icon x-large color="black">chat</v-icon></h1>
             <v-card class="ma-5 green white--text" v-bind:class="item.sender" flat width="500px" v-for="item in items" :key="item.message">
                 <v-card-subtitle class="white--text pb-0">{{item.sender}}</v-card-subtitle>
                 <v-card-title style="word-break: keep-all">
@@ -28,6 +28,9 @@
             <v-btn @click="message" height="58px" x-large depressed tile class="green white--text">
                 <h3>Send</h3><v-icon right>send</v-icon>
             </v-btn>
+            <v-btn to="/" height="58px" x-large depressed tile class="red white--text">
+                <h3>Leave</h3><v-icon right>input</v-icon>
+            </v-btn>
         </v-footer>
     </div>
 </template>
@@ -38,7 +41,6 @@
     import rainbowSDK from "rainbow-web-sdk";
     import axios from "axios";
     import Waitpage from "./Waitpage";
-
 
     export default {
         name: "Chatpage",
@@ -67,65 +69,85 @@
             }
         },
         methods: {
+            /**********************INITIAL GET**********************/
             getConnection: async function() {
+                let self=this;
                 try {
                     let response = await axios.get(
-                        `http://still-sea-41149.herokuapp.com/api/agentss?category=${this.categoryIndex}` //obtain agent through category
+                        `https://still-sea-41149.herokuapp.com/api/agentss?category=${this.categoryIndex}` //obtain agent through category
                     );
-                    this.agentId = response.data.agent.rainbowId; //get agent id
-                    this.agentName = response.data.agent.name; //get agent name
-                    this.token = response.data.token; //get guest token
-                    console.log("agent ID is: ", this.agentId);
-                    console.log("agent name is: ", this.agentName);
-                    console.log("token is: ", this.token);
-                    this.connecting=true;
-                    //need to swap signin with token instead of admin login and password
-                    this.loading=50;
-                    let account = await rainbowSDK.connection.signinSandBoxWithToken(this.token); //login to rainbow server with guest token
-                    this.loading=100;
-                    if (account) {
-                        let contact = await rainbowSDK.contacts.searchById(this.agentId); //get contact from agent id
-                        this.conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-                        await rainbowSDK.im.getMessagesFromConversation(this.conversation); //getting all messages from conversation
-                        this.start=true;
-                        document.addEventListener(
-                            rainbowSDK.im.RAINBOW_ONNEWIMMESSAGERECEIVED,
-                            this.receive
-                        );
-                        document.addEventListener(
-                            rainbowSDK.im.RAINBOW_ONNEWIMRECEIPTRECEIVED,
-                            this.receipt
-                        );
+                    self.agentId = response.data.agentId; //get agent id
+                    self.agentName = response.data.agentName; //get agent name
+                    self.token = response.data.token; //get guest token
+                    console.log(this.agentId);
+                    console.log(`Your token is ${this.token}`);
+                    if (this.agentId) {
+                        this.connecting=true;
+                        this.startChat();
+                    } else {
+                        console.log("No account found! Retrying every x seconds");
+                        if (!this.cancelled) { //prevent polling in early exits
+                            this.pollConnection();
+                        } else console.log("Load was left early");
                     }
                 } catch(err) {
-                    console.log("No account found! Retrying every x seconds");
-                    if (!this.cancelled) { //prevent polling in early exits
-                        this.pollConnection();
-                    } else console.log("Load was left early");
+                    console.log(err);
                 }
             },
+
+            /**********************POLLING GET**********************/
             pollConnection: function() {
-                this.polling=setInterval(function () {
-                    console.log("Polling");
-                    // getAgentId: function () {
-                    //     this.loading = true;
-                    //     axios.get('https://esc-acorn-backend.herokuapp.com/api/agents', {
-                    //         params: {
-                    //             category:this.categories.indexOf(this.selected)+1
-                    //         }
-                    //     })
-                    //     .then(function (response) {
-                    //         console.log(response.data);
-                    //     })
-                    //     .catch(function (error) {
-                    //         console.log(error.response.data.error);
-                    //     });
-                    // }
-                },1000)
+                let self=this;
+                self.polling=setInterval(async function () {
+                    try {
+                        let response = await axios.get(
+                            `https://still-sea-41149.herokuapp.com/api/queue?token=${self.token}`
+                        );
+                        self.agentId = response.data.agentId; //get agent id
+                        self.agentName = response.data.agentName; //get agent name
+                        // console.log(response);
+                        if (self.agentId) {
+                            clearInterval(self.polling);
+                            self.connecting=true;
+                            await self.startChat();
+                        } else {
+                            console.log("You are still waiting for an agent");
+                        }
+                    } catch(err) {
+                        console.log(err);
+                    }
+                },10000)
             },
+            startChat: async function () {
+                try {
+                    await rainbowSDK.connection.signinSandBoxWithToken(this.token); //login to rainbow server with guest token
+                    this.loading=50;
+                    let contact = await rainbowSDK.contacts.searchById(this.agentId); //get contact from agent id
+                    this.conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+                    this.loading=100;
+                    await rainbowSDK.im.getMessagesFromConversation(this.conversation); //getting all messages from conversation
+                    this.start=true;
+                    document.addEventListener(
+                        rainbowSDK.im.RAINBOW_ONNEWIMMESSAGERECEIVED,
+                        this.receive
+                    );
+                    document.addEventListener(
+                        rainbowSDK.im.RAINBOW_ONNEWIMRECEIPTRECEIVED,
+                        this.receipt
+                    );
+                } catch(err) {
+                    console.log(err)
+                }
+            },
+
             leaveQueue: function(){ // remove queue entry
-                console.log("leaveQueue()")
+                let self=this;
+                axios.delete(`https://still-sea-41149.herokuapp.com/api/queue?token=?${self.token}`)
+                    .then(res => console.log(res))
+                    .catch(err => console.log(err))
             },
+
+            /**********************MESSAGE FUNCS**********************/
             message() {
                 if (this.txt !== "") {
                     let message= this.txt;
@@ -135,7 +157,6 @@
                     this.txt = "";
                 }
             },
-
             receive: function(event) {     //this function works when u receive a message
                 console.log(event.detail.message.data);
                 console.log(event.detail.message.side);
@@ -146,6 +167,12 @@
             receipt: function(event) {      //this function works when u send out a message
                 console.log(event.detail.message.data);
                 console.log(event.detail.message.side);
+            },
+            endConversation: async function() {
+                let self=this;
+                axios.patch(`https://still-sea-41149.herokuapp.com/api/agentss?rainbowId=${self.agentId}`)
+                    .then(res => console.log(res))
+                    .catch(err => console.log(err))
             }
         },
         mounted() {
@@ -166,9 +193,10 @@
         },
         beforeDestroy() {
             console.log("exiting");
-            this.leaveQueue()
+            this.leaveQueue();
             this.cancelled=true;
-            clearInterval(this.polling);
+            clearInterval(self.polling);
+            this.endConversation();
         }
     }
 </script>
