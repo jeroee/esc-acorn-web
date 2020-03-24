@@ -1,13 +1,10 @@
 <template>
     <div class="chat">
-        <!-- Add the transition Part  -->
         <transition name="fade">
-            <Waitpage v-bind:connecting="connecting" v-bind:loading="loading" v-if="start"/>
+            <Waitpage v-bind:connecting="connecting" v-bind:loading="loading" v-if="!start"/>
         </transition>
-
-        <!-- This is the chatBox itself  -->
         <div class="chatBox" id="chatBox" ref="chatBox">
-            <h1 class="font-weight-light mb-5"  id="header" ref="header">Let's chat <v-icon x-large color="black">chat</v-icon></h1>
+            <h1 class="font-weight-light mb-5" id="header" ref="header">Let's chat <v-icon x-large color="black">chat</v-icon></h1>
             <v-card class="ma-5 green white--text" v-bind:class="item.sender" flat width="500px" v-for="item in items" :key="item.message">
                 <v-card-subtitle class="white--text pb-0">{{item.sender}}</v-card-subtitle>
                 <v-card-title style="word-break: keep-all">
@@ -16,7 +13,6 @@
                 <v-card-subtitle class="white--text text-right pr-2 pb-1">{{item.time}}</v-card-subtitle>
             </v-card>
         </div>
-        
         <v-footer width="100%" padless >
             <v-textarea
                     v-model="txt"
@@ -31,6 +27,9 @@
             />
             <v-btn @click="message" height="58px" x-large depressed tile class="green white--text">
                 <h3>Send</h3><v-icon right>send</v-icon>
+            </v-btn>
+            <v-btn to="/" height="58px" x-large depressed tile class="red white--text">
+                <h3>Leave</h3><v-icon right>input</v-icon>
             </v-btn>
         </v-footer>
     </div>
@@ -47,48 +46,87 @@
         name: "Chatpage",
         components: {Waitpage},
         data: () => ({
-            token: "",
-            agentId: "",
-            agentName: "Agent",
-            chatting: false,
+            token: "", // String variable for guest account token
+            agentId: "", // String variable for agent id
+            agentName: "Agent", // String variable for agent name
             items: [
                 {
                     message: "Hi there! You've been connected with our agent. You may start typing to chat!",
                     sender: "Agent One",
                     time: moment().format("h:mm a")
                 },
-            ],
-            txt: "",
-            selectedIndex: 0,
-            conversation:'',
-            start:true,
-            connecting:false,
-            loading:0
+            ], // array of messages, updated on receive and send
+            txt: "", // string buffer for chat text input
+            conversation:'', // variable to hold the conversation object
+            start: false, // removes the loading page from view - on true, removes loading page
+            connecting: false, // updates the
+            cancelled: false, // sets a guard for polling during early exits - on true, prevents polling
+            loading: 0 // updates the spin loader progress after agent found - values [0,100]
         }),
-
+        computed: {
+            categoryIndex() {
+                return this.$store.state.categoryIndex;
+            }
+        },
         methods: {
+            /**********************INITIAL GET**********************/
             getConnection: async function() {
-                // console.log("I'm in waitConnection");
-                let response = await axios.get(
-                    `https://still-sea-41149.herokuapp.com/api/agentss?category=${this.selectedIndex}` //obtain agent through category
-                );
-                this.agentId = response.data.agent.rainbowId; //get agent id
-                this.agentName = response.data.agent.name; //get agent name
-                this.token = response.data.token; //get guest token
-                console.log("agent ID is: ", this.agentId);
-                console.log("agent name is: ", this.agentName);
-                console.log("token is: ", this.token);
-                this.connecting=true;
-                //need to swap signin with token instead of admin login and password
-                this.loading=50;
-                let account = await rainbowSDK.connection.signinSandBoxWithToken(this.token); //login to rainbow server with guest token
-                this.loading=100;
-                if (account) {
+                let self=this;
+                try {
+                    let response = await axios.get(
+                        `https://still-sea-41149.herokuapp.com/api/agentss?category=${this.categoryIndex}` //obtain agent through category
+                    );
+                    self.agentId = response.data.agentId; //get agent id
+                    self.agentName = response.data.agentName; //get agent name
+                    self.token = response.data.token; //get guest token
+                    console.log(this.agentId);
+                    console.log(`Your token is ${this.token}`);
+                    if (this.agentId) {
+                        this.connecting=true;
+                        this.startChat();
+                    } else {
+                        console.log("No account found! Retrying every x seconds");
+                        if (!this.cancelled) { //prevent polling in early exits
+                            this.pollConnection();
+                        } else console.log("Load was left early");
+                    }
+                } catch(err) {
+                    console.log(err);
+                }
+            },
+
+            /**********************POLLING GET**********************/
+            pollConnection: function() {
+                let self=this;
+                self.polling=setInterval(async function () {
+                    try {
+                        let response = await axios.get(
+                            `https://still-sea-41149.herokuapp.com/api/queue?token=${self.token}`
+                        );
+                        self.agentId = response.data.agentId; //get agent id
+                        self.agentName = response.data.agentName; //get agent name
+                        // console.log(response);
+                        if (self.agentId) {
+                            clearInterval(self.polling);
+                            self.connecting=true;
+                            await self.startChat();
+                        } else {
+                            console.log("You are still waiting for an agent");
+                        }
+                    } catch(err) {
+                        console.log(err);
+                    }
+                },10000)
+            },
+            startChat: async function () {
+                try {
+                    await rainbowSDK.connection.signinSandBoxWithToken(this.token); //login to rainbow server with guest token
+                    this.loading=50;
                     let contact = await rainbowSDK.contacts.searchById(this.agentId); //get contact from agent id
                     this.conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-
+                    this.loading=100;
                     await rainbowSDK.im.getMessagesFromConversation(this.conversation); //getting all messages from conversation
-                    this.start=false;
+                    this.start=true;
                     document.addEventListener(
                         rainbowSDK.im.RAINBOW_ONNEWIMMESSAGERECEIVED,
                         this.receive
@@ -97,34 +135,44 @@
                         rainbowSDK.im.RAINBOW_ONNEWIMRECEIPTRECEIVED,
                         this.receipt
                     );
-                } else {
-                    console.log("No account found!");
-                }
-            },
-            message() {
-                if (this.txt !== "") {
-                    let message= this.txt;
-                    this.chatting = true;
-                    // this.items.push({message: this.txt, sender: "you", time: moment().format("h:mm a")});
-                    rainbowSDK.im.sendMessageToConversation(this.conversation, message);
-                    this.items.push({message: message, sender: "you", time: moment().format("h:mm a")});
-                    this.txt = "";
+                } catch(err) {
+                    console.log(err)
                 }
             },
 
+            leaveQueue: function(){ // remove queue entry
+                let self=this;
+                axios.delete(`https://still-sea-41149.herokuapp.com/api/queue?token=?${self.token}`)
+                    .then(res => console.log(res))
+                    .catch(err => console.log(err))
+            },
+
+            /**********************MESSAGE FUNCS**********************/
+            message() {
+                if (this.txt !== "") {
+                    let message= this.txt;
+                    rainbowSDK.im.sendMessageToConversation(this.conversation, message);
+                    this.items.push({message: message, sender: "you", time: moment().format("h:mm a")});
+                    $("#chatBox").animate({scrollTop: $('#chatBox')[0].scrollHeight}, 500);
+                    this.txt = "";
+                }
+            },
             receive: function(event) {     //this function works when u receive a message
-                let message = event.detail.message;
-                console.log(message.data);
-                console.log(message.side);
-                this.items.push({message: message.data, sender: "agent", time: moment().format("h:mm a")});
+                console.log(event.detail.message.data);
+                console.log(event.detail.message.side);
+                this.items.push({message: event.detail.message.data, sender: this.agentName, time: moment().format("h:mm a")});
                 $("#chatBox").animate({scrollTop: $('#chatBox')[0].scrollHeight}, 500);
             },
 
             receipt: function(event) {      //this function works when u send out a message
-                let message = event.detail.message;
-                console.log(message.data);
-                console.log(message.side);
-                $("#chatBox").animate({scrollTop: $('#chatBox')[0].scrollHeight}, 500);
+                console.log(event.detail.message.data);
+                console.log(event.detail.message.side);
+            },
+            endConversation: async function() {
+                let self=this;
+                axios.patch(`https://still-sea-41149.herokuapp.com/api/agentss?rainbowId=${self.agentId}`)
+                    .then(res => console.log(res))
+                    .catch(err => console.log(err))
             }
         },
         mounted() {
@@ -142,6 +190,13 @@
                 }
             };
             this.getConnection();
+        },
+        beforeDestroy() {
+            console.log("exiting");
+            this.leaveQueue();
+            this.cancelled=true;
+            clearInterval(self.polling);
+            this.endConversation();
         }
     }
 </script>
