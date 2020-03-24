@@ -74,7 +74,7 @@
                 <v-divider></v-divider>
                 <v-card-actions><v-spacer></v-spacer>
                   
-                  <v-btn @click="endCall" x-large depressed color =" red white--text" class="btn">
+                  <v-btn id="Cancell" @click="endCall" x-large depressed color =" red white--text" class="btn">
                           <v-icon left>call_end</v-icon> End Call
                       </v-btn>  
 <!-- Step3 when you click 'Call_end', you will go to the feedback page  -->
@@ -167,9 +167,13 @@ export default {
       let response = await axios.get(
         `https://still-sea-41149.herokuapp.com/api/agentss?category=${this.selectedIndex}` //obtain agent through category
       );
-      let agent_id = response.data.agent.rainbowId; //get agent id
-      let agent_name = response.data.agent.name; //get agent name
+      // let agent_id = response.data.agent.rainbowId; //get agent id
+      // let agent_name = response.data.agent.name; //get agent name
+      let agent_id = response.data.agentId; //get agent id
+      let agent_name = response.data.agentName; //get agent name
       let token = response.data.token; //get guest token
+
+      
       // let agent_id = "5e4950b6e9f12730636972b5";
       // let token =
       //   "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb3VudFJlbmV3ZWQiOjAsIm1heFRva2VuUmVuZXciOjcsInVzZXIiOnsiaWQiOiI1ZTc2Y2I5ZGY0M2ZjMzZhYjBmM2MxOTEiLCJsb2dpbkVtYWlsIjoieDZvOTV3ZGw4NnU0a2czOGI0MTl5MjIydHJoNHBibXM3dGc1ZmozNkBhNThjZmFjMDViMDcxMWVhYmY3ZTc3ZDE0ZTg3YjkzNi5zYW5kYm94Lm9wZW5yYWluYm93LmNvbSJ9LCJhcHAiOnsiaWQiOiJhNThjZmFjMDViMDcxMWVhYmY3ZTc3ZDE0ZTg3YjkzNiIsIm5hbWUiOiJhY29ybi1iYWNrZW5kIn0sImlhdCI6MTU4NDg0MzY3OCwiZXhwIjoxNTg2MTM5Njc4fQ.j_R7Cac07qYDZCDC8DbGctEK49ep8mM8VbiK2wpFQpWvUy9kmvpDvoRtCRYPHxpneBBQVjWIvvv7x4d1_BO3L8IO1GxcjW8WLx6kljhuieToBo5JuzN5udDdMVM7XcasbirMXnd2MxuwpTspUip25_CcCp4XwansFtwxBIrybHUyo6LZA42w1_dlr6zcdRuslv-gTSoJ35P18C28xJJe7LxFGzkLqYvcMGBD4ln-3XdclXX5Gp10h42n0xBdAKvBMd8SF37DmAdAuN1wpAxFYCN6ogak-Xu67jfh9o7fEIYQ7hfRDcnaI06T1PccD6O1TUbjDZtVp69ET0ymr1Yq9Q";

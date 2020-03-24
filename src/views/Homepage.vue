@@ -16,7 +16,7 @@
         <br>
             
         <v-container class="flex-col">
-            <v-select v-model="selected" v style="width: 400px"
+            <v-select  v-model="selected" v style="width: 400px"
                 :items="categories"
                 outlined
                 :menu-props="{ offsetY:true, openOnHover:true, openOnClick:false }"
@@ -36,7 +36,7 @@
                         <v-icon left>message</v-icon> Get Chat Support
                     </v-btn>
 
-                    <v-btn to="/QandAPage1" @click="getAgentId" x-large depressed class="ma-5 green white--text">
+                    <v-btn to="/QandAPage1" id="Call" @click="getAgentId" x-large depressed class="ma-5 green white--text">
                         <v-icon left>message</v-icon> FAQ
                     </v-btn>
                      <!-- This  is the full page for call -->
