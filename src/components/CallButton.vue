@@ -3,6 +3,19 @@
   <a href="#home" class="active">Home</a>
   <a href="#news">Service</a>
   <a href="#contact">Story</a>
+
+
+  <div class="dropdown">
+    <button  class="dropbtn">Products
+      <i class="fa fa-caret-down"></i>
+    </button>
+    <div class="dropdown-content">
+      <a href="#">Link 1</a>
+      <a href="#">Link 2</a>
+      <a href="#">Link 3</a>
+    </div>
+  </div>
+  
   <a href="#about">About</a>
   <a href="#about">About</a>
   <a href="#about">About</a>

@@ -4,16 +4,11 @@
     <v-row justify="center">
         <v-card>
           <v-toolbar dark color="primary">
-            <v-btn icon dark @click="dialog = false">
-              <v-icon>mdi-close</v-icon>
-            </v-btn>
             <v-toolbar-title>FeedBack</v-toolbar-title>
             <v-spacer></v-spacer>
+
             <v-toolbar-items>
-              <v-btn to="/Homepage" dark text @click="dialog = false">Submit</v-btn>
-              <!-- <v-btn to="/Homepage" @click="alert" x-large depressed class="ma-5 green white--text">
-                          submit
-                      </v-btn>   -->
+              <v-btn to="/Homepage" dark text @click="dialog = false" id="SubmitButton">Submit</v-btn>
             </v-toolbar-items>
           </v-toolbar>
           
@@ -23,13 +18,13 @@
                         <v-container>
                         <v-row>
                             <v-col cols="12" sm="6" md="4">
-                            <v-text-field label="Legal first name*" required></v-text-field>
+                            <v-text-field id=" FirstName" label="Legal first name*" required></v-text-field>
                             </v-col>
                             <v-col cols="12" sm="6" md="4">
-                            <v-text-field label="Legal middle name" hint="example of helper text only on focus"></v-text-field>
+                            <v-text-field label="Legal middle name" hint="example of helper text only on focus" id="MiddleName"></v-text-field>
                             </v-col>
                             <v-col cols="12" sm="6" md="4">
-                            <v-text-field
+                            <v-text-field id="LastName"
                                 label="Legal last name*"
                                 hint="example of persistent helper text"
                                 persistent-hint
@@ -37,20 +32,22 @@
                             ></v-text-field>
                             </v-col>
                             <v-col cols="12">
-                            <v-text-field label="Email*" required></v-text-field>
+                            <v-text-field id="Email" label="Email*" required></v-text-field>
                             </v-col>
                             <v-col cols="12">
-                            <v-text-field label="comments" required></v-text-field>
+                            <v-text-field id="comments" label="comments" required></v-text-field>
                             </v-col>
+
                             <v-col cols="12" sm="6">
-                            <v-select
+                            <v-select id="SelectVoice"
                                 :items="['bad', 'average', 'good', 'very good']"
                                 label=" Voice"
                                 required
                             ></v-select>
                             </v-col>
+
                             <v-col cols="12" sm="6">
-                            <v-select
+                            <v-select id="SelectAttitude"
                                 :items="['bad', 'average', 'good', 'very good']"
                                 label=" attitude"
                                 required

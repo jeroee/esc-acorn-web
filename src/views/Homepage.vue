@@ -6,13 +6,15 @@
             </v-container>
         </div>
         <v-container class="flex-col">
-            <v-select v-model="selected" style="width: 400px"
+
+            <v-select  v-model="selected" v style="width: 400px"
                 :items="categories"
                 outlined
                 :menu-props="{ offsetY:true, openOnClick:false }"
                 label="Choose a support category..."
             ></v-select>
             <div style="flex-direction: row">
+
                 <v-btn @click="setCategory" x-large depressed class="ma-5 green white--text" :disabled="isSelected">
                     <v-icon left>message</v-icon> Get Chat Support
                 </v-btn>
@@ -22,6 +24,7 @@
                 <v-btn to="/call" x-large depressed class="ma-5 green white--text" :disabled="isSelected">
                     <v-icon left>phone</v-icon> Get Call Support
                 </v-btn>
+
             </div>
 
 <!--            &lt;!&ndash; This is the pop up call Page    &ndash;&gt;-->
