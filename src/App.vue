@@ -21,27 +21,24 @@ export default {      //declaring the page so that u can import later
     //
     }),
     created() {
-        document.addEventListener(rainbowSDK.RAINBOW_ONLOADED, this.onLoaded);
-        rainbowSDK.load();
-    },
-    methods:{
-        onLoaded: function() {
+        document.addEventListener(rainbowSDK.RAINBOW_ONREADY, function () {
+            console.log('Rainbow SDK Ready');
+        });
+        document.addEventListener(rainbowSDK.RAINBOW_ONLOADED, function () {
             var applicationID = "a58cfac05b0711eabf7e77d14e87b936";
-            var applicationSecret =
-                "JnjQaOpCW9Pc3u2IUQAvyjyiAEINpBo47Vb5S3jSUxHdgQkc3pqFFXGHJPojXbGu";
-            rainbowSDK.setVerboseLog(false);
+            var applicationSecret = "JnjQaOpCW9Pc3u2IUQAvyjyiAEINpBo47Vb5S3jSUxHdgQkc3pqFFXGHJPojXbGu";
             rainbowSDK
                 .initialize(applicationID, applicationSecret)
-                .then(function() {
-                    console.log("[DEMO] :: Rainbow SDK is initialized!");
+                .then(() => {
+                    console.log('Rainbow SDK Initialized');
                 })
-                .catch(function(err) {
-                    console.log("[DEMO] :: Something went wrong with the SDK...", err);
+                .catch(err => {
+                    console.log('Something went wrong with the Rainbow SDK.', err);
                 });
-
-            console.log("I'm in onLoaded");
-        },
-    }
+        });
+        rainbowSDK.start();
+        rainbowSDK.load();
+    },
 };
 </script>
 

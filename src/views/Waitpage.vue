@@ -1,6 +1,6 @@
 <template>
     <div class="wait">
-        <h1 v-if="!connecting" class="font-weight-light ma-10">Finding you an agent...</h1>
+        <h1 v-if="!connecting" class="font-weight-light ma-10">Finding you an {{categoryName}} agent...</h1>
         <h1 v-if="connecting" class="font-weight-light ma-10">Connecting you with our agent now!</h1>
         <v-progress-circular
                 v-if="!connecting"
@@ -25,18 +25,27 @@
 </template>
 
 <script>
-    export default {
-        name: "Waitpage",
-        props:{
-            connecting: Boolean,
-            loading: Number
-        },
-        methods: {
-            cancel: function () {
-                this.$router.push({path: "/"});
-            }
+
+export default {
+    name: "Waitpage",
+    props:{
+        connecting: Boolean,
+        loading: Number
+    },
+    // data: () => ({
+    //     category: 0
+    // }),
+    methods: {
+        cancel: function () {
+            this.$router.push({path: "/"});
         }
-    }
+    },
+    computed: {
+        categoryName() {
+            return this.$store.state.categoryName;
+        }
+    },
+}
 </script>
 
 <style scoped>

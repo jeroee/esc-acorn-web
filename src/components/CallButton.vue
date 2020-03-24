@@ -4,6 +4,7 @@
   <a href="#news">Service</a>
   <a href="#contact">Story</a>
 
+
   <div class="dropdown">
     <button  class="dropbtn">Products
       <i class="fa fa-caret-down"></i>
@@ -26,21 +27,13 @@
 
 
 <script>
-/*function myFunction() {
-  var x = document.getElementById("myTopnav");
-  if (x.className === "topnav") {
-    x.className += " responsive";
-  } else {
-    x.className = "topnav";
-  }
-}
-*/
+
 </script>
 
 <style>
 /* Add a black background color to the top navigation */
 .topnav {
-  background-color: #333;
+  background-color: #312E2F;
   overflow: hidden;
 }
 
@@ -57,7 +50,7 @@
 
 /* Add an active class to highlight the current page */
 .active {
-  background-color: #4CAF50;
+  background-color: #312E2F;
   color: white;
 }
 
@@ -112,7 +105,7 @@
 
 /* Add a grey background to dropdown links on hover */
 .dropdown-content a:hover {
-  background-color: #ddd;
+  background-color: #312E2F;
   color: black;
 }
 
