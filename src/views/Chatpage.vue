@@ -1,7 +1,7 @@
 <template>
     <div class="chat">
         <transition name="fade">
-            <Waitpage v-bind:connecting="connecting" v-bind:loading="loading" v-if="start"/>
+            <Waitpage v-bind:connecting="connecting" v-bind:loading="loading" v-if="!start"/>
         </transition>
         <div class="chatBox" id="chatBox" ref="chatBox">
             <h1 class="font-weight-light mb-5"  id="header" ref="header">Let's chat <v-icon x-large color="black">chat</v-icon></h1>
@@ -39,88 +39,113 @@
     import axios from "axios";
     import Waitpage from "./Waitpage";
 
+
     export default {
         name: "Chatpage",
         components: {Waitpage},
         data: () => ({
-            token: "",
-            agentId: "",
-            agentName: "Agent",
-            chatting: false,
+            token: "", // String variable for guest account token
+            agentId: "", // String variable for agent id
+            agentName: "Agent", // String variable for agent name
             items: [
                 {
                     message: "Hi there! You've been connected with our agent. You may start typing to chat!",
                     sender: "Agent One",
                     time: moment().format("h:mm a")
                 },
-            ],
-            txt: "",
-            selectedIndex: 0,
-            conversation:'',
-            start:true,
-            connecting:false,
-            loading:0
+            ], // array of messages, updated on receive and send
+            txt: "", // string buffer for chat text input
+            conversation:'', // variable to hold the conversation object
+            start: false, // removes the loading page from view - on true, removes loading page
+            connecting: false, // updates the
+            cancelled: false, // sets a guard for polling during early exits - on true, prevents polling
+            loading: 0 // updates the spin loader progress after agent found - values [0,100]
         }),
-
+        computed: {
+            categoryIndex() {
+                return this.$store.state.categoryIndex;
+            }
+        },
         methods: {
             getConnection: async function() {
-                // console.log("I'm in waitConnection");
-                let response = await axios.get(
-                    `http://still-sea-41149.herokuapp.com/api/agentss?category=${this.selectedIndex}` //obtain agent through category
-                );
-                this.agentId = response.data.agent.rainbowId; //get agent id
-                this.agentName = response.data.agent.name; //get agent name
-                this.token = response.data.token; //get guest token
-                console.log("agent ID is: ", this.agentId);
-                console.log("agent name is: ", this.agentName);
-                console.log("token is: ", this.token);
-                this.connecting=true;
-                //need to swap signin with token instead of admin login and password
-                this.loading=50;
-                let account = await rainbowSDK.connection.signinSandBoxWithToken(this.token); //login to rainbow server with guest token
-                this.loading=100;
-                if (account) {
-                    let contact = await rainbowSDK.contacts.searchById(this.agentId); //get contact from agent id
-                    this.conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-
-                    await rainbowSDK.im.getMessagesFromConversation(this.conversation); //getting all messages from conversation
-                    this.start=false;
-                    document.addEventListener(
-                        rainbowSDK.im.RAINBOW_ONNEWIMMESSAGERECEIVED,
-                        this.receive
+                try {
+                    let response = await axios.get(
+                        `http://still-sea-41149.herokuapp.com/api/agentss?category=${this.categoryIndex}` //obtain agent through category
                     );
-                    document.addEventListener(
-                        rainbowSDK.im.RAINBOW_ONNEWIMRECEIPTRECEIVED,
-                        this.receipt
-                    );
-                } else {
-                    console.log("No account found!");
+                    this.agentId = response.data.agent.rainbowId; //get agent id
+                    this.agentName = response.data.agent.name; //get agent name
+                    this.token = response.data.token; //get guest token
+                    console.log("agent ID is: ", this.agentId);
+                    console.log("agent name is: ", this.agentName);
+                    console.log("token is: ", this.token);
+                    this.connecting=true;
+                    //need to swap signin with token instead of admin login and password
+                    this.loading=50;
+                    let account = await rainbowSDK.connection.signinSandBoxWithToken(this.token); //login to rainbow server with guest token
+                    this.loading=100;
+                    if (account) {
+                        let contact = await rainbowSDK.contacts.searchById(this.agentId); //get contact from agent id
+                        this.conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+                        await rainbowSDK.im.getMessagesFromConversation(this.conversation); //getting all messages from conversation
+                        this.start=true;
+                        document.addEventListener(
+                            rainbowSDK.im.RAINBOW_ONNEWIMMESSAGERECEIVED,
+                            this.receive
+                        );
+                        document.addEventListener(
+                            rainbowSDK.im.RAINBOW_ONNEWIMRECEIPTRECEIVED,
+                            this.receipt
+                        );
+                    }
+                } catch(err) {
+                    console.log("No account found! Retrying every x seconds");
+                    if (!this.cancelled) { //prevent polling in early exits
+                        this.pollConnection();
+                    } else console.log("Load was left early");
                 }
+            },
+            pollConnection: function() {
+                this.polling=setInterval(function () {
+                    console.log("Polling");
+                    // getAgentId: function () {
+                    //     this.loading = true;
+                    //     axios.get('https://esc-acorn-backend.herokuapp.com/api/agents', {
+                    //         params: {
+                    //             category:this.categories.indexOf(this.selected)+1
+                    //         }
+                    //     })
+                    //     .then(function (response) {
+                    //         console.log(response.data);
+                    //     })
+                    //     .catch(function (error) {
+                    //         console.log(error.response.data.error);
+                    //     });
+                    // }
+                },1000)
+            },
+            leaveQueue: function(){ // remove queue entry
+                console.log("leaveQueue()")
             },
             message() {
                 if (this.txt !== "") {
                     let message= this.txt;
-                    this.chatting = true;
-                    // this.items.push({message: this.txt, sender: "you", time: moment().format("h:mm a")});
                     rainbowSDK.im.sendMessageToConversation(this.conversation, message);
                     this.items.push({message: message, sender: "you", time: moment().format("h:mm a")});
+                    $("#chatBox").animate({scrollTop: $('#chatBox')[0].scrollHeight}, 500);
                     this.txt = "";
                 }
             },
 
             receive: function(event) {     //this function works when u receive a message
-                let message = event.detail.message;
-                console.log(message.data);
-                console.log(message.side);
-                this.items.push({message: message.data, sender: "agent", time: moment().format("h:mm a")});
+                console.log(event.detail.message.data);
+                console.log(event.detail.message.side);
+                this.items.push({message: event.detail.message.data, sender: this.agentName, time: moment().format("h:mm a")});
                 $("#chatBox").animate({scrollTop: $('#chatBox')[0].scrollHeight}, 500);
             },
 
             receipt: function(event) {      //this function works when u send out a message
-                let message = event.detail.message;
-                console.log(message.data);
-                console.log(message.side);
-                $("#chatBox").animate({scrollTop: $('#chatBox')[0].scrollHeight}, 500);
+                console.log(event.detail.message.data);
+                console.log(event.detail.message.side);
             }
         },
         mounted() {
@@ -138,6 +163,12 @@
                 }
             };
             this.getConnection();
+        },
+        beforeDestroy() {
+            console.log("exiting");
+            this.leaveQueue()
+            this.cancelled=true;
+            clearInterval(this.polling);
         }
     }
 </script>

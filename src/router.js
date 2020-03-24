@@ -1,13 +1,11 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Homepage from "./views/Homepage";
-// import Chat from "./views/Chat";
+// import Chatpage from "./views/Chatpage";
+// import Waitpage from "./views/Waitpage";
 // import Call from "./views/Call"
 
-
 Vue.use(Router);
-
-console.log("router loaded");
 
 export default new Router({
     mode: 'history',
@@ -17,14 +15,6 @@ export default new Router({
             path: '/',
             name: 'home',
             component: Homepage
-        },
-        {
-            path: '/wait',
-            name: 'wait',
-            // route level code-splitting
-            // this generates a separate chunk (chat.[hash].js) for this route
-            // which is lazy-loaded when the route is visited.
-            component: () => import(/* webpackChunkName: "about" */ './views/Waitpage.vue')
         },
         {
             path: '/chat',

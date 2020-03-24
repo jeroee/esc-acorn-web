@@ -6,17 +6,17 @@
             </v-container>
         </div>
         <v-container class="flex-col">
-            <v-select v-model="selected" v style="width: 400px"
+            <v-select v-model="selected" style="width: 400px"
                 :items="categories"
                 outlined
-                :menu-props="{ offsetY:true, openOnHover:true, openOnClick:false }"
+                :menu-props="{ offsetY:true, openOnClick:false }"
                 label="Choose a support category..."
             ></v-select>
             <div style="flex-direction: row">
-                <v-btn to="/chat" @click="getAgentId" x-large depressed class="ma-5 green white--text">
+                <v-btn @click="setCategory" x-large depressed class="ma-5 green white--text" :disabled="isSelected">
                     <v-icon left>message</v-icon> Get Chat Support
                 </v-btn>
-                <v-btn @click="alert" x-large depressed class="ma-5 green white--text">
+                <v-btn @click="alert" x-large depressed class="ma-5 green white--text" :disabled="isSelected">
                     <v-icon left>phone</v-icon> Get Call Support
                 </v-btn>
             </div>
@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+// import axios from 'axios'
 
 export default {
     name: "Home",
@@ -34,26 +34,23 @@ export default {
         categories: [
             'Acorn Products','Acorn Services','Acorn Applications'
         ],
-        selected: 'Acorn Products'
+        selected: ''
     }),
+    computed: {
+        isSelected: function () {
+            return this.selected==="";
+        }
+    },
     methods: {
         alert: function () {
-            // `this` inside methods points to the Vue instance
             alert('Coming Soon')
         },
-        getAgentId: function () {
-            this.loading = true;
-            axios.get('https://esc-acorn-backend.herokuapp.com/api/agents', {
-                params: {
-                    category:this.categories.indexOf(this.selected)+1
-                }
-            })
-            .then(function (response) {
-                console.log(response.data);
-            })
-            .catch(function (error) {
-                console.log(error.response.data.error);
-            });
+        setCategory: function () {
+            if (this.selected) {
+                this.$store.state.categoryIndex = this.categories.indexOf(this.selected);
+                this.$store.state.categoryName = this.selected;
+                this.$router.push({path: "/chat"});
+            }
         }
     },
 }
