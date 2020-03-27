@@ -23,6 +23,12 @@ export default new Router({
         },
 
         {
+            path: '/WaitPage',
+            name: 'WaitPage',
+            component: () => import('./views/Waitpage.vue')
+        },
+
+        {
             path: '/call',
             name: 'call',
             props: true,

@@ -8,7 +8,7 @@
             <v-spacer></v-spacer>
 
             <v-toolbar-items>
-              <v-btn to="/Homepage" dark text @click="dialog = false" id="SubmitButton">Submit</v-btn>
+              <v-btn to="/" dark text @click="dialog = false" id="SubmitButton">Submit</v-btn>
             </v-toolbar-items>
           </v-toolbar>
           
@@ -18,7 +18,7 @@
                         <v-container>
                         <v-row>
                             <v-col cols="12" sm="6" md="4">
-                            <v-text-field id=" FirstName" label="Legal first name*" required></v-text-field>
+                            <v-text-field id="FirstName" label="Legal first name*" required></v-text-field>
                             </v-col>
                             <v-col cols="12" sm="6" md="4">
                             <v-text-field label="Legal middle name" hint="example of helper text only on focus" id="MiddleName"></v-text-field>
@@ -45,6 +45,7 @@
                                 required
                             ></v-select>
                             </v-col>
+
 
                             <v-col cols="12" sm="6">
                             <v-select id="SelectAttitude"
