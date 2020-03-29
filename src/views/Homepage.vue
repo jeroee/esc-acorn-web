@@ -1,12 +1,18 @@
 <template>
-    <div style="min-height: 100vh">
-        <div class="hero mb-10">
+    <div style="margin-top:-5px">
+        <!-- <div class="hero mb-10">
             <v-container class="flex-col">
                 <h1 class="display-3 font-weight-medium">Welcome to Acorn Support</h1>
             </v-container>
-        </div>
-        <v-container class="flex-col">
+        </div> -->
 
+        <FirstPagePic></FirstPagePic>
+        <Menu></Menu>
+        <br>
+        <br>
+
+        <v-container class="flex-col">
+    
             <v-select  v-model="selected" v style="width: 400px"
                 :items="categories"
                 outlined
@@ -32,16 +38,18 @@
 
 
         </v-container>
+    
 
     </div>
 </template>
 
 <script>
 // import popup from '../components/popup' // this is the popup table
-//import menu  from '../components/menu'
-
-
+import Menu  from '../components/Menu'
+import FirstPagePic from '../components/FirstPagePic' // this is the popup table
 export default {
+    components:{FirstPagePic,Menu},
+    
     name: "Home",
     data: () => ({
         categories: [
@@ -77,10 +85,10 @@ export default {
     justify-content: center;
     height: 100%;
 }
-.hero{
+/* .hero{
     background-image: url("../assets/acorn_bg.png");
     height: 400px;
     background-position: center;
     background-size: cover;
-}
+} */
 </style>

@@ -1,99 +1,96 @@
 <template>
-    <div>
-                 <div id="app">
-                            <v-app id="inspire">
-                                <v-carousel
-                                cycle
-                                height="400"
-                                hide-delimiter-background
-                                show-arrows-on-hover
-                                >
-                                <v-carousel-item
-                                    v-for="(slide, i) in slides"
-                                    :key="i"
-                                >
-                                    <v-sheet
-                                    :color="colors[i]"
-                                    height="100%"
-                                    >
-                                    <v-row
-                                        class="fill-height"
-                                        align="center"
-                                        justify="center"
-                                    >
-                                        <div class="display-3">{{ slide }} Slide</div>
-                                    </v-row>
-                                    </v-sheet>
-                                </v-carousel-item>
-                                </v-carousel>
-                            </v-app>
-                </div>
-
-                <div>
-                    <CallButton></CallButton>
-                </div>
-
-                 <v-container class="flex-col">
-            <v-select v-model="selected" v style="width: 400px"
-                :items="categories"
-                outlined
-                :menu-props="{ offsetY:true, openOnHover:true, openOnClick:false }"
-                label="Choose a support category..."
-            ></v-select>
-
-            <br>
-            <br>
-            <br>
-            <br>
-            <br>
-            <br>
-            <br>
-            <div style="flex-direction: row">
-                <div style="flex-direction: row">
-                    <v-btn to="/chat" @click="getAgentId" x-large depressed class="ma-5 green white--text">
-                        <v-icon left>message</v-icon> Get Chat Support
-                    </v-btn>
-
-                    <v-btn to="/QandAPage1" @click="getAgentId" x-large depressed class="ma-5 green white--text">
-                        <v-icon left>message</v-icon> Question and solution
-                    </v-btn>
-                </div>
-            </div>
-            <popup></popup>
-           
-
-                <!-- <v-btn to="/call" @click="alert" x-large depressed class="ma-5 green white--text">
-                    <v-icon left>phone</v-icon> Get Call Support
-                </v-btn> -->   
-        </v-container>
-
-      
-    </div>
+    <div id="app">
+  <v-app id="inspire">
+    <!-- <ValidationObserver ref="observer" v-slot="{ validate }"> -->
+      <form>
+        <ValidationProvider v-slot="{ errors }" name="Name" rules="required|max:10">
+          <v-text-field
+            v-model="name"
+            :counter="10"
+            :error-messages="errors"
+            label="Name"
+            required
+          ></v-text-field>
+        </ValidationProvider>
+        <ValidationProvider v-slot="{ errors }" name="email" rules="required|email">
+          <v-text-field
+            v-model="email"
+            :error-messages="errors"
+            label="E-mail"
+            required
+          ></v-text-field>
+        </ValidationProvider>
+        <ValidationProvider v-slot="{ errors }" name="select" rules="required">
+          <v-select
+            v-model="select"
+            :items="items"
+            :error-messages="errors"
+            label="Select"
+            data-vv-name="select"
+            required
+          ></v-select>
+        </ValidationProvider>
+        <ValidationProvider v-slot="{ errors}" rules="required" name="checkbox">
+          <v-checkbox
+            v-model="checkbox"
+            :error-messages="errors"
+            value="1"
+            label="Option"
+            type="checkbox"
+            required
+          ></v-checkbox>
+        </ValidationProvider>
+  
+        <v-btn class="mr-4" @click="submit">submit</v-btn>
+        <v-btn @click="clear">clear</v-btn>
+      </form>
+    <!-- </ValidationObserver> -->
+  </v-app>
+</div>
 </template>
 
-
 <script>
-import CallButton from '../components/CallButton'
+
+setInteractionMode("eager");
+
+extend("required", {
+  ...required,
+  message: "{_field_} can not be empty" });
+
+
+extend("max", {
+  ...max,
+  message: "{_field_} may not be greater than {length} characters" });
+
+
+extend("email", {
+  ...email,
+  message: "Email must be valid" });
+
 export default {
-    components:{CallButton},
+    components: {
+    ValidationProvider,
+    ValidationObserver },
 
-     data() {
-    return {
-      colors: [
-      'indigo',
-      'warning',
-      'pink darken-2',
-      'red lighten-1',
-      'deep-purple accent-4'],
-
-      slides: [
-      'First',
-      'Second',
-      'Third',
-      'Fourth',
-      'Fifth'] };
+  data: () => ({
+    name: "",
+    email: "",
+    select: null,
+    items: ["Item 1", "Item 2", "Item 3", "Item 4"],
+    checkbox: null }),
 
 
-  } }
+  methods: {
+    submit() {
+      this.$refs.observer.validate();
+    },
+    clear() {
+      this.name = "";
+      this.email = "";
+      this.select = null;
+      this.checkbox = null;
+      this.$refs.observer.reset();
+    } }
     
+}
 </script>
