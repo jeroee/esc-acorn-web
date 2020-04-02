@@ -54,6 +54,7 @@ import { validationMixin } from 'vuelidate'
 Vue.use(Vuelidate)
 
 
+
 export default {
   mixins: [validationMixin],
 
@@ -65,6 +66,7 @@ export default {
       checked(val) {
         return val;
       } } },
+
 
 
 
@@ -110,6 +112,7 @@ export default {
     } },
 
 
+
   methods: {
     submit() {
       this.$v.$touch();
@@ -122,3 +125,4 @@ export default {
       this.checkbox = false;
     } } }
 </script>
+

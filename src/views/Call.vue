@@ -1,227 +1,243 @@
 <template>
-<!-- This is not a pop up page , is a full page for calling  -->
-<div class= "call" id="app">
-  <!-- step1 Add the transition Part  -->
+    <div class= "call" id="call">
         <transition name="fade">
-            <CallWaitpage v-bind:connecting="connecting" v-bind:loading="loading" v-if="start"/>
+            <Waitpage v-bind:connecting="connecting" v-bind:loading="loading" v-if="!start"/>
         </transition>
-
-
-  <!--  step2 Add the Call Page  -->
-        <v-app id="inspire">
         <audio id="globalAudioTag" autoplay style="display:none;"></audio>     <!--to allow customer to receive audio from agent-->
-          <div class="text-xs-center">
-              <v-card>
-                <v-card-title class="headline grey lighten-2" primary-title> Customer Name</v-card-title>
-                <v-card-text  class="headline grey lighten-2" process> Calling .....</v-card-text>
-                <v-card-text>
-                  Here should put some functionality. Input Layout 
-                </v-card-text>
-
-                <v-divider></v-divider>
-                <v-container class = "my-5">
-                  <v-layout row>
-                      <v-flex xs12 md4>
-                          <v-btn class="mx-10" fab dark small color="grey dark-2">
-                              <v-icon>mic_off</v-icon>
-                          </v-btn>
-
-                      </v-flex>
-
-                      <br>
-
-                      <v-flex xs6 md4>
-                          <v-btn class="mx-10" fab dark small color="grey dark-2">
-                          <v-icon>keyboard</v-icon>
-                          </v-btn>
-                          <br>
-                          <br>
-                      </v-flex>
-
-                      <v-flex xs6 md4>
-                          <v-btn class="mx-10" fab dark small color="grey dark-2">
-                          <v-icon>speaker_phone</v-icon>
-                          </v-btn>
-                          <br>
-                          <br>
-                      </v-flex>
-                  </v-layout>
-
-                  <v-layout row>
-                      <v-flex xs12 md4>
-                          <v-btn class="mx-10" fab dark small color="grey dark-2">
-                          <v-icon>add_ic_call</v-icon>
-                          </v-btn>
-                          <br>
-                          <br>
-                      </v-flex>
-
-                      <v-flex xs6 md4>
-                          <v-btn class="mx-10" fab dark small color="grey dark-2">
-                          <v-icon>volume_down</v-icon>
-                          </v-btn>
-
-                      </v-flex>
-
-                      <v-flex xs6 md4>
-                          <v-btn class="mx-10" fab dark small color="grey dark-2">
-                          <v-icon>contact_phone</v-icon>
-                          </v-btn>
-                      </v-flex>
-                  </v-layout>
+            <div class="text-xs-center">
+                <v-card>
+                    <v-card-title class="headline green lighten-2" primary-title> Customer Name</v-card-title>
+                    <v-card-text>
+                        WIP
+                    </v-card-text>
+                <v-divider/>
+                <v-container>
+                    <v-layout row class="mb-10 mt-10">
+                        <v-flex xs4>
+                            <v-btn large class="mx-10" fab dark small color="grey dark-2">
+                                <v-icon>mic_off</v-icon>
+                            </v-btn>
+                        </v-flex>
+                        <v-flex xs4>
+                            <v-btn large class="mx-10" fab dark small color="grey dark-2">
+                                <v-icon>keyboard</v-icon>
+                            </v-btn>
+                        </v-flex>
+                        <v-flex xs4>
+                            <v-btn large class="mx-10" fab dark small color="grey dark-2">
+                                <v-icon>speaker_phone</v-icon>
+                            </v-btn>
+                          </v-flex>
+                    </v-layout>
+                    <v-layout row class="mb-10 mt-10">
+                        <v-flex xs4>
+                            <v-btn large class="mx-10" fab dark small color="grey dark-2">
+                                <v-icon>add_ic_call</v-icon>
+                            </v-btn>
+                        </v-flex>
+                        <v-flex xs4>
+                            <v-btn large class="mx-10" fab dark small color="grey dark-2">
+                                <v-icon>volume_down</v-icon>
+                            </v-btn>
+                        </v-flex>
+                        <v-flex xs4>
+                            <v-btn large class="mx-10" fab dark small color="grey dark-2">
+                                <v-icon>contact_phone</v-icon>
+                            </v-btn>
+                        </v-flex>
+                    </v-layout>
                 </v-container>
 
                 <v-divider></v-divider>
                 <v-card-actions><v-spacer></v-spacer>
-                  
-                  <v-btn id="Cancell" @click="endCall" x-large depressed color =" red white--text" class="btn">
+
+                  <v-btn @click="endCall" depressed color ="red white--text" class="btn">
                           <v-icon left>call_end</v-icon> End Call
-                      </v-btn>  
+                      </v-btn>
 <!-- Step3 when you click 'Call_end', you will go to the feedback page  -->
-                  
+
                 </v-card-actions>
-              </v-card>
-          </div>
-        </v-app>
-</div>
-    
-    
+            </v-card>
+        </div>
+    </div>
 </template>
 
 <script>
-
-import CallWaitpage from "./CallWaitpage";
-
+import Waitpage from "./Waitpage";
 import rainbowSDK from "rainbow-web-sdk";
 import axios from "axios";
 
 export default {
-  components:{CallWaitpage},
-  name: "Call",
-  data: () => ({
-    selectedIndex: 0,
-    contact: "",
-    call:"",
-    start: true,
-    connecting: false,
-  }),
-  created() {
-    document.addEventListener(rainbowSDK.RAINBOW_ONLOADED, this.onLoaded);
-    rainbowSDK.load();
-    this.getConnection();
-  },
-  methods: {
-    onLoaded: function() {
-      var applicationID = "a58cfac05b0711eabf7e77d14e87b936";
-      var applicationSecret =
-        "JnjQaOpCW9Pc3u2IUQAvyjyiAEINpBo47Vb5S3jSUxHdgQkc3pqFFXGHJPojXbGu";
-      rainbowSDK.setVerboseLog(false);
-      rainbowSDK
-        .initialize(applicationID, applicationSecret)
-        .then(function() {
-          console.log("[DEMO] :: Rainbow SDK is initialized!");
-        })
-        .catch(function(err) {
-          console.log("[DEMO] :: Something went wrong with the SDK...", err);
-        });
-
-      console.log("I'm in onLoaded");
-    },
-
-    getConnection: async function() {
-      console.log("connecting: ", this.connecting);
-      console.log("start:", this.start);
-      if (rainbowSDK.webRTC.canMakeAudioVideoCall()) {
-        //check if browser is compatible for audio calls
-        console.log("Browser supports calls");
-      } else {
-        console.log("Browser does not support calls");
-      }
-      console.log("requesting microphone access");
-      navigator.mediaDevices //authoerise the application to access media device
-        .getUserMedia({ audio: true })
-        .then(function(stream) {
-          stream.getTracks().forEach(function(track) {
-            track.stop();
-          });
-          navigator.mediaDevices
-            .enumerateDevices()
-            .then(function(devices) {
-              devices.forEach(function(device) {
-                if (device.deviceId == "default") {
-                  console.log(device);
-                  console.log(device.label, "is available");
-                }
-              });
-            })
-            .catch(function(error) {
-              console.log(error);
-            });
-          rainbowSDK.webRTC.useMicrophone("default");
-          rainbowSDK.webRTC.useSpeaker("default");
-        })
-        .catch(function(error) {
-          console.log(error);
-        });
-
-      let response = await axios.get(
-        `https://still-sea-41149.herokuapp.com/api/agentss?category=${this.selectedIndex}` //obtain agent through category
-      );
-      // let agent_id = response.data.agent.rainbowId; //get agent id
-      // let agent_name = response.data.agent.name; //get agent name
-      let agent_id = response.data.agentId; //get agent id
-      let agent_name = response.data.agentName; //get agent name
-      let token = response.data.token; //get guest token
-
-      
-      // let agent_id = "5e4950b6e9f12730636972b5";
-      // let token =
-      //   "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb3VudFJlbmV3ZWQiOjAsIm1heFRva2VuUmVuZXciOjcsInVzZXIiOnsiaWQiOiI1ZTc2Y2I5ZGY0M2ZjMzZhYjBmM2MxOTEiLCJsb2dpbkVtYWlsIjoieDZvOTV3ZGw4NnU0a2czOGI0MTl5MjIydHJoNHBibXM3dGc1ZmozNkBhNThjZmFjMDViMDcxMWVhYmY3ZTc3ZDE0ZTg3YjkzNi5zYW5kYm94Lm9wZW5yYWluYm93LmNvbSJ9LCJhcHAiOnsiaWQiOiJhNThjZmFjMDViMDcxMWVhYmY3ZTc3ZDE0ZTg3YjkzNiIsIm5hbWUiOiJhY29ybi1iYWNrZW5kIn0sImlhdCI6MTU4NDg0MzY3OCwiZXhwIjoxNTg2MTM5Njc4fQ.j_R7Cac07qYDZCDC8DbGctEK49ep8mM8VbiK2wpFQpWvUy9kmvpDvoRtCRYPHxpneBBQVjWIvvv7x4d1_BO3L8IO1GxcjW8WLx6kljhuieToBo5JuzN5udDdMVM7XcasbirMXnd2MxuwpTspUip25_CcCp4XwansFtwxBIrybHUyo6LZA42w1_dlr6zcdRuslv-gTSoJ35P18C28xJJe7LxFGzkLqYvcMGBD4ln-3XdclXX5Gp10h42n0xBdAKvBMd8SF37DmAdAuN1wpAxFYCN6ogak-Xu67jfh9o7fEIYQ7hfRDcnaI06T1PccD6O1TUbjDZtVp69ET0ymr1Yq9Q";
-       console.log("agent ID is: ", agent_id);
-      console.log("agent name is: ", agent_name);
-      console.log("token is: ", token);
-      let account = await rainbowSDK.connection.signinSandBoxWithToken(token); //login to rainbow server with guest token
-      if (account) {
-        console.log("sign in success");
-        this.contact = await rainbowSDK.contacts.searchById(agent_id); //get contact from agent id
-        console.log(this.contact);
-
-        this.start = false;
-        console.log(this.start);
-        this.call = rainbowSDK.webRTC.callInAudio(this.contact);      //start to call the contact with available agent
-        console.log("call is",this.call);
-        if (this.call.label === "OK") {
-          console.log("your call has een correctly initialised");
+    name: "Call",
+    components:{Waitpage},
+    data: () => ({
+        token: "", // String variable for guest account token
+        agentId: "", // String variable for agent id
+        start: false,
+        connecting: false,
+        cancelled: false,
+        loading: 0
+    }),
+    computed: {
+        categoryIndex() {
+            return this.$store.state.categoryIndex;
+        },
+        agentName() {
+            return this.$store.state.agentName;
         }
-        document.addEventListener(rainbowSDK.webRTC.RAINBOW_ONWEBRTCCALLSTATECHANGED, this.onWebRTCCallChanged);
-      }
     },
-    onWebRTCCallChanged: function(event){
-        console.log("OnWebRTCCallChanged event", event.detail);
-        if (event.detail.status.value=="Unknown"){    //if agent ends the call first, user will be directed to Feedback Page
-          console.log(event.detail.status.value);
-          window.location.href = 'Feedback';
-        } 
+    mounted() {
+        this.checkCall();
+        this.getConnection();
     },
-    //DONT REMOVE THE COMMENTED PART HERE
+    methods: {
+        checkCall: function() {
+            if (rainbowSDK.webRTC.canMakeAudioVideoCall()) {
+                //check if browser is compatible for audio calls
+                console.log("Browser supports calls");
+            } else {
+                console.log("Browser does not support calls");
+            }
+            console.log("requesting microphone access");
+            navigator.mediaDevices //authoerise the application to access media device
+                .getUserMedia({ audio: true })
+                .then(function(stream) {
+                    stream.getTracks().forEach(function(track) {
+                        track.stop();
+                    });
+                    navigator.mediaDevices
+                        .enumerateDevices()
+                        .then(function(devices) {
+                            devices.forEach(function(device) {
+                                if (device.deviceId === "default") {
+                                    console.log(device);
+                                    console.log(device.label, "is available");
+                                }
+                            });
+                        })
+                        .catch(function(error) {
+                            console.log(error);
+                        });
+                    rainbowSDK.webRTC.useMicrophone("default");
+                    rainbowSDK.webRTC.useSpeaker("default");
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
+        },
+
+        /**********************INITIAL GET**********************/
+        getConnection: async function() {
+            let self=this;
+            try {
+                let response = await axios.get(
+                    `https://esc-acorn-backend.herokuapp.com/api/agents?category=${this.categoryIndex}` //obtain agent through category
+                );
+                self.agentId = response.data.agentId; //get agent id
+                self.$store.state.agentName = response.data.agentName; //get agent name
+                self.token = response.data.token; //get guest token
+                console.log(this.agentId);
+                console.log(`Your token is ${self.token}`);
+                if (self.agentId!=="Null") {
+                    self.connecting=true;
+                    await self.startCall();
+                } else {
+                    console.log("No account found! Retrying every x seconds");
+                    if (!self.cancelled) { //prevent polling in early exits
+                        self.pollConnection();
+                    } else console.log("Load was left early");
+                }
+            } catch(err) {
+                console.log(err);
+            }
+        },
+
+        /**********************POLLING GET**********************/
+        pollConnection: function() {
+            let self=this;
+            self.polling=setInterval(async function () {
+                try {
+                    let response = await axios.get(
+                        `https://esc-acorn-backend.herokuapp.com/api/queue?token=${self.token}`
+                    );
+                    self.agentId = response.data.agentId; //get agent id
+                    self.$store.state.agentName = response.data.agentName; //get agent name
+                    // console.log(response);
+                    if (self.agentId!=="Null") {
+                        clearInterval(self.polling);
+                        self.connecting=true;
+                        await self.startCall();
+                    } else {
+                        console.log("You are still waiting for an agent");
+                    }
+                } catch(err) {
+                    console.log(err);
+                }
+            },3000)
+        },
+        startCall: async function () {
+            let self=this;
+            try {
+                await rainbowSDK.connection.signinSandBoxWithToken(this.token); //login to rainbow server with guest token
+                self.loading=50;
+                let contact = await rainbowSDK.contacts.searchById(this.agentId); //get contact from agent id
+                self.call = rainbowSDK.webRTC.callInAudio(contact);      //start to call the contact with available agent
+                self.loading=100;
+                self.start=true;
+                document.addEventListener(rainbowSDK.webRTC.RAINBOW_ONWEBRTCCALLSTATECHANGED, this.onWebRTCCallChanged);
+            } catch(err) {
+                console.log(err)
+            }
+        },
 
 
-    // startCall: function() {
-    //   this.call = rainbowSDK.webRTC.callInAudio(this.contact);
-    //   if (this.call.label === "OK") {
-    //     console.log("your call has been correctly initialised");
-    //   }
-    // },
-    endCall: function() {              
-   //function to end call from the customer's side when pressing End Call   //currently not working yet!!
-      console.log("removing call");
-      window.location.href = 'Feedback';
-      //console.log(event.detail.status.value); 
-      //document.addEventListener(rainbowSDK.webRTC.RAINBOW_ONWEBRTCCALLSTATECHANGED, this.onWebRTCCallChanged);
-      //rainbowSDK.webRTC.release(this.call); //cannot get this line of code working
-      // console.log("res:", res);
+        /**********************CALL FUNCS**********************/
+        onWebRTCCallChanged: function(event){
+            console.log("OnWebRTCCallChanged event", event.detail);
+            if (event.detail.status.value==="Unknown"){    //if agent ends the call first, user will be directed to Feedback Page
+              console.log(event.detail.status.value);
+                this.$router.push({path: "/feedback"});
+            }
+        },
+        //DONT REMOVE THE COMMENTED PART HERE
+        // startCall: function() {
+        //   this.call = rainbowSDK.webRTC.callInAudio(this.contact);
+        //   if (this.call.label === "OK") {
+        //     console.log("your call has been correctly initialised");
+        //   }
+        // },
+        endCall: function() {
+            let self=this;
+            rainbowSDK.webRTC.release(self.call);
+            //function to end call from the customer's side when pressing End Call   //currently not working yet!!
+            // this.$router.push({path: "/feedback"});
+            //console.log(event.detail.status.value);
+            //document.addEventListener(rainbowSDK.webRTC.RAINBOW_ONWEBRTCCALLSTATECHANGED, this.onWebRTCCallChanged);
+            //rainbowSDK.webRTC.release(this.call); //cannot get this line of code working
+            // console.log("res:", res);
+        },
+        /**********************CLEANUP FUNCS**********************/
+        leaveQueue: async function(){ // remove queue entry
+            let self=this;
+            axios.delete(`https://esc-acorn-backend.herokuapp.com/api/queue?token=${self.token}`)
+                .then(res => console.log(res))
+                .catch(err => console.log(err))
+        },
+        endConversation: async function() {
+            let self=this;
+            axios.patch(`https://esc-acorn-backend.herokuapp.com/api/agents?agentId=${self.agentId}`)
+                .then(res => console.log(res))
+                .catch(err => console.log(err))
+        }
+    },
+    beforeDestroy() {
+        let self=this;
+        console.log("exiting");
+        self.leaveQueue();
+        self.cancelled=true;
+        clearInterval(self.polling);
+        self.endConversation();
     }
-  }
 };
 </script>
 
@@ -238,22 +254,10 @@ export default {
   opacity: 0.8;
 }
 
-.btn2 {
-  background-color: grey;
-  color: white;
-  padding: 16px 20px;
-  border: none;
-  cursor: pointer;
-  width: 100%;
-  margin-bottom: 10px;
-  opacity: 0.8;
+.fade-enter-active, .fade-leave-active {
+    transition: opacity .5s;
 }
-
-/* .btn {
-   height: 200px;
-   width: 200px;
-   background: pink;
-   position: relative;
-
-} */
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+    opacity: 0;
+}
 </style>
