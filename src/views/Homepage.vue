@@ -33,9 +33,7 @@
 
             </div>
 
-<!--            &lt;!&ndash; This is the pop up call Page    &ndash;&gt;-->
-<!--            <popup></popup>-->
-
+            <ManyCard></ManyCard>
 
         </v-container>
     
@@ -46,9 +44,10 @@
 <script>
 // import popup from '../components/popup' // this is the popup table
 import Menu  from '../components/Menu'
+import ManyCard from '../components/ManyCard'
 import FirstPagePic from '../components/FirstPagePic' // this is the popup table
 export default {
-    components:{FirstPagePic,Menu},
+    components:{FirstPagePic,Menu,ManyCard},
     
     name: "Home",
     data: () => ({

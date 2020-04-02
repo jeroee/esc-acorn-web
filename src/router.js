@@ -95,8 +95,6 @@ export default new Router({
             component: () => import('./views/Popmotion.vue')
         },
 
-
-
         {
             path: '/Try',
             name: 'Try',

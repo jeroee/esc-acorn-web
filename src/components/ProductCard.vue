@@ -17,9 +17,16 @@
       <v-card-subtitle class="pb-0">The best </v-card-subtitle>
   
       <v-card-text class="text--primary">
-        <div>Whitehaven Beach</div>
+        <div>26mm focal length
+              ƒ/1.8 aperture
+              6-element lens
+              Optical image stabilisation
+              100% Focus Pixels
+              New 12MP sensor
+        </div>
   
-        <div>Whitsunday Island, Whitsunday Islands</div>
+        <div>iPhone 11 Pro lets you capture videos that are beautifully true to life, with greater detail and smoother motion. Epic processing power means it can shoot 4K video with extended dynamic range and cinematic video stabilisation — all at 60 fps. You get more creative control too, with 4x more scene and powerful new editing tools to play with.
+The highest‑quality</div>
       </v-card-text>
   
       <v-card-actions>
@@ -27,7 +34,7 @@
           color="orange"
           text
         >
-          Share
+          Learn More 
         </v-btn>
   
         <v-btn

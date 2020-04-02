@@ -6,16 +6,8 @@
         <div class="grid-item">
              <ProductCard></ProductCard>
         </div>
-        <!-- <div class="grid-item">
-             <ProductCard></ProductCard>
-        </div>
-         <div class="grid-item">
-             <ProductCard></ProductCard>
-        </div>
-         <div class="grid-item">
-             <ProductCard></ProductCard>
-        </div>
-         <div class="grid-item">
+    
+        <div class="grid-item">
              <ProductCard></ProductCard>
         </div>
         <div class="grid-item">
@@ -24,11 +16,9 @@
          <div class="grid-item">
              <ProductCard></ProductCard>
         </div>
-        <div class="grid-item">
-             <ProductCard></ProductCard>
-        </div>
-        
-    </div> -->
+       
+    
+    </div>
 </template>
 
 <script>
@@ -44,8 +34,9 @@ export default {
 .grid-container {
   display: grid;
   grid-template-columns: auto auto auto;
-  background-color: #2196F3;
   padding: 10px;
+  grid-column-gap: 10px;
+  grid-row-gap: 100px;
 }
 /* .grid-item {
   background-color: rgba(255, 255, 255, 0.8);
