@@ -60,20 +60,20 @@
                 </div>
             </div>
             <popup></popup>
-           
+
 
                 <!-- <v-btn to="/call" @click="alert" x-large depressed class="ma-5 green white--text">
                     <v-icon left>phone</v-icon> Get Call Support
-                </v-btn> -->   
+                </v-btn> -->
         </v-container>
 
-      
+
     </div>
 </template>
 
 
 <script>
-import CallButton from '../components/CallButton'
+import CallButton from '../components/Navbar'
 export default {
     components:{CallButton},
 
@@ -95,5 +95,5 @@ export default {
 
 
   } }
-    
+
 </script>
