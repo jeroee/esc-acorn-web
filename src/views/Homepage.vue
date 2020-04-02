@@ -4,6 +4,7 @@
             <v-container class="flex-col">
                 <h1 class="display-3 font-weight-medium">Welcome to Acorn Support</h1>
             </v-container>
+
         </div> -->
 
         <FirstPagePic></FirstPagePic>
@@ -16,21 +17,20 @@
             <v-select  v-model="selected" v style="width: 400px"
                 :items="categories"
                 outlined
+                color="green"
                 :menu-props="{ offsetY:true, openOnClick:false }"
                 label="Choose a support category..."
             ></v-select>
             <div style="flex-direction: row">
-
-                <v-btn @click="setCategory" x-large depressed class="ma-5 green white--text" :disabled="isSelected">
+                <v-btn @click="requestChat" x-large depressed class="ma-5 green white--text" :disabled="isSelected">
                     <v-icon left>message</v-icon> Get Chat Support
                 </v-btn>
 <!--                <v-btn to="/QandAPage1" @click="getAgentId" x-large depressed class="ma-5 green white&#45;&#45;text">-->
 <!--                    <v-icon left>message</v-icon> FAQ-->
 <!--                </v-btn>-->
-                <v-btn to="/call" x-large depressed class="ma-5 green white--text" :disabled="isSelected">
+                <v-btn @click="requestCall" x-large depressed class="ma-5 green white--text" :disabled="isSelected">
                     <v-icon left>phone</v-icon> Get Call Support
                 </v-btn>
-
             </div>
 
             <ManyCard></ManyCard>
@@ -65,13 +65,20 @@ export default {
         alert: function () {
             alert('Coming Soon')
         },
-        setCategory: function () {
+        requestChat: function () {
             if (this.selected) {
                 this.$store.state.categoryIndex = this.categories.indexOf(this.selected);
                 this.$store.state.categoryName = this.selected;
                 this.$router.push({path: "/chat"});
             }
-        }
+        },
+        requestCall: function () {
+            if (this.selected) {
+                this.$store.state.categoryIndex = this.categories.indexOf(this.selected);
+                this.$store.state.categoryName = this.selected;
+                this.$router.push({path: "/call"});
+            }
+        },
     },
 }
 </script>
