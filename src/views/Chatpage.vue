@@ -48,11 +48,10 @@
         data: () => ({
             token: "", // String variable for guest account token
             agentId: "", // String variable for agent id
-            agentName: "Agent", // String variable for agent name
             items: [
                 {
                     message: "Hi there! You've been connected with our agent. You may start typing to chat!",
-                    sender: "Agent One",
+                    sender: "System Message",
                     time: moment().format("h:mm a")
                 },
             ], // array of messages, updated on receive and send
@@ -66,6 +65,9 @@
         computed: {
             categoryIndex() {
                 return this.$store.state.categoryIndex;
+            },
+            agentName() {
+                return this.$store.state.agentName;
             }
         },
         methods: {
@@ -74,24 +76,20 @@
                 let self=this;
                 try {
                     let response = await axios.get(
-                        `https://esc-acorn-backend.herokuapp.com/api/agents?category=99` //obtain agent through category
+                        `https://esc-acorn-backend.herokuapp.com/api/agents?category=${this.categoryIndex}` //obtain agent through category
                     );
-                    // let response = await axios.get(
-                    //     `https://esc-acorn-backend.herokuapp.com/api/agents?category=${this.categoryIndex}` //obtain agent through category
-                    // );
-                    self.agentId = "5e4950b6e9f12730636972b5";
-                    //self.agentId = response.data.agentId; //get agent id
-                    self.agentName = response.data.agentName; //get agent name
+                    self.agentId = response.data.agentId; //get agent id
+                    self.$store.state.agentName = response.data.agentName; //get agent name
                     self.token = response.data.token; //get guest token
                     console.log(this.agentId);
-                    console.log(`Your token is ${this.token}`);
-                    if (this.agentId) {
-                        this.connecting=true;
-                        this.startChat();
+                    console.log(`Your token is ${self.token}`);
+                    if (self.agentId!=="Null") {
+                        self.connecting=true;
+                        await self.startChat();
                     } else {
                         console.log("No account found! Retrying every x seconds");
-                        if (!this.cancelled) { //prevent polling in early exits
-                            this.pollConnection();
+                        if (!self.cancelled) { //prevent polling in early exits
+                            self.pollConnection();
                         } else console.log("Load was left early");
                     }
                 } catch(err) {
@@ -105,12 +103,12 @@
                 self.polling=setInterval(async function () {
                     try {
                         let response = await axios.get(
-                            `https://still-sea-41149.herokuapp.com/api/queue?token=${self.token}`
+                            `https://esc-acorn-backend.herokuapp.com/api/queue?token=${self.token}`
                         );
                         self.agentId = response.data.agentId; //get agent id
-                        self.agentName = response.data.agentName; //get agent name
+                        self.$store.state.agentName = response.data.agentName; //get agent name
                         // console.log(response);
-                        if (self.agentId) {
+                        if (self.agentId!=="Null") {
                             clearInterval(self.polling);
                             self.connecting=true;
                             await self.startChat();
@@ -120,18 +118,18 @@
                     } catch(err) {
                         console.log(err);
                     }
-                },10000)
+                },3000)
             },
             startChat: async function () {
+                let self=this;
                 try {
                     await rainbowSDK.connection.signinSandBoxWithToken(this.token); //login to rainbow server with guest token
-                    this.loading=50;
-                    let contact = await rainbowSDK.contacts.searchById(this.agentId);
-                    //let contact = await rainbowSDK.contacts.searchById(this.agentId); //get contact from agent id
+                    self.loading=50;
+                    let contact = await rainbowSDK.contacts.searchById(this.agentId); //get contact from agent id
                     this.conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-                    this.loading=100;
+                    self.loading=100;
                     await rainbowSDK.im.getMessagesFromConversation(this.conversation); //getting all messages from conversation
-                    this.start=true;
+                    self.start=true;
                     document.addEventListener(
                         rainbowSDK.im.RAINBOW_ONNEWIMMESSAGERECEIVED,
                         this.receive
@@ -145,9 +143,16 @@
                 }
             },
 
+            /**********************CLEANUP FUNCS**********************/
             leaveQueue: function(){ // remove queue entry
                 let self=this;
-                axios.delete(`https://still-sea-41149.herokuapp.com/api/queue?token=?${self.token}`)
+                axios.delete(`https://esc-acorn-backend.herokuapp.com/api/queue?token=${self.token}`)
+                    .then(res => console.log(res))
+                    .catch(err => console.log(err))
+            },
+            endConversation: async function() {
+                let self=this;
+                axios.patch(`https://esc-acorn-backend.herokuapp.com/api/agents?agentId=${self.agentId}`)
                     .then(res => console.log(res))
                     .catch(err => console.log(err))
             },
@@ -201,14 +206,15 @@
                     self.$refs["header"].style.fontSize = "40px";
                 }
             };
-            this.getConnection();
+            self.getConnection();
         },
         beforeDestroy() {
+            let self=this;
             console.log("exiting");
-            this.leaveQueue();
-            this.cancelled=true;
+            self.leaveQueue();
+            self.cancelled=true;
             clearInterval(self.polling);
-            this.endConversation();
+            self.endConversation();
         }
     }
 </script>
