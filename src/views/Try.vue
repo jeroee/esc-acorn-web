@@ -1,99 +1,128 @@
 <template>
-    <div>
-                 <div id="app">
-                            <v-app id="inspire">
-                                <v-carousel
-                                cycle
-                                height="400"
-                                hide-delimiter-background
-                                show-arrows-on-hover
-                                >
-                                <v-carousel-item
-                                    v-for="(slide, i) in slides"
-                                    :key="i"
-                                >
-                                    <v-sheet
-                                    :color="colors[i]"
-                                    height="100%"
-                                    >
-                                    <v-row
-                                        class="fill-height"
-                                        align="center"
-                                        justify="center"
-                                    >
-                                        <div class="display-3">{{ slide }} Slide</div>
-                                    </v-row>
-                                    </v-sheet>
-                                </v-carousel-item>
-                                </v-carousel>
-                            </v-app>
-                </div>
+<div id="app">
+  <v-app id="inspire">
+    <form>
+      <v-text-field
+        v-model="name"
+        :error-messages="nameErrors"
+        :counter="10"
+        label="Name"
+        required
+        @input="$v.name.$touch()"
+        @blur="$v.name.$touch()"
+      ></v-text-field>
+      <v-text-field
+        v-model="email"
+        :error-messages="emailErrors"
+        label="E-mail"
+        required
+        @input="$v.email.$touch()"
+        @blur="$v.email.$touch()"
+      ></v-text-field>
+      <v-select
+        v-model="select"
+        :items="items"
+        :error-messages="selectErrors"
+        label="Item"
+        required
+        @change="$v.select.$touch()"
+        @blur="$v.select.$touch()"
+      ></v-select>
+      <v-checkbox
+        v-model="checkbox"
+        :error-messages="checkboxErrors"
+        label="Do you agree?"
+        required
+        @change="$v.checkbox.$touch()"
+        @blur="$v.checkbox.$touch()"
+      ></v-checkbox>
+  
+      <v-btn class="mr-4" @click="submit">submit</v-btn>
+      <v-btn @click="clear">clear</v-btn>
+    </form>
+  </v-app>
+</div>
 
-                <div>
-                    <CallButton></CallButton>
-                </div>
-
-                 <v-container class="flex-col">
-            <v-select v-model="selected" v style="width: 400px"
-                :items="categories"
-                outlined
-                :menu-props="{ offsetY:true, openOnHover:true, openOnClick:false }"
-                label="Choose a support category..."
-            ></v-select>
-
-            <br>
-            <br>
-            <br>
-            <br>
-            <br>
-            <br>
-            <br>
-            <div style="flex-direction: row">
-                <div style="flex-direction: row">
-                    <v-btn to="/chat" @click="getAgentId" x-large depressed class="ma-5 green white--text">
-                        <v-icon left>message</v-icon> Get Chat Support
-                    </v-btn>
-
-                    <v-btn to="/QandAPage1" @click="getAgentId" x-large depressed class="ma-5 green white--text">
-                        <v-icon left>message</v-icon> Question and solution
-                    </v-btn>
-                </div>
-            </div>
-            <popup></popup>
-
-
-                <!-- <v-btn to="/call" @click="alert" x-large depressed class="ma-5 green white--text">
-                    <v-icon left>phone</v-icon> Get Call Support
-                </v-btn> -->
-        </v-container>
-
-
-    </div>
 </template>
 
-
 <script>
-import CallButton from '../components/Navbar'
+
+import { required, maxLength,email } from 'vuelidate/lib/validators'
+import Vue from 'vue'
+import Vuelidate from 'vuelidate'
+import { validationMixin } from 'vuelidate'
+Vue.use(Vuelidate)
+
+
+
 export default {
-    components:{CallButton},
+  mixins: [validationMixin],
 
-     data() {
-    return {
-      colors: [
-      'indigo',
-      'warning',
-      'pink darken-2',
-      'red lighten-1',
-      'deep-purple accent-4'],
-
-      slides: [
-      'First',
-      'Second',
-      'Third',
-      'Fourth',
-      'Fifth'] };
+  validations: {
+    name: { required, maxLength: maxLength(10) },
+    email: { required, email },
+    select: { required },
+    checkbox: {
+      checked(val) {
+        return val;
+      } } },
 
 
-  } }
 
+
+  data: () => ({
+    name: '',
+    email: '',
+    select: null,
+    items: [
+    'Item 1',
+    'Item 2',
+    'Item 3',
+    'Item 4'],
+
+    checkbox: false }),
+
+
+  computed: {
+    checkboxErrors() {
+      const errors = [];
+      if (!this.$v.checkbox.$dirty) return errors;
+      !this.$v.checkbox.checked && errors.push('You must agree to continue!');
+      return errors;
+    },
+    selectErrors() {
+      const errors = [];
+      if (!this.$v.select.$dirty) return errors;
+      !this.$v.select.required && errors.push('Item is required');
+      return errors;
+    },
+    nameErrors() {
+      const errors = [];
+      if (!this.$v.name.$dirty) return errors;
+      !this.$v.name.maxLength && errors.push('Name must be at most 10 characters long');
+      !this.$v.name.required && errors.push('Name is required.');
+      return errors;
+    },
+    emailErrors() {
+      const errors = [];
+      if (!this.$v.email.$dirty) return errors;
+      !this.$v.email.email && errors.push('Must be valid e-mail');
+      !this.$v.email.required && errors.push('E-mail is required');
+      return errors;
+    } },
+
+
+
+  methods: {
+    submit() {
+      this.$v.$touch();
+    },
+    clear() {
+      this.$v.$reset();
+      this.name = '';
+      this.email = '';
+      this.select = null;
+      this.checkbox = false;
+    } } }
 </script>
+
