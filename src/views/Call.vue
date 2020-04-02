@@ -167,8 +167,8 @@ export default {
       let response = await axios.get(
         `https://still-sea-41149.herokuapp.com/api/agentss?category=${this.selectedIndex}` //obtain agent through category
       );
-      let agent_id = response.data.agent.rainbowId; //get agent id
-      let agent_name = response.data.agent.name; //get agent name
+      let agent_id = response.data.agentId; //get agent id
+      let agent_name = response.data.agentName; //get agent name
       let token = response.data.token; //get guest token
       // let agent_id = "5e4950b6e9f12730636972b5";
       // let token =
@@ -179,7 +179,7 @@ export default {
       let account = await rainbowSDK.connection.signinSandBoxWithToken(token); //login to rainbow server with guest token
       if (account) {
         console.log("sign in success");
-        this.contact = await rainbowSDK.contacts.searchById(agent_id); //get contact from agent id
+        this.contact = await rainbowSDK.contacts.searchById("5e4950b6e9f12730636972b5"); //get contact from agent id
         console.log(this.contact);
 
         this.start = false;
@@ -201,13 +201,6 @@ export default {
     },
     //DONT REMOVE THE COMMENTED PART HERE
 
-
-    // startCall: function() {
-    //   this.call = rainbowSDK.webRTC.callInAudio(this.contact);
-    //   if (this.call.label === "OK") {
-    //     console.log("your call has been correctly initialised");
-    //   }
-    // },
     endCall: function() {              
    //function to end call from the customer's side when pressing End Call   //currently not working yet!!
       console.log("removing call");

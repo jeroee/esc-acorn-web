@@ -4,13 +4,13 @@
     <v-row justify="center">
         <v-card>
           <v-toolbar dark color="primary">
-            <v-btn icon dark @click="dialog = false">
+            <v-btn to="/" icon dark @click="dialog = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
             <v-toolbar-title>FeedBack</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-toolbar-items>
-              <v-btn to="/Homepage" dark text @click="dialog = false">Submit</v-btn>
+              <v-btn id='submit' to="/" dark text @click="dialog = false">Submit</v-btn>
               <!-- <v-btn to="/Homepage" @click="alert" x-large depressed class="ma-5 green white--text">
                           submit
                       </v-btn>   -->
@@ -23,7 +23,7 @@
                         <v-container>
                         <v-row>
                             <v-col cols="12" sm="6" md="4">
-                            <v-text-field label="Legal first name*" required></v-text-field>
+                            <v-text-field id='first name' label="Legal first name*" required></v-text-field>
                             </v-col>
                             <v-col cols="12" sm="6" md="4">
                             <v-text-field label="Legal middle name" hint="example of helper text only on focus"></v-text-field>
