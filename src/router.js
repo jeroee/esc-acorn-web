@@ -1,9 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Homepage from "./views/Homepage";
-// import Chatpage from "./views/Chatpage";
-// import Waitpage from "./views/Waitpage";
-// import Call from "./views/Call"
+
 
 Vue.use(Router);
 
@@ -96,9 +94,58 @@ export default new Router({
         },
 
         {
-            path: '/Try',
-            name: 'Try',
-            component: () => import('./views/Try.vue')
+            path: '/layout',
+            name: 'layout',
+            component: () => import('./Dashboard/layout.vue')
+        },
+
+        {
+            path: '/AgentList',
+            name: 'AgentList',
+            component: () => import('./Dashboard/AgentList.vue')},
+
+        {
+            path: '/CustomersList',
+            name: 'CustomersList',
+
+            component: () => import('./Dashboard/CustomersList.vue')
+        },
+
+        {
+            path: '/notification',
+            name: 'notification',
+            component: () => import('./Dashboard/notification.vue')
+        },
+
+        {
+            path: '/Calling',
+            name: 'Calling',
+            component: () => import('./Dashboard/Calling.vue')
+        },
+
+        {
+            path: '/Login',
+            name: 'Login',
+            component: () => import('./Dashboard/Login.vue')
+        },
+
+        {
+            path: '/PersonalInformation',
+            name: 'PersonalInformation',
+            component: () => import('./Dashboard/PersonalInformation.vue')
+        },
+
+        {
+            path: '/Chatting',
+            name: 'Chatting',
+            component: () => import('./Dashboard/Chatting.vue')
+        },
+
+        {
+            path: '/Sidebar',
+            name: 'Sidebar',
+            component: () => import('./Dashboard/Sidebar.vue')
+
         }
 
     ]
