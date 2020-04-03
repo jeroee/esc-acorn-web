@@ -1,9 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Homepage from "./views/Homepage";
-// import Chatpage from "./views/Chatpage";
-// import Waitpage from "./views/Waitpage";
-// import Call from "./views/Call"
+
 
 Vue.use(Router);
 
@@ -104,11 +102,12 @@ export default new Router({
         {
             path: '/AgentList',
             name: 'AgentList',
-            component: () => import('./Dashboard/AgentList.vue')
-        },
+            component: () => import('./Dashboard/AgentList.vue')},
+
         {
             path: '/CustomersList',
             name: 'CustomersList',
+
             component: () => import('./Dashboard/CustomersList.vue')
         },
 
@@ -146,6 +145,7 @@ export default new Router({
             path: '/Sidebar',
             name: 'Sidebar',
             component: () => import('./Dashboard/Sidebar.vue')
+
         }
 
     ]
