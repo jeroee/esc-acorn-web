@@ -1,9 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Homepage from "./views/Homepage";
-// import Chatpage from "./views/Chatpage";
-// import Waitpage from "./views/Waitpage";
-// import Call from "./views/Call"
+
 
 Vue.use(Router);
 
@@ -93,6 +91,29 @@ export default new Router({
             path: '/Popmotion',
             name: 'Popmotion',
             component: () => import('./views/Popmotion.vue')
+        },
+
+        {
+            path: '/layout',
+            name: 'layout',
+            component: () => import('./Dashboard/layout.vue')
+        },
+
+        {
+            path: '/Navbaradm',
+            name: 'Navbaradm',
+            component: () => import('./components/Navbaradm.vue')
+        },
+
+        {
+            path: '/AgentList',
+            name: 'AgentList',
+            component: () => import('./views/AgentList.vue')
+        },
+        {
+            path: '/CustomersList',
+            name: 'CustomersList',
+            component: () => import('./views/CustomersList.vue')
         },
 
         {
