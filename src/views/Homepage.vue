@@ -74,10 +74,7 @@
           <v-icon left>phone</v-icon>Get Call Support
         </v-btn>
 
-        <v-col>
-        <v-btn class="mr-4"  @click="submit">submit2</v-btn>
-        <v-btn @click="clear">clear</v-btn>
-      </v-col>
+       
 
       </div>
 
