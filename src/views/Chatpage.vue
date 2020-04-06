@@ -8,7 +8,7 @@
             <v-card class="ma-5 green white--text" v-bind:class="item.sender" flat width="500px" v-for="item in items" :key="item.message">
                 <v-card-subtitle class="white--text pb-0">{{item.sender}}</v-card-subtitle>
                 <v-card-title style="word-break: keep-all">
-                    {{ item.message }}
+                    Hi {{firstName}}, {{item.message}}
                 </v-card-title>
                 <v-card-subtitle class="white--text text-right pr-2 pb-1">{{item.time}}</v-card-subtitle>
             </v-card>
@@ -25,10 +25,10 @@
                     auto-grow
                     placeholder="Send a message..."
             />
-            <v-btn @click="message" height="58px" x-large depressed tile class="green white--text">
+            <v-btn id = 'send message' @click="message" height="58px" x-large depressed tile class="green white--text">
                 <h3>Send</h3><v-icon right>send</v-icon>
             </v-btn>
-            <v-btn to="/" height="58px" x-large depressed tile class="red white--text">
+            <v-btn id = 'exit chat' @click="exitChat" height="58px" x-large depressed tile class="red white--text">
                 <h3>Leave</h3><v-icon right>input</v-icon>
             </v-btn>
         </v-footer>
@@ -50,8 +50,8 @@
             agentId: "", // String variable for agent id
             items: [
                 {
-                    message: "Hi there! You've been connected with our agent. You may start typing to chat!",
-                    sender: "System Message",
+                    message: " You have been connected! How may I assist you today?",
+                    sender: "System",
                     time: moment().format("h:mm a")
                 },
             ], // array of messages, updated on receive and send
@@ -68,17 +68,29 @@
             },
             agentName() {
                 return this.$store.state.agentName;
+            },
+            firstName(){
+                return this.$store.state.firstName;
+            },
+            lastName(){
+                return this.$store.state.lastName;
             }
         },
         methods: {
             /**********************INITIAL GET**********************/
             getConnection: async function() {
                 let self=this;
+                console.log(this.categoryIndex);
                 try {
                     let response = await axios.get(
-                        `https://esc-acorn-backend.herokuapp.com/api/agents?category=${this.categoryIndex}` //obtain agent through category
+                        `https://still-sea-41149.herokuapp.com/api/agents?category=${this.categoryIndex}&firstName=${this.firstName}&lastName=${this.lastName}`
+                        //`https://esc-acorn-backend.herokuapp.com/api/agents?category=${this.categoryIndex}` //obtain agent through category
                     );
-                    self.agentId = response.data.agentId; //get agent id
+                    console.log(response.data.guestFirstName);
+                    console.log(response.data.guestLastName);
+                    //hardcoded the agentId if not no access
+                    self.agentId = "5e4950b6e9f12730636972b5";
+                    //self.agentId = response.data.agentId; //get agent id
                     self.$store.state.agentName = response.data.agentName; //get agent name
                     self.token = response.data.token; //get guest token
                     console.log(this.agentId);
@@ -178,6 +190,13 @@
                 console.log(event.detail.message.data);
                 console.log(event.detail.message.side);
             },
+
+            /*********************        EXITING CHAT         *********************/
+            exitChat: async function() {
+                await rainbowSDK.conversations.closeConversation(this.conversation)
+                .then(console.log("conversation closed"))
+                .then(window.location.href = 'Feedback');
+            }
         },
         mounted() {
             const self = this;

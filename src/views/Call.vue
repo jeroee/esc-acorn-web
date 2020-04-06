@@ -230,6 +230,17 @@ export default {
                 .catch(err => console.log(err))
         }
     },
+    //DONT REMOVE THE COMMENTED PART HERE
+
+    endCall: function() {              
+   //function to end call from the customer's side when pressing End Call   //currently not working yet!!
+      console.log("removing call");
+      window.location.href = 'Feedback';
+      //console.log(event.detail.status.value); 
+      //document.addEventListener(rainbowSDK.webRTC.RAINBOW_ONWEBRTCCALLSTATECHANGED, this.onWebRTCCallChanged);
+      //rainbowSDK.webRTC.release(this.call); //cannot get this line of code working
+      // console.log("res:", res);
+    },
     beforeDestroy() {
         let self=this;
         console.log("exiting");
@@ -238,7 +249,7 @@ export default {
         clearInterval(self.polling);
         self.endConversation();
     }
-};
+}
 </script>
 
 

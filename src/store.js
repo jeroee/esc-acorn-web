@@ -7,6 +7,8 @@ export const store = new Vuex.Store({
     state: {
         categoryIndex: 1,
         categoryName: "",
-        agentName:"Placeholder Name"
+        agentName:"Placeholder Name",
+        firstName:"",
+        lastName:"",
     },
 });
