@@ -66,6 +66,7 @@
 import Waitpage from "./Waitpage";
 import rainbowSDK from "rainbow-web-sdk";
 import axios from "axios";
+import io from 'socket.io-client';
 
 export default {
     name: "Call",
@@ -87,6 +88,8 @@ export default {
         }
     },
     mounted() {
+        const socket = io.connect('http://localhost:4000');
+        socket.on("hello", (data)=>console.log(data));
         this.checkCall();
         this.getConnection();
     },
