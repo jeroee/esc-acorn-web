@@ -5,10 +5,10 @@
         </transition>
         <div class="chatBox" id="chatBox" ref="chatBox">
             <h1 class="font-weight-light mb-5" id="header" ref="header">Let's chat <v-icon x-large color="black">chat</v-icon></h1>
-            <v-card class="ma-5 green white--text" v-bind:class="item.sender" flat width="500px" v-for="(item, index) in items" :key="index">
+            <v-card class="ma-5 green white--text" v-bind:class="item.position" flat width="500px" v-for="(item, index) in items" :key="index">
                 <v-card-subtitle class="white--text pb-0">{{item.sender}}</v-card-subtitle>
                 <v-card-title style="word-break: keep-all">
-                    Hi {{firstName}}, {{item.message}}
+                    {{item.message}}
                 </v-card-title>
                 <v-card-subtitle class="white--text text-right pr-2 pb-1">{{item.time}}</v-card-subtitle>
             </v-card>
@@ -28,7 +28,7 @@
             <v-btn id = 'send message' @click="message" height="58px" x-large depressed tile class="green white--text">
                 <h3>Send</h3><v-icon right>send</v-icon>
             </v-btn>
-            <v-btn id = 'exit chat' @click="exitChat" height="58px" x-large depressed tile class="red white--text">
+            <v-btn id ='exit chat' @click="exitChat" height="58px" x-large depressed tile class="red white--text">
                 <h3>Leave</h3><v-icon right>input</v-icon>
             </v-btn>
         </v-footer>
@@ -51,7 +51,8 @@
             agentId: "", // String variable for agent id
             items: [
                 {
-                    message: " You have been connected! How may I assist you today?",
+                    message: "You have been connected with our agent. Please let them know how they may assist you today.",
+                    position: "left",
                     sender: "System",
                     time: moment().format("h:mm a")
                 },
@@ -167,22 +168,24 @@
 
             /**********************MESSAGE FUNCS**********************/
             message() {
-                if (this.txt !== "") {
-                    let message= this.txt;
-                    rainbowSDK.im.sendMessageToConversation(this.conversation, message);
-                    this.items.push({message: message, sender: "you", time: moment().format("h:mm a")});
+                let self=this;
+                if (self.txt !== "") {
+                    let message= self.txt;
+                    rainbowSDK.im.sendMessageToConversation(self.conversation, message);
+                    self.items.push({message: message, position: "right", sender: self.firstName +" "+ self.lastName, time: moment().format("h:mm a")});
                     $("#chatBox").animate({scrollTop: $('#chatBox')[0].scrollHeight}, 500);
-                    this.txt = "";
+                    self.txt = "";
                 }
             },
-            receive: function(event) {     //this function works when u receive a message
+            receive: function(event) {
+                let self=this;
                 console.log(event.detail.message.data);
                 console.log(event.detail.message.side);
-                this.items.push({message: event.detail.message.data, sender: this.agentName, time: moment().format("h:mm a")});
+                self.items.push({message: event.detail.message.data, position: "left", sender: self.agentName, time: moment().format("h:mm a")});
                 $("#chatBox").animate({scrollTop: $('#chatBox')[0].scrollHeight}, 500);
             },
 
-            receipt: function(event) {      //this function works when u send out a message
+            receipt: function(event) {
                 console.log(event.detail.message.data);
                 console.log(event.detail.message.side);
             },
@@ -203,8 +206,13 @@
             self.socket.on("handshake", function (data) {
                 console.log(data);
                 console.log("Socket.io getAgent");
+                console.log(self.categoryIndex);
+                console.log(self.firstName);
+                console.log(self.lastName);
                 self.socket?.emit("getAgent",{
-                    category: self.categoryIndex
+                    category: self.categoryIndex,
+                    firstName: self.firstName,
+                    lastName: self.lastName
                 })
             });
 
@@ -257,7 +265,7 @@
     height: 100vh;
 }
 
-.you {
+.right {
     margin-left: auto !important;
     background-color: green !important;
 }
