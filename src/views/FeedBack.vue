@@ -72,6 +72,7 @@
             </v-card>
         </v-card>
     </div>
+
 </template>
 
 
@@ -90,12 +91,5 @@ export default {
 }
 </script>
 
-<style scoped>
-    .flex-col {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-    }
-</style>
+
+ 
