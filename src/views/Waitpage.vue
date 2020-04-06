@@ -17,7 +17,8 @@
                 :rotate="-90"
                 color="green"
         >{{loading}}</v-progress-circular>
-        <v-btn  @click="cancel" v-if="!connecting" x-large depressed class="ma-10 green white--text">
+
+        <v-btn id="cancel" @click="cancel" v-if="!connecting" x-large depressed class="ma-10 green white--text">
             <v-icon large left>close</v-icon>
             <h2 class="font-weight-medium">Cancel</h2>
         </v-btn>

@@ -25,10 +25,10 @@
                     auto-grow
                     placeholder="Send a message..."
             />
-            <v-btn @click="message" height="58px" x-large depressed tile class="green white--text">
+            <v-btn id = 'send message' @click="message" height="58px" x-large depressed tile class="green white--text">
                 <h3>Send</h3><v-icon right>send</v-icon>
             </v-btn>
-            <v-btn to="/" height="58px" x-large depressed tile class="red white--text">
+            <v-btn id = 'exit chat' @click="exitChat" height="58px" x-large depressed tile class="red white--text">
                 <h3>Leave</h3><v-icon right>input</v-icon>
             </v-btn>
         </v-footer>
@@ -178,6 +178,19 @@
                 console.log(event.detail.message.data);
                 console.log(event.detail.message.side);
             },
+            endConversation: async function() {
+                let self=this;
+                axios.patch(`https://still-sea-41149.herokuapp.com/api/agentss?rainbowId=${self.agentId}`)
+                    .then(res => console.log(res))
+                    .catch(err => console.log(err))
+            },
+
+            /*********************        EXITING CHAT         *********************/
+            exitChat: async function() {
+                await rainbowSDK.conversations.closeConversation(this.conversation)
+                .then(console.log("conversation closed"))
+                .then(window.location.href = 'Feedback');
+            }
         },
         mounted() {
             const self = this;

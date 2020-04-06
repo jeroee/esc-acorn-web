@@ -13,8 +13,9 @@
         <br>
 
         <v-container class="flex-col">
-    
-            <v-select  v-model="selected" v style="width: 400px"
+
+            <v-select id="category" v-model="selected" style="width: 400px"
+            
                 :items="categories"
                 outlined
                 color="green"
