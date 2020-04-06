@@ -240,6 +240,7 @@ export default {
       //document.addEventListener(rainbowSDK.webRTC.RAINBOW_ONWEBRTCCALLSTATECHANGED, this.onWebRTCCallChanged);
       //rainbowSDK.webRTC.release(this.call); //cannot get this line of code working
       // console.log("res:", res);
+    },
     beforeDestroy() {
         let self=this;
         console.log("exiting");
@@ -248,7 +249,7 @@ export default {
         clearInterval(self.polling);
         self.endConversation();
     }
-};
+}
 </script>
 
 

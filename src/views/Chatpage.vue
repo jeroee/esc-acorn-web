@@ -178,12 +178,6 @@
                 console.log(event.detail.message.data);
                 console.log(event.detail.message.side);
             },
-            endConversation: async function() {
-                let self=this;
-                axios.patch(`https://still-sea-41149.herokuapp.com/api/agentss?rainbowId=${self.agentId}`)
-                    .then(res => console.log(res))
-                    .catch(err => console.log(err))
-            },
 
             /*********************        EXITING CHAT         *********************/
             exitChat: async function() {
