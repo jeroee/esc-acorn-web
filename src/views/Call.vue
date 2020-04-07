@@ -65,7 +65,7 @@
 <script>
 import Waitpage from "./Waitpage";
 import rainbowSDK from "rainbow-web-sdk";
-import axios from "axios";
+// import axios from "axios";
 import io from 'socket.io-client';
 
 export default {
@@ -77,7 +77,8 @@ export default {
         start: false,
         connecting: false,
         cancelled: false,
-        loading: 0
+        loading: 0,
+        socket:"" // holds the socket object
     }),
     computed: {
         categoryIndex() {
@@ -85,13 +86,47 @@ export default {
         },
         agentName() {
             return this.$store.state.agentName;
+        },
+        firstName(){
+            return this.$store.state.firstName;
+        },
+        lastName(){
+            return this.$store.state.lastName;
         }
     },
     mounted() {
-        const socket = io.connect('http://localhost:4000');
-        socket.on("hello", (data)=>console.log(data));
-        this.checkCall();
-        this.getConnection();
+        let self = this;
+        self.checkCall();
+
+        self.socket = io.connect('https://esc-acorn-backend.herokuapp.com/');
+        // self.socket = io.connect('http://localhost:4000/');
+        /**********************MOUNT ALL SOCKET METHODS HERE**********************/
+        self.socket.on("handshake", function (data) {
+            console.log(data);
+            console.log("Socket.io getAgent");
+            console.log(self.categoryIndex);
+            console.log(self.firstName);
+            console.log(self.lastName);
+            self.socket?.emit("getAgent",{
+                category: self.categoryIndex,
+                firstName: self.firstName,
+                lastName: self.lastName
+            })
+        });
+
+        self.socket.on("getAgentSuccess", function (data) {
+            console.log("Socket.io getAgentSuccess");
+            self.agentId = data.agentId; //get agent id
+            self.$store.state.agentName = data.agentName; //get agent name
+            self.token = data.token; //get guest token
+            console.log(`Your agentId is ${self.agentId}`);
+            console.log(`Your agentName is ${self.agentName}`);
+            console.log(`Your token is ${self.token}`);
+            self.connecting=true;
+            self.startCall();
+        });
+
+        // this.getConnection(); DEPRECATED
     },
     methods: {
         checkCall: function() {
@@ -100,6 +135,8 @@ export default {
                 console.log("Browser supports calls");
             } else {
                 console.log("Browser does not support calls");
+                alert("Your browser does not support audio calls, please update to the latest version, or use a different browser!");
+                this.$router.push({path: "/feedback"});
             }
             console.log("requesting microphone access");
             navigator.mediaDevices //authoerise the application to access media device
@@ -129,55 +166,56 @@ export default {
                 });
         },
 
-        /**********************INITIAL GET**********************/
-        getConnection: async function() {
-            let self=this;
-            try {
-                let response = await axios.get(
-                    `https://esc-acorn-backend.herokuapp.com/api/agents?category=${this.categoryIndex}` //obtain agent through category
-                );
-                self.agentId = response.data.agentId; //get agent id
-                self.$store.state.agentName = response.data.agentName; //get agent name
-                self.token = response.data.token; //get guest token
-                console.log(this.agentId);
-                console.log(`Your token is ${self.token}`);
-                if (self.agentId!=="Null") {
-                    self.connecting=true;
-                    await self.startCall();
-                } else {
-                    console.log("No account found! Retrying every x seconds");
-                    if (!self.cancelled) { //prevent polling in early exits
-                        self.pollConnection();
-                    } else console.log("Load was left early");
-                }
-            } catch(err) {
-                console.log(err);
-            }
-        },
+        /**********************INITIAL GET (DEPRECATED ON SOCKETING VERSION)**********************/
+        // getConnection: async function() {
+        //     let self=this;
+        //     try {
+        //         let response = await axios.get(
+        //             `https://esc-acorn-backend.herokuapp.com/api/agents?category=${this.categoryIndex}` //obtain agent through category
+        //         );
+        //         self.agentId = response.data.agentId; //get agent id
+        //         self.$store.state.agentName = response.data.agentName; //get agent name
+        //         self.token = response.data.token; //get guest token
+        //         console.log(this.agentId);
+        //         console.log(`Your token is ${self.token}`);
+        //         if (self.agentId!=="Null") {
+        //             self.connecting=true;
+        //             await self.startCall();
+        //         } else {
+        //             console.log("No account found! Retrying every x seconds");
+        //             if (!self.cancelled) { //prevent polling in early exits
+        //                 self.pollConnection();
+        //             } else console.log("Load was left early");
+        //         }
+        //     } catch(err) {
+        //         console.log(err);
+        //     }
+        // },
 
-        /**********************POLLING GET**********************/
-        pollConnection: function() {
-            let self=this;
-            self.polling=setInterval(async function () {
-                try {
-                    let response = await axios.get(
-                        `https://esc-acorn-backend.herokuapp.com/api/queue?token=${self.token}`
-                    );
-                    self.agentId = response.data.agentId; //get agent id
-                    self.$store.state.agentName = response.data.agentName; //get agent name
-                    // console.log(response);
-                    if (self.agentId!=="Null") {
-                        clearInterval(self.polling);
-                        self.connecting=true;
-                        await self.startCall();
-                    } else {
-                        console.log("You are still waiting for an agent");
-                    }
-                } catch(err) {
-                    console.log(err);
-                }
-            },3000)
-        },
+        /**********************POLLING GET (DEPRECATED ON SOCKETING VERSION)**********************/
+        // pollConnection: function() {
+        //     let self=this;
+        //     self.polling=setInterval(async function () {
+        //         try {
+        //             let response = await axios.get(
+        //                 `https://esc-acorn-backend.herokuapp.com/api/queue?token=${self.token}`
+        //             );
+        //             self.agentId = response.data.agentId; //get agent id
+        //             self.$store.state.agentName = response.data.agentName; //get agent name
+        //             // console.log(response);
+        //             if (self.agentId!=="Null") {
+        //                 clearInterval(self.polling);
+        //                 self.connecting=true;
+        //                 await self.startCall();
+        //             } else {
+        //                 console.log("You are still waiting for an agent");
+        //             }
+        //         } catch(err) {
+        //             console.log(err);
+        //         }
+        //     },3000)
+        // },
+
         startCall: async function () {
             let self=this;
             try {
@@ -219,38 +257,40 @@ export default {
             //rainbowSDK.webRTC.release(this.call); //cannot get this line of code working
             // console.log("res:", res);
         },
-        /**********************CLEANUP FUNCS**********************/
-        leaveQueue: async function(){ // remove queue entry
-            let self=this;
-            axios.delete(`https://esc-acorn-backend.herokuapp.com/api/queue?token=${self.token}`)
-                .then(res => console.log(res))
-                .catch(err => console.log(err))
-        },
-        endConversation: async function() {
-            let self=this;
-            axios.patch(`https://esc-acorn-backend.herokuapp.com/api/agents?agentId=${self.agentId}`)
-                .then(res => console.log(res))
-                .catch(err => console.log(err))
-        }
+        /**********************CLEANUP FUNCS (DEPRECATED ON SOCKETING VERSION)**********************/
+        // leaveQueue: async function(){ // remove queue entry
+        //     let self=this;
+        //     axios.delete(`https://esc-acorn-backend.herokuapp.com/api/queue?token=${self.token}`)
+        //         .then(res => console.log(res))
+        //         .catch(err => console.log(err))
+        // },
+        // endConversation: async function() {
+        //     let self=this;
+        //     axios.patch(`https://esc-acorn-backend.herokuapp.com/api/agents?agentId=${self.agentId}`)
+        //         .then(res => console.log(res))
+        //         .catch(err => console.log(err))
+        // }
     },
     //DONT REMOVE THE COMMENTED PART HERE
-
-    endCall: function() {              
-   //function to end call from the customer's side when pressing End Call   //currently not working yet!!
+    endCall: function() {
+    //function to end call from the customer's side when pressing End Call   //currently not working yet!!
       console.log("removing call");
       window.location.href = 'Feedback';
-      //console.log(event.detail.status.value); 
+      //console.log(event.detail.status.value);
       //document.addEventListener(rainbowSDK.webRTC.RAINBOW_ONWEBRTCCALLSTATECHANGED, this.onWebRTCCallChanged);
       //rainbowSDK.webRTC.release(this.call); //cannot get this line of code working
       // console.log("res:", res);
     },
+    /**********************BACKUP CLEANUP METHOD**********************/
     beforeDestroy() {
         let self=this;
-        console.log("exiting");
-        self.leaveQueue();
-        self.cancelled=true;
-        clearInterval(self.polling);
-        self.endConversation();
+        self.socket.disconnect();
+        console.log("Exiting");
+        // DEPRECATED METHODS ON SOCKETING VERSION
+        // self.leaveQueue();
+        // self.cancelled=true;
+        // clearInterval(self.polling);
+        // self.endConversation();
     }
 }
 </script>

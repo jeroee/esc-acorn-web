@@ -129,6 +129,8 @@
             //         }
             //     },3000)
             // },
+
+
             startChat: async function () {
                 let self=this;
                 try {
@@ -193,8 +195,8 @@
             /*********************        EXITING CHAT         *********************/
             exitChat: async function() {
                 await rainbowSDK.conversations.closeConversation(this.conversation)
-                .then(console.log("conversation closed"))
-                .then(window.location.href = 'Feedback');
+                .then(console.log("Conversation Closed"))
+                .then(this.$router.push({path: "/feedback"}));
             }
         },
 
@@ -202,6 +204,7 @@
         mounted() {
             let self = this;
             self.socket = io.connect('https://esc-acorn-backend.herokuapp.com/');
+            // self.socket = io.connect('http://localhost:4000/');
             /**********************MOUNT ALL SOCKET METHODS HERE**********************/
             self.socket.on("handshake", function (data) {
                 console.log(data);
@@ -240,7 +243,7 @@
                     self.$refs["header"].style.fontSize = "40px";
                 }
             };
-            // self.getConnection();
+            // self.getConnection(); DEPRECATED
         },
         /**********************BACKUP CLEANUP METHOD**********************/
         beforeDestroy() {
