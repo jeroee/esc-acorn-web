@@ -73,7 +73,6 @@ export default {
     components:{Waitpage},
     data: () => ({
         token: "", // String variable for guest account token
-        agentId: "", // String variable for agent id
         start: false,
         connecting: false,
         cancelled: false,
@@ -86,6 +85,9 @@ export default {
         },
         agentName() {
             return this.$store.state.agentName;
+        },
+        agentId() {
+            return this.$store.state.agentId;
         },
         firstName(){
             return this.$store.state.firstName;
@@ -116,7 +118,7 @@ export default {
 
         self.socket.on("getAgentSuccess", function (data) {
             console.log("Socket.io getAgentSuccess");
-            self.agentId = data.agentId; //get agent id
+            self.$store.state.agentId = data.agentId;
             self.$store.state.agentName = data.agentName; //get agent name
             self.token = data.token; //get guest token
             console.log(`Your agentId is ${self.agentId}`);
