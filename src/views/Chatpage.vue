@@ -193,8 +193,8 @@
             /*********************        EXITING CHAT         *********************/
             exitChat: async function() {
                 await rainbowSDK.conversations.closeConversation(this.conversation)
-                .then(console.log("conversation closed"))
-                .then(window.location.href = 'Feedback');
+                .then(console.log("conversation closed"));
+                this.$router.push({path: "/Feedback"});
             }
         },
 
@@ -219,6 +219,7 @@
             self.socket.on("getAgentSuccess", function (data) {
                 console.log("Socket.io getAgentSuccess");
                 self.agentId = data.agentId; //get agent id
+                self.$store.state.agentId = data.agentId;
                 self.$store.state.agentName = data.agentName; //get agent name
                 self.token = data.token; //get guest token
                 console.log(`Your agentId is ${self.agentId}`);
