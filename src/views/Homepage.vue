@@ -113,14 +113,14 @@
             },
 
             requestChat: function () {
-                if (this.isSelected) {
+                if (!this.isSelected) {
                     this.submit();
                     this.$router.push({path: "/chat"});
                 }
             },
 
             requestCall: function () {
-                if (this.isSelected) {
+                if (!this.isSelected) {
                     this.submit();
                     this.$router.push({path: "/call"});
                 }

@@ -48,7 +48,6 @@
         components: {Waitpage},
         data: () => ({
             token: "", // String variable for guest account token
-            agentId: "", // String variable for agent id
             items: [
                 {
                     message: "You have been connected with our agent. Please let them know how they may assist you today.",
@@ -71,6 +70,9 @@
             },
             agentName() {
                 return this.$store.state.agentName;
+            },
+            agentId() {
+                return this.$store.state.agentId;
             },
             firstName(){
                 return this.$store.state.firstName;
