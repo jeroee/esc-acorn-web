@@ -38,6 +38,7 @@ export default {      //declaring the page so that u can import later
         });
         rainbowSDK.start();
         rainbowSDK.load();
+
     },
 };
 </script>

@@ -1,27 +1,15 @@
 <template>
-   <div class="topnav" id="myTopnav">
-  <a href="#home" class="active">Home</a>
-  <a href="#news">Service</a>
-  <a href="#contact">Story</a>
-
-
-  <div class="dropdown">
-    <button  class="dropbtn">Products
-      <i class="fa fa-caret-down"></i>
-    </button>
-    <div class="dropdown-content">
-      <a href="#">Link 1</a>
-      <a href="#">Link 2</a>
-      <a href="#">Link 3</a>
+    <div class="topnav" id="myTopnav">
+        <a class="logo"/>
+        <a>Mac</a>
+        <a>aPad</a>
+        <a>aPhone</a>
+        <a>Watch</a>
+        <a>TV</a>
+        <a>Music</a>
+        <a href="/" class="active">Support</a>
+        <a><v-icon style="color: #f5f5f7">search</v-icon></a>
     </div>
-  </div>
-  
-  <a href="#about">About</a>
-  <a href="#about">About</a>
-  <a href="#about">About</a>
-  <a href="#about">Others</a>
-  <a href="javascript:void(0);" class="icon" onclick="myFunction()">&#9776;</a>
-</div>
 
 </template>
 
@@ -31,33 +19,39 @@
 </script>
 
 <style>
-/* Add a black background color to the top navigation */
-.topnav {
-  background-color: #312E2F;
-  overflow: hidden;
-}
+    /* Add a black background color to the top navigation */
+    .topnav {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        background-color: #312E2F;
+        overflow: hidden;
+    }
 
 /* Style the links inside the navigation bar */
-.topnav a {
-  float: left;
-  display: block;
-  color: #f2f2f2;
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
-  font-size: 17px;
-}
+    .topnav a {
+        display: flex;
+        flex-direction: column;
+        opacity: 70%;
+        color: white !important;
+        text-align: center;
+        padding: 8px;
+        text-decoration: none;
+        font-size: 18px;
+        width: 100px;
+        transition: opacity 200ms;
+    }
 
-/* Add an active class to highlight the current page */
-.active {
-  background-color: #312E2F;
-  color: white;
-}
+    /* Add an active class to highlight the current page */
+    .active {
+        opacity: 100% !important;
+    }
 
-/* Hide the link that should open and close the topnav on small screens */
-.topnav .icon {
-  display: none;
-}
+    /* Hide the link that should open and close the topnav on small screens */
+    .topnav .icon {
+        display: none;
+    }
 
 /* Dropdown container - needed to position the dropdown content */
 .dropdown {
@@ -97,11 +91,18 @@
   text-align: left;
 }
 
-/* Add a dark background on topnav links and the dropdown button on hover */
-.topnav a:hover, .dropdown:hover .dropbtn {
-  background-color: #555;
-  color: white;
+.logo {
+    height: 20px;
+    background-image: url("../assets/acornlogo.svg");
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
 }
+
+/* Add a dark background on topnav links and the dropdown button on hover */
+    .topnav a:hover, .dropdown:hover .dropbtn {
+        opacity: 100%;
+    }
 
 /* Add a grey background to dropdown links on hover */
 .dropdown-content a:hover {
@@ -114,6 +115,7 @@
   display: block;
 }
 
+
 /* When the screen is less than 600 pixels wide, hide all links, except for the first one ("Home"). Show the link that contains should open and close the topnav (.icon) */
 @media screen and (max-width: 600px) {
   .topnav a:not(:first-child), .dropdown .dropbtn {
@@ -123,6 +125,8 @@
     float: right;
     display: block;
   }
+
+
 }
 
 /* The "responsive" class is added to the topnav with JavaScript when the user clicks on the icon. This class makes the topnav look good on small screens (display the links vertically instead of horizontally) */
