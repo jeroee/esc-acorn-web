@@ -19,6 +19,7 @@
     "moment": "^2.24.0",
     "popmotion": "^8.7.1",
     "rainbow-web-sdk": "^1.68.0-beta.1",
+    "socket.io": "^2.3.0",
     "vue": "^2.6.11",
     "vue-axios": "^2.1.5",
     "vue-page-transition": "^0.2.2",

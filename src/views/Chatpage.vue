@@ -5,10 +5,10 @@
         </transition>
         <div class="chatBox" id="chatBox" ref="chatBox">
             <h1 class="font-weight-light mb-5" id="header" ref="header">Let's chat <v-icon x-large color="black">chat</v-icon></h1>
-            <v-card class="ma-5 green white--text" v-bind:class="item.sender" flat width="500px" v-for="item in items" :key="item.message">
+            <v-card class="ma-5 green white--text" v-bind:class="item.position" flat width="500px" v-for="(item, index) in items" :key="index">
                 <v-card-subtitle class="white--text pb-0">{{item.sender}}</v-card-subtitle>
                 <v-card-title style="word-break: keep-all">
-                    Hi {{firstName}}, {{item.message}}
+                    {{item.message}}
                 </v-card-title>
                 <v-card-subtitle class="white--text text-right pr-2 pb-1">{{item.time}}</v-card-subtitle>
             </v-card>
@@ -28,7 +28,7 @@
             <v-btn id = 'send message' @click="message" height="58px" x-large depressed tile class="green white--text">
                 <h3>Send</h3><v-icon right>send</v-icon>
             </v-btn>
-            <v-btn id = 'exit chat' @click="exitChat" height="58px" x-large depressed tile class="red white--text">
+            <v-btn id ='exit chat' @click="exitChat" height="58px" x-large depressed tile class="red white--text">
                 <h3>Leave</h3><v-icon right>input</v-icon>
             </v-btn>
         </v-footer>
@@ -39,8 +39,9 @@
     import $ from 'jquery'
     import moment from 'moment';
     import rainbowSDK from "rainbow-web-sdk";
-    import axios from "axios";
+    // import axios from "axios";
     import Waitpage from "./Waitpage";
+    import io from "socket.io-client";
 
     export default {
         name: "Chatpage",
@@ -50,7 +51,8 @@
             agentId: "", // String variable for agent id
             items: [
                 {
-                    message: " You have been connected! How may I assist you today?",
+                    message: "You have been connected with our agent. Please let them know how they may assist you today.",
+                    position: "left",
                     sender: "System",
                     time: moment().format("h:mm a")
                 },
@@ -60,7 +62,8 @@
             start: false, // removes the loading page from view - on true, removes loading page
             connecting: false, // updates the
             cancelled: false, // sets a guard for polling during early exits - on true, prevents polling
-            loading: 0 // updates the spin loader progress after agent found - values [0,100]
+            loading: 0, // updates the spin loader progress after agent found - values [0,100]
+            socket:"" // holds the socket object
         }),
         computed: {
             categoryIndex() {
@@ -77,61 +80,55 @@
             }
         },
         methods: {
-            /**********************INITIAL GET**********************/
-            getConnection: async function() {
-                let self=this;
-                console.log(this.categoryIndex);
-                try {
-                    let response = await axios.get(
-                        `https://still-sea-41149.herokuapp.com/api/agents?category=${this.categoryIndex}&firstName=${this.firstName}&lastName=${this.lastName}`
-                        //`https://esc-acorn-backend.herokuapp.com/api/agents?category=${this.categoryIndex}` //obtain agent through category
-                    );
-                    console.log(response.data.guestFirstName);
-                    console.log(response.data.guestLastName);
-                    //hardcoded the agentId if not no access
-                    self.agentId = "5e4950b6e9f12730636972b5";
-                    //self.agentId = response.data.agentId; //get agent id
-                    self.$store.state.agentName = response.data.agentName; //get agent name
-                    self.token = response.data.token; //get guest token
-                    console.log(this.agentId);
-                    console.log(`Your token is ${self.token}`);
-                    if (self.agentId!=="Null") {
-                        self.connecting=true;
-                        await self.startChat();
-                    } else {
-                        console.log("No account found! Retrying every x seconds");
-                        if (!self.cancelled) { //prevent polling in early exits
-                            self.pollConnection();
-                        } else console.log("Load was left early");
-                    }
-                } catch(err) {
-                    console.log(err);
-                }
-            },
+            /**********************INITIAL GET (DEPRECATED ON SOCKETING VERSION)**********************/
+            // getConnection: async function() {
+            //     let self=this;
+            //     try {
+            //         let response = await axios.get(
+            //             `https://esc-acorn-backend.herokuapp.com/api/agents?category=${self.categoryIndex}` //obtain agent through category
+            //         );
+            //         self.agentId = response.data.agentId; //get agent id
+            //         self.$store.state.agentName = response.data.agentName; //get agent name
+            //         self.token = response.data.token; //get guest token
+            //         console.log(this.agentId);
+            //         console.log(`Your token is ${self.token}`);
+            //         if (self.agentId!=="Null") {
+            //             self.connecting=true;
+            //             await self.startChat();
+            //         } else {
+            //             console.log("No account found! Retrying every x seconds");
+            //             if (!self.cancelled) { //prevent polling in early exits
+            //                 self.pollConnection();
+            //             } else console.log("Load was left early");
+            //         }
+            //     } catch(err) {
+            //         console.log(err);
+            //     }
+            // },
 
-            /**********************POLLING GET**********************/
-            pollConnection: function() {
-                let self=this;
-                self.polling=setInterval(async function () {
-                    try {
-                        let response = await axios.get(
-                            `https://esc-acorn-backend.herokuapp.com/api/queue?token=${self.token}`
-                        );
-                        self.agentId = response.data.agentId; //get agent id
-                        self.$store.state.agentName = response.data.agentName; //get agent name
-                        // console.log(response);
-                        if (self.agentId!=="Null") {
-                            clearInterval(self.polling);
-                            self.connecting=true;
-                            await self.startChat();
-                        } else {
-                            console.log("You are still waiting for an agent");
-                        }
-                    } catch(err) {
-                        console.log(err);
-                    }
-                },3000)
-            },
+            /**********************POLLING GET (DEPRECATED ON SOCKETING VERSION)**********************/
+            // pollConnection: function() {
+            //     let self=this;
+            //     self.polling=setInterval(async function () {
+            //         try {
+            //             let response = await axios.get(
+            //                 `https://esc-acorn-backend.herokuapp.com/api/queue?token=${self.token}`
+            //             );
+            //             self.agentId = response.data.agentId; //get agent id
+            //             self.$store.state.agentName = response.data.agentName; //get agent name
+            //             // console.log(response);
+            //             if (self.agentId!=="Null") {
+            //                 clearInterval(self.polling);
+            //                 self.connecting=true;
+            //                 await self.startChat();
+            //             } else {
+            //                 console.log("You are still waiting for an agent");
+            //             }
+            //         } catch(err) {
+            //             console.log(err);
+            //         }
+            //     },3000)
+            // },
             startChat: async function () {
                 let self=this;
                 try {
@@ -155,38 +152,40 @@
                 }
             },
 
-            /**********************CLEANUP FUNCS**********************/
-            leaveQueue: function(){ // remove queue entry
-                let self=this;
-                axios.delete(`https://esc-acorn-backend.herokuapp.com/api/queue?token=${self.token}`)
-                    .then(res => console.log(res))
-                    .catch(err => console.log(err))
-            },
-            endConversation: async function() {
-                let self=this;
-                axios.patch(`https://esc-acorn-backend.herokuapp.com/api/agents?agentId=${self.agentId}`)
-                    .then(res => console.log(res))
-                    .catch(err => console.log(err))
-            },
+            /**********************CLEANUP FUNCS (DEPRECATED ON SOCKETING VERSION)**********************/
+            // leaveQueue: function(){ // remove queue entry
+            //     let self=this;
+            //     axios.delete(`https://esc-acorn-backend.herokuapp.com/api/queue?token=${self.token}`)
+            //         .then(res => console.log(res))
+            //         .catch(err => console.log(err))
+            // },
+            // endConversation: async function() {
+            //     let self=this;
+            //     axios.patch(`https://esc-acorn-backend.herokuapp.com/api/agents?agentId=${self.agentId}`)
+            //         .then(res => console.log(res))
+            //         .catch(err => console.log(err))
+            // },
 
             /**********************MESSAGE FUNCS**********************/
             message() {
-                if (this.txt !== "") {
-                    let message= this.txt;
-                    rainbowSDK.im.sendMessageToConversation(this.conversation, message);
-                    this.items.push({message: message, sender: "you", time: moment().format("h:mm a")});
+                let self=this;
+                if (self.txt !== "") {
+                    let message= self.txt;
+                    rainbowSDK.im.sendMessageToConversation(self.conversation, message);
+                    self.items.push({message: message, position: "right", sender: self.firstName +" "+ self.lastName, time: moment().format("h:mm a")});
                     $("#chatBox").animate({scrollTop: $('#chatBox')[0].scrollHeight}, 500);
-                    this.txt = "";
+                    self.txt = "";
                 }
             },
-            receive: function(event) {     //this function works when u receive a message
+            receive: function(event) {
+                let self=this;
                 console.log(event.detail.message.data);
                 console.log(event.detail.message.side);
-                this.items.push({message: event.detail.message.data, sender: this.agentName, time: moment().format("h:mm a")});
+                self.items.push({message: event.detail.message.data, position: "left", sender: self.agentName, time: moment().format("h:mm a")});
                 $("#chatBox").animate({scrollTop: $('#chatBox')[0].scrollHeight}, 500);
             },
 
-            receipt: function(event) {      //this function works when u send out a message
+            receipt: function(event) {
                 console.log(event.detail.message.data);
                 console.log(event.detail.message.side);
             },
@@ -194,12 +193,42 @@
             /*********************        EXITING CHAT         *********************/
             exitChat: async function() {
                 await rainbowSDK.conversations.closeConversation(this.conversation)
-                .then(console.log("conversation closed"))
-                .then(window.location.href = 'Feedback');
+                .then(console.log("conversation closed"));
+                this.$router.push({path: "/Feedback"});
             }
         },
+
+
         mounted() {
-            const self = this;
+            let self = this;
+            self.socket = io.connect('https://esc-acorn-backend.herokuapp.com/');
+            /**********************MOUNT ALL SOCKET METHODS HERE**********************/
+            self.socket.on("handshake", function (data) {
+                console.log(data);
+                console.log("Socket.io getAgent");
+                console.log(self.categoryIndex);
+                console.log(self.firstName);
+                console.log(self.lastName);
+                self.socket?.emit("getAgent",{
+                    category: self.categoryIndex,
+                    firstName: self.firstName,
+                    lastName: self.lastName
+                })
+            });
+
+            self.socket.on("getAgentSuccess", function (data) {
+                console.log("Socket.io getAgentSuccess");
+                self.agentId = data.agentId; //get agent id
+                self.$store.state.agentId = data.agentId;
+                self.$store.state.agentName = data.agentName; //get agent name
+                self.token = data.token; //get guest token
+                console.log(`Your agentId is ${self.agentId}`);
+                console.log(`Your agentName is ${self.agentName}`);
+                console.log(`Your token is ${self.token}`);
+                self.connecting=true;
+                self.startChat();
+            });
+
             window.addEventListener('keyup', function (event) { // invoke message on enter
                 if (event.keyCode === 13) {
                     self.message();
@@ -212,15 +241,18 @@
                     self.$refs["header"].style.fontSize = "40px";
                 }
             };
-            self.getConnection();
+            // self.getConnection();
         },
+        /**********************BACKUP CLEANUP METHOD**********************/
         beforeDestroy() {
             let self=this;
-            console.log("exiting");
-            self.leaveQueue();
-            self.cancelled=true;
-            clearInterval(self.polling);
-            self.endConversation();
+            self.socket.disconnect();
+            console.log("Exiting");
+            // DEPRECATED METHODS ON SOCKETING VERSION
+            // self.leaveQueue();
+            // self.cancelled=true;
+            // clearInterval(self.polling);
+            // self.endConversation();
         }
     }
 </script>
@@ -234,7 +266,7 @@
     height: 100vh;
 }
 
-.you {
+.right {
     margin-left: auto !important;
     background-color: green !important;
 }
