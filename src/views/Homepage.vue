@@ -18,13 +18,10 @@
                             v-model="name1"
                             class="name-field"
                             color="green"
-                            :counter="20"
+                            :counter="limit"
                             label="Please provide your first name"
                             solo
-                            flat
-                            required
-                            @input="$v.name1.$touch()"
-                            @blur="$v.name1.$touch()"/>
+                            flat/>
 
                     <v-text-field
                             id="LastName"
@@ -32,13 +29,10 @@
                             v-model="name2"
                             class="name-field"
                             color="green"
-                            :counter="20"
+                            :counter="limit"
                             label="Please provide your last name"
                             solo
-                            flat
-                            required
-                            @input="$v.name2.$touch()"
-                            @blur="$v.name2.$touch()"/>
+                            flat/>
                 </div>
             <v-select
                     id="category"
@@ -82,11 +76,6 @@
 
 <script>
     // import popup from '../components/popup' // this is the popup table
-    import { required, maxLength} from 'vuelidate/lib/validators'
-    import Vue from 'vue'
-    import Vuelidate from 'vuelidate'
-    import { validationMixin } from 'vuelidate'
-    Vue.use(Vuelidate)
     import Menu from "../components/Menu";
     // import ManyCard from "../components/ManyCard";
     // import FirstPagePic from "../components/FirstPagePic";
@@ -100,17 +89,9 @@
         },
 
         name: "Home",
-        mixins: [validationMixin],
-
-        validations: {
-            name1: { required, maxLength: maxLength(30) },
-            name2: { required, maxLength: maxLength(30) },
-        },
-
-
-
         data: () => ({
             categories: ["Acorn Products", "Acorn Services", "Acorn Applications"],
+            limit: 20,
             selected: "",
             firstName: "",
             lastName: "",
@@ -120,50 +101,26 @@
         }),
         computed: {
             isSelected() {
-                if(this.name2 ==="" || this.name1 === "" || this.selected === ""){
-                    return true
-                }
-                return false;
-            },
-            name1Errors() {
-                const errors = [];
-                if (!this.$v.name1.$dirty) return errors;
-                !this.$v.name1.maxLength && errors.push('Name must be at most 10 characters long');
-                !this.$v.name1.required && errors.push('Name is required.');
-                return errors;
-            },
-            name2Errors() {
-                const errors = [];
-                if (!this.$v.name2.$dirty) return errors;
-                !this.$v.name2.maxLength && errors.push('Name must be at most 30 characters long');
-                !this.$v.name2.required && errors.push('Name is required.');
-                return errors;
+                return this.name2 === "" || this.name2.length > this.limit || this.name1 === "" || this.selected === "" || this.name1.length > this.limit;
             }
-
         },
         methods: {
-            alert: function() {
-                alert("Coming Soon");
-            },
-
             submit() {
-                // this.$v.$touch();
                 this.$store.state.categoryIndex = this.categories.indexOf(this.selected);
                 this.$store.state.categoryName = this.selected;
                 this.$store.state.firstName = this.name1.charAt(0).toUpperCase() + this.name1.slice(1);
                 this.$store.state.lastName = this.name2.charAt(0).toUpperCase() + this.name2.slice(1);
             },
 
-
             requestChat: function () {
-                if (this.selected) {
+                if (this.isSelected) {
                     this.submit();
                     this.$router.push({path: "/chat"});
                 }
             },
 
             requestCall: function () {
-                if (this.selected) {
+                if (this.isSelected) {
                     this.submit();
                     this.$router.push({path: "/call"});
                 }
