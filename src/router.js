@@ -68,7 +68,7 @@ export default new Router({
             name: 'FirstPagePic',
             component: () => import('./components/FirstPagePic.vue')
         },
-        
+
         {
             path: '/Menu',
             name: 'Menu',

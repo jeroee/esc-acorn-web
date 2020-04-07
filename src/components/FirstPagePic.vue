@@ -4,7 +4,9 @@
       cycle
       height="400"
       hide-delimiter-background
-      show-arrows-on-hover
+      hide-delimiters
+      :show-arrows="false"
+      interval="5000"
     >
       <v-carousel-item
         v-for="(item,i) in items"
@@ -13,17 +15,6 @@
           reverse-transition="fade-transition"
           transition="fade-transition"
       >
-
-      <div class="text">   Welcome to Acorn</div>
-        <!-- <v-sheet >
-          <v-row 
-            class="fill-height"
-            align="center"
-            justify="center"
-          >
-            <div class="display-3">{{ slides }} Welcome to Acorn</div>
-          </v-row>
-        </v-sheet> -->
       </v-carousel-item>
     </v-carousel>
 
@@ -76,8 +67,6 @@ export default {
   font-size:20px;
   position:relative;
   width:400px;
-  height:200px; 
-  
-
+  height:200px;
 }
 </style>
