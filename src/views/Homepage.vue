@@ -4,9 +4,17 @@
         <div class="hero mb-10">
             <v-container class="flex-col">
                 <h1 class="display-2 font-weight-medium">Welcome to Acorn Support</h1>
-                <div class="flex-row">
+            </v-container>
+
+        </div>
+
+<!--        <FirstPagePic></FirstPagePic>-->
+
+        <v-container class="flex-col">
+            <div class="flex-row">
                     <v-text-field
                             id="FirstName"
+                            outlined = "true"
                             v-model="name1"
                             class="name-field"
                             color="green"
@@ -17,6 +25,7 @@
 
                     <v-text-field
                             id="LastName"
+                            outlined = "true"
                             v-model="name2"
                             class="name-field"
                             color="green"
@@ -25,14 +34,6 @@
                             solo
                             flat/>
                 </div>
-
-            </v-container>
-
-        </div>
-
-<!--        <FirstPagePic></FirstPagePic>-->
-
-        <v-container class="flex-col">
             <v-select
                     id="category"
                     v-model="selected"

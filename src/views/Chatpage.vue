@@ -221,7 +221,7 @@
 
             self.socket.on("getAgentSuccess", function (data) {
                 console.log("Socket.io getAgentSuccess");
-                self.agentId = data.agentId; //get agent id
+                self.$store.state.agentId = data.agentId;
                 self.$store.state.agentName = data.agentName; //get agent name
                 self.token = data.token; //get guest token
                 console.log(`Your agentId is ${self.agentId}`);
