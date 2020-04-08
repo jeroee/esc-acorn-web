@@ -1,6 +1,6 @@
 <template>
         <v-container>
-            <h1 class="font-weight-light ma-10" style="text-align:center">Help us improve our customer service</h1>
+            <h1 class="font-weight-light ma-10 text-center">Help us improve our customer service</h1>
             <v-card>
                 <v-toolbar dark color="blue">
                     <v-btn icon dark to="/">
@@ -9,7 +9,7 @@
                     <v-toolbar-title>Rate your experience with {{agentName}}</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <v-toolbar-items>
-                        <v-btn @click="sendDetails" text>Submit</v-btn>
+                        <v-btn to="/" text>Skip <v-icon right>redo</v-icon></v-btn>
                     </v-toolbar-items>
                 </v-toolbar>
 
@@ -43,11 +43,7 @@
                                 <v-col cols="12">
                                     <v-text-field v-model="email" label="Email" hint="Leave us your email if you would like us to get back to you."></v-text-field>
                                 </v-col>
-    <!--                            <v-col>-->
-    <!--                                <p> Rating 1 is {{rating1}}</p>-->
-    <!--                                <p> Rating 2 is {{rating2}}</p>-->
-    <!--                                <p> Rating 3 is {{rating3}}</P>-->
-    <!--                            </v-col>-->
+                                <v-btn @click="sendDetails" text x-large width="100%"><h3>Submit</h3></v-btn>
                             </v-row>
                         </v-container>
                     </v-card-text>

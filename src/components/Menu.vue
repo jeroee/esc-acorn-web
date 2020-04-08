@@ -1,7 +1,7 @@
 <template>
     <div class="topnav" id="myTopnav">
         <a class="logo"/>
-        <a>Mac</a>
+        <a>Wac</a>
         <a>aPad</a>
         <a>aPhone</a>
         <a>Watch</a>

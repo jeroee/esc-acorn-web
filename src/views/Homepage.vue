@@ -12,28 +12,28 @@
 
         <v-container class="flex-col">
             <div class="flex-row">
-                    <v-text-field
-                            id="FirstName"
-                            outlined = "true"
-                            v-model="name1"
-                            class="name-field"
-                            color="green"
-                            :counter="limit"
-                            label="Please provide your first name"
-                            solo
-                            flat/>
+                <v-text-field
+                        id="FirstName"
+                        outlined
+                        v-model="name1"
+                        class="name-field"
+                        color="green"
+                        :counter="limit"
+                        label="Please provide your first name"
+                        solo
+                        flat/>
 
-                    <v-text-field
-                            id="LastName"
-                            outlined = "true"
-                            v-model="name2"
-                            class="name-field"
-                            color="green"
-                            :counter="limit"
-                            label="Please provide your last name"
-                            solo
-                            flat/>
-                </div>
+                <v-text-field
+                        id="LastName"
+                        outlined
+                        v-model="name2"
+                        class="name-field"
+                        color="green"
+                        :counter="limit"
+                        label="Please provide your last name"
+                        solo
+                        flat/>
+            </div>
             <v-select
                     id="category"
                     v-model="selected"
@@ -43,7 +43,7 @@
                     color="green"
                     :menu-props="{ offsetY:true, openOnClick:false }"
                     label="Choose a support category..."
-            ></v-select>
+            />
 
             <div style="flex-direction: row">
                 <v-btn
@@ -61,7 +61,7 @@
                         @click="requestCall"
                         x-large
                         depressed
-                        class="ma-5 green white--text"
+                        class="ma-5 blue white--text"
                         :disabled="isSelected"
                         style="transition: all 500ms"
                 >
@@ -90,7 +90,7 @@
 
         name: "Home",
         data: () => ({
-            categories: ["Acorn Products", "Acorn Services", "Acorn Applications"],
+            categories: ["Acorn Products", "Acorn Services", "Acorn Applications", "Acorn Pay", "Acorn ID"],
             limit: 20,
             selected: "",
             firstName: "",

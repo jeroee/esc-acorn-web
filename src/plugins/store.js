@@ -10,6 +10,7 @@ export const store = new Vuex.Store({
         agentName:"Placeholder Name",
         firstName:"",
         lastName:"",
-        agentId:""
+        agentId:"",
+        token:"",
     },
 });
