@@ -59,8 +59,9 @@
             txt: "", // string buffer for chat text input
             conversation:'', // variable to hold the conversation object
             start: false, // removes the loading page from view - on true, removes loading page
-            connecting: false, // updates the
+            connecting: false, // updates the waitpage
             cancelled: false, // sets a guard for polling during early exits - on true, prevents polling
+            ended: false, //stops read receipts
             loading: 0, // updates the spin loader progress after agent found - values [0,100]
             socket:"" // holds the socket object
         }),
@@ -143,14 +144,8 @@
                     self.loading=100;
                     await rainbowSDK.im.getMessagesFromConversation(this.conversation); //getting all messages from conversation
                     self.start=true;
-                    document.addEventListener(
-                        rainbowSDK.im.RAINBOW_ONNEWIMMESSAGERECEIVED,
-                        this.receive
-                    );
-                    document.addEventListener(
-                        rainbowSDK.im.RAINBOW_ONNEWIMRECEIPTRECEIVED,
-                        this.receipt
-                    );
+                    document.addEventListener(rainbowSDK.im.RAINBOW_ONNEWIMMESSAGERECEIVED, self.receive);
+                    document.addEventListener(rainbowSDK.im.RAINBOW_ONNEWIMRECEIPTRECEIVED, self.receipt);
                 } catch(err) {
                     console.log(err)
                 }
@@ -183,25 +178,32 @@
             },
             receive: function(event) {
                 let self=this;
-                console.log(event.detail.message.data);
-                console.log(event.detail.message.side);
+                rainbowSDK.im.markMessageFromConversationAsRead(event.detail.conversation, event.detail.message);
                 self.items.push({message: event.detail.message.data, position: "left", sender: self.agentName, time: moment().format("h:mm a")});
                 $("#chatBox").animate({scrollTop: $('#chatBox')[0].scrollHeight}, 500);
             },
 
             receipt: function(event) {
-                console.log(event.detail.message.data);
-                console.log(event.detail.message.side);
+                switch (event.detail.evt) {
+                    case "server":
+                        console.log("MESSAGE SENT");
+                        break;
+                    case "received":
+                        console.log("AND RECEIVED");
+                        break;
+                    default:
+                        break;
+                }
             },
 
             /*********************        EXITING CHAT         *********************/
             exitChat: async function() {
-                await rainbowSDK.conversations.closeConversation(this.conversation)
+                let self=this;
+                await rainbowSDK.conversations.closeConversation(self.conversation)
                 .then(console.log("Conversation Closed"))
                 .then(this.$router.push({path: "/feedback"}));
             }
         },
-
 
         mounted() {
             let self = this;
@@ -214,7 +216,7 @@
                 console.log(self.categoryIndex);
                 console.log(self.firstName);
                 console.log(self.lastName);
-                self.socket?.emit("getAgent",{
+                self.socket?.emit("getAgent", {
                     category: self.categoryIndex,
                     firstName: self.firstName,
                     lastName: self.lastName
@@ -250,6 +252,8 @@
         /**********************BACKUP CLEANUP METHOD**********************/
         beforeDestroy() {
             let self=this;
+            document.removeEventListener(rainbowSDK.im.RAINBOW_ONNEWIMMESSAGERECEIVED, self.receive);
+            document.removeEventListener(rainbowSDK.im.RAINBOW_ONNEWIMRECEIPTRECEIVED, self.receipt);
             self.socket.disconnect();
             console.log("Exiting");
             // DEPRECATED METHODS ON SOCKETING VERSION

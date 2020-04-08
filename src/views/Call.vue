@@ -3,75 +3,36 @@
         <transition name="fade">
             <Waitpage v-bind:connecting="connecting" v-bind:loading="loading" v-if="!start"/>
         </transition>
-        <audio id="globalAudioTag" autoplay style="display:none;"></audio>     <!--to allow customer to receive audio from agent-->
-            <div class="text-xs-center">
-                <v-card>
-                    <v-card-title class="headline green lighten-2" primary-title> Customer Name</v-card-title>
-                    <v-card-text>
-                        WIP
-                    </v-card-text>
-                <v-divider/>
-                <v-container>
-                    <v-layout row class="mb-10 mt-10">
-                        <v-flex xs4>
-                            <v-btn large class="mx-10" fab dark small color="grey dark-2">
-                                <v-icon>mic_off</v-icon>
-                            </v-btn>
-                        </v-flex>
-                        <v-flex xs4>
-                            <v-btn large class="mx-10" fab dark small color="grey dark-2">
-                                <v-icon>keyboard</v-icon>
-                            </v-btn>
-                        </v-flex>
-                        <v-flex xs4>
-                            <v-btn large class="mx-10" fab dark small color="grey dark-2">
-                                <v-icon>speaker_phone</v-icon>
-                            </v-btn>
-                          </v-flex>
-                    </v-layout>
-                    <v-layout row class="mb-10 mt-10">
-                        <v-flex xs4>
-                            <v-btn large class="mx-10" fab dark small color="grey dark-2">
-                                <v-icon>add_ic_call</v-icon>
-                            </v-btn>
-                        </v-flex>
-                        <v-flex xs4>
-                            <v-btn large class="mx-10" fab dark small color="grey dark-2">
-                                <v-icon>volume_down</v-icon>
-                            </v-btn>
-                        </v-flex>
-                        <v-flex xs4>
-                            <v-btn large class="mx-10" fab dark small color="grey dark-2">
-                                <v-icon>contact_phone</v-icon>
-                            </v-btn>
-                        </v-flex>
-                    </v-layout>
-                </v-container>
-
-                <v-divider></v-divider>
-                <v-card-actions><v-spacer></v-spacer>
-
-                  <v-btn @click="endCall" depressed color ="red white--text" class="btn">
-                          <v-icon left>call_end</v-icon> End Call
-                      </v-btn>
-<!-- Step3 when you click 'Call_end', you will go to the feedback page  -->
-
-                </v-card-actions>
-            </v-card>
+        <h1 class="font-weight-light mb-5 header">Let's talk <v-icon x-large color="black">phone</v-icon></h1>
+        <audio id="globalAudioTag" autoplay/>     <!--to allow customer to receive audio from agent-->
+        <div class="callBox">
+            <h1 class="font-weight-light agent-text">You're on the phone with {{agentName}}</h1>
+            <Lottie :options="defaultOptions" :height="450" :width="450" style="margin-bottom: 100px" v-on:animCreated="handleAnimation"/>
         </div>
+        <v-footer width="100%" padless>
+            <v-btn @click="movetochat" height="58px" width="50%" x-large depressed tile class="green white--text">
+                <h3><v-icon left>message</v-icon>Move To Chat</h3>
+            </v-btn>
+            <v-btn @click="endCall" height="58px" width="50%" x-large depressed tile class="red white--text">
+                <h3>Leave Call</h3><v-icon right>input</v-icon>
+            </v-btn>
+        </v-footer>
     </div>
 </template>
 
 <script>
 import Waitpage from "./Waitpage";
 import rainbowSDK from "rainbow-web-sdk";
+import Lottie from 'vue-lottie';
+import animationData from '../assets/customer-support';
 // import axios from "axios";
 import io from 'socket.io-client';
 
 export default {
     name: "Call",
-    components:{Waitpage},
+    components:{Waitpage,Lottie},
     data: () => ({
+        defaultOptions: {animationData: animationData},
         token: "", // String variable for guest account token
         start: false,
         connecting: false,
@@ -141,7 +102,7 @@ export default {
                 this.$router.push({path: "/feedback"});
             }
             console.log("requesting microphone access");
-            navigator.mediaDevices //authoerise the application to access media device
+            navigator.mediaDevices //authorise the application to access media device
                 .getUserMedia({ audio: true })
                 .then(function(stream) {
                     stream.getTracks().forEach(function(track) {
@@ -236,6 +197,7 @@ export default {
 
         /**********************CALL FUNCS**********************/
         onWebRTCCallChanged: function(event){
+            console.log(event);
             console.log("OnWebRTCCallChanged event", event.detail);
             if (event.detail.status.value==="Unknown"){    //if agent ends the call first, user will be directed to Feedback Page
               console.log(event.detail.status.value);
@@ -252,8 +214,9 @@ export default {
         endCall: function() {
             let self=this;
             rainbowSDK.webRTC.release(self.call);
+            console.log("removing call");
             //function to end call from the customer's side when pressing End Call   //currently not working yet!!
-            // this.$router.push({path: "/feedback"});
+            this.$router.push({path: "/feedback"});
             //console.log(event.detail.status.value);
             //document.addEventListener(rainbowSDK.webRTC.RAINBOW_ONWEBRTCCALLSTATECHANGED, this.onWebRTCCallChanged);
             //rainbowSDK.webRTC.release(this.call); //cannot get this line of code working
@@ -273,16 +236,6 @@ export default {
         //         .catch(err => console.log(err))
         // }
     },
-    //DONT REMOVE THE COMMENTED PART HERE
-    endCall: function() {
-    //function to end call from the customer's side when pressing End Call   //currently not working yet!!
-      console.log("removing call");
-      window.location.href = 'Feedback';
-      //console.log(event.detail.status.value);
-      //document.addEventListener(rainbowSDK.webRTC.RAINBOW_ONWEBRTCCALLSTATECHANGED, this.onWebRTCCallChanged);
-      //rainbowSDK.webRTC.release(this.call); //cannot get this line of code working
-      // console.log("res:", res);
-    },
     /**********************BACKUP CLEANUP METHOD**********************/
     beforeDestroy() {
         let self=this;
@@ -298,16 +251,39 @@ export default {
 </script>
 
 
-<style>
-.btn {
-  background-color: red;
-  color: white;
-  padding: 16px 20px;
-  border: none;
-  cursor: pointer;
-  width: 100%;
-  margin-bottom: 10px;
-  opacity: 0.8;
+<style scoped>
+.call {
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.callBox {
+    height:100%;
+    width:100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    justify-items: center;
+    align-content: center;
+    overflow:auto
+}
+
+.agent-text{
+    text-align: center;
+    position: absolute;
+    width: 100%;
+    margin-top: 150px;
+}
+
+.header {
+    background-color: #f1f1f1;
+    text-align: center;
+    font-size: 60px;
+    width: 100%;
+    transition: 0.2s;
 }
 
 .fade-enter-active, .fade-leave-active {

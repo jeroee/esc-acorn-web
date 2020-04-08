@@ -6,7 +6,6 @@ import {store} from './plugins/store';
 
 Vue.config.productionTip = false;
 
-
 new Vue({
   store:store,
   vuetify,router,
