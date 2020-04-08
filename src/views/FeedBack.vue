@@ -4,7 +4,7 @@
             <v-card>
                 <v-toolbar dark color="blue">
                     <v-btn icon dark to="/">
-                        <v-icon>mdi-close</v-icon>
+                        <v-icon>close</v-icon>
                     </v-btn>
                     <v-toolbar-title>Rate your experience with {{agentName}}</v-toolbar-title>
                     <v-spacer></v-spacer>
@@ -20,15 +20,15 @@
                             <v-row>
                                 <v-list-item cols="100" sm="6">
                                     <h3 class="font-weight-regular">How helpful was this session?</h3>
-                                    <v-rating style="position: absolute; right: 0" hover :size="50" clearable v-model="rating1" />
+                                    <v-rating style="position: absolute; right: 0" hover :size="40" clearable v-model="rating1" />
                                 </v-list-item>
                                 <v-list-item cols="12" sm="6">
                                     <h3 class="font-weight-regular">How was our service?</h3>
-                                    <v-rating style="position: absolute; right: 0" hover :size="50" clearable v-model="rating2" />
+                                    <v-rating style="position: absolute; right: 0" hover :size="40" clearable v-model="rating2" />
                                 </v-list-item>
                                 <v-list-item cols="12" sm="6">
                                     <h3 class="font-weight-regular">How was the quality of the chat/call experience?</h3>
-                                    <v-rating style="position: absolute; right: 0" hover :size="50" clearable v-model="rating3" />
+                                    <v-rating style="position: absolute; right: 0" hover :size="40" clearable v-model="rating3" />
                                 </v-list-item>
                                 <v-col cols="12">
                                     <v-textarea

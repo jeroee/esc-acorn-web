@@ -38,7 +38,8 @@ export default {
         connecting: false,
         cancelled: false,
         loading: 0,
-        socket:"" // holds the socket object
+        socket:"", // holds the socket object
+        call: ""
     }),
     computed: {
         categoryIndex() {
@@ -88,6 +89,7 @@ export default {
             self.connecting=true;
             self.startCall();
         });
+
 
         // this.getConnection(); DEPRECATED
     },
@@ -195,59 +197,60 @@ export default {
         },
 
 
-        /**********************CALL FUNCS**********************/
-        onWebRTCCallChanged: function(event){
-            console.log(event);
-            console.log("OnWebRTCCallChanged event", event.detail);
-            if (event.detail.status.value==="Unknown"){    //if agent ends the call first, user will be directed to Feedback Page
-              console.log(event.detail.status.value);
-                this.$router.push({path: "/feedback"});
-            }
-        },
-        //DONT REMOVE THE COMMENTED PART HERE
-        // startCall: function() {
-        //   this.call = rainbowSDK.webRTC.callInAudio(this.contact);
-        //   if (this.call.label === "OK") {
-        //     console.log("your call has been correctly initialised");
-        //   }
-        // },
-        endCall: function() {
-            let self=this;
-            rainbowSDK.webRTC.release(self.call);
-            console.log("removing call");
-            //function to end call from the customer's side when pressing End Call   //currently not working yet!!
-            this.$router.push({path: "/feedback"});
-            //console.log(event.detail.status.value);
-            //document.addEventListener(rainbowSDK.webRTC.RAINBOW_ONWEBRTCCALLSTATECHANGED, this.onWebRTCCallChanged);
-            //rainbowSDK.webRTC.release(this.call); //cannot get this line of code working
-            // console.log("res:", res);
-        },
-        /**********************CLEANUP FUNCS (DEPRECATED ON SOCKETING VERSION)**********************/
-        // leaveQueue: async function(){ // remove queue entry
-        //     let self=this;
-        //     axios.delete(`https://esc-acorn-backend.herokuapp.com/api/queue?token=${self.token}`)
-        //         .then(res => console.log(res))
-        //         .catch(err => console.log(err))
-        // },
-        // endConversation: async function() {
-        //     let self=this;
-        //     axios.patch(`https://esc-acorn-backend.herokuapp.com/api/agents?agentId=${self.agentId}`)
-        //         .then(res => console.log(res))
-        //         .catch(err => console.log(err))
-        // }
+    /**********************CALL FUNCS**********************/
+    onWebRTCCallChanged: function(event) {
+      //console.log("OnWebRTCCallChanged event", event.detail.status);
+      if (event.detail.status.value==="Unknown"){    //if agent ends the call first, user will be directed to Feedback Page
+          this.$router.push({path: "/feedback"});
+      }
     },
-    /**********************BACKUP CLEANUP METHOD**********************/
-    beforeDestroy() {
-        let self=this;
-        self.socket.disconnect();
-        console.log("Exiting");
-        // DEPRECATED METHODS ON SOCKETING VERSION
-        // self.leaveQueue();
-        // self.cancelled=true;
-        // clearInterval(self.polling);
-        // self.endConversation();
+    endCall: async function() {
+      console.log("removing call");
+      document.addEventListener(
+        rainbowSDK.webRTC.RAINBOW_ONWEBRTCCALLSTATECHANGED,
+        this.onWebRTCCallChanged
+      );
+      await rainbowSDK.webRTC.release(this.call);
+      await console.log("released");
+      await this.$router.push({ path: "/feedback" });
     }
-}
+  },
+  /**********************CLEANUP FUNCS (DEPRECATED ON SOCKETING VERSION)**********************/
+  // leaveQueue: async function(){ // remove queue entry
+  //     let self=this;
+  //     axios.delete(`https://esc-acorn-backend.herokuapp.com/api/queue?token=${self.token}`)
+  //         .then(res => console.log(res))
+  //         .catch(err => console.log(err))
+  // },
+  // endConversation: async function() {
+  //     let self=this;
+  //     axios.patch(`https://esc-acorn-backend.herokuapp.com/api/agents?agentId=${self.agentId}`)
+  //         .then(res => console.log(res))
+  //         .catch(err => console.log(err))
+  // }
+  //},
+  //DONT REMOVE THE COMMENTED PART HERE
+  // endCall: function() {
+  // //function to end call from the customer's side when pressing End Call   //currently not working yet!!
+  //   console.log("removing call");
+  //   window.location.href = 'Feedback';
+  //console.log(event.detail.status.value);
+  //document.addEventListener(rainbowSDK.webRTC.RAINBOW_ONWEBRTCCALLSTATECHANGED, this.onWebRTCCallChanged);
+  //rainbowSDK.webRTC.release(this.call); //cannot get this line of code working
+  // console.log("res:", res);
+  //},
+  /**********************BACKUP CLEANUP METHOD**********************/
+  beforeDestroy() {
+    let self = this;
+    self.socket.disconnect();
+    console.log("Exiting");
+    // DEPRECATED METHODS ON SOCKETING VERSION
+    // self.leaveQueue();
+    // self.cancelled=true;
+    // clearInterval(self.polling);
+    // self.endConversation();
+  }
+};
 </script>
 
 
