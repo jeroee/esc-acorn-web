@@ -14,7 +14,7 @@
             <div class="flex-row">
                 <v-text-field
                         id="FirstName"
-                        outlined = "true"
+                        outlined
                         v-model="name1"
                         class="name-field"
                         color="green"
@@ -25,7 +25,7 @@
 
                 <v-text-field
                         id="LastName"
-                        outlined = "true"
+                        outlined
                         v-model="name2"
                         class="name-field"
                         color="green"
@@ -61,7 +61,7 @@
                         @click="requestCall"
                         x-large
                         depressed
-                        class="ma-5 green white--text"
+                        class="ma-5 blue white--text"
                         :disabled="isSelected"
                         style="transition: all 500ms"
                 >

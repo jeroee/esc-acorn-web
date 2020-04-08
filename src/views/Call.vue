@@ -7,10 +7,10 @@
         <audio id="globalAudioTag" autoplay/>     <!--to allow customer to receive audio from agent-->
         <div class="callBox">
             <h1 class="font-weight-light agent-text">You're on the phone with {{agentName}}</h1>
-            <Lottie :options="defaultOptions" :height="450" :width="450" style="margin-bottom: 100px" v-on:animCreated="handleAnimation"/>
+            <Lottie :options="defaultOptions" :height="450" :width="450" style="padding-bottom: 100px"/>
         </div>
         <v-footer width="100%" padless>
-            <v-btn @click="movetochat" height="58px" width="50%" x-large depressed tile class="green white--text">
+            <v-btn @click="moveToChat" height="58px" width="50%" x-large depressed tile class="green white--text">
                 <h3><v-icon left>message</v-icon>Move To Chat</h3>
             </v-btn>
             <v-btn @click="endCall" height="58px" width="50%" x-large depressed tile class="red white--text">
@@ -26,20 +26,18 @@ import rainbowSDK from "rainbow-web-sdk";
 import Lottie from 'vue-lottie';
 import animationData from '../assets/customer-support';
 // import axios from "axios";
-import io from 'socket.io-client';
 
 export default {
     name: "Call",
     components:{Waitpage,Lottie},
     data: () => ({
         defaultOptions: {animationData: animationData},
-        token: "", // String variable for guest account token
         start: false,
         connecting: false,
         cancelled: false,
         loading: 0,
-        socket:"", // holds the socket object
-        call: ""
+        call: "",
+        exit: false
     }),
     computed: {
         categoryIndex() {
@@ -56,42 +54,52 @@ export default {
         },
         lastName(){
             return this.$store.state.lastName;
+        },
+        token(){
+            return this.$store.state.token;
         }
     },
     mounted() {
         let self = this;
         self.checkCall();
 
-        self.socket = io.connect('https://esc-acorn-backend.herokuapp.com/');
+        if (self.agentId==="") {
+            console.log("trying");
+            self.$socket.connect();
+        } else {
+            self.connecting=true;
+            self.startCall();
+        }
         // self.socket = io.connect('http://localhost:4000/');
-        /**********************MOUNT ALL SOCKET METHODS HERE**********************/
-        self.socket.on("handshake", function (data) {
+        // this.getConnection(); DEPRECATED
+    },
+    /**********************MOUNT ALL SOCKET METHODS HERE**********************/
+    sockets: {
+        handshake: function (data) {
+            let self=this;
             console.log(data);
             console.log("Socket.io getAgent");
             console.log(self.categoryIndex);
             console.log(self.firstName);
             console.log(self.lastName);
-            self.socket?.emit("getAgent",{
+            self.$socket.emit("getAgent",{
                 category: self.categoryIndex,
                 firstName: self.firstName,
                 lastName: self.lastName
             })
-        });
-
-        self.socket.on("getAgentSuccess", function (data) {
+        },
+        getAgentSuccess: function (data) {
+            let self=this;
             console.log("Socket.io getAgentSuccess");
             self.$store.state.agentId = data.agentId;
             self.$store.state.agentName = data.agentName; //get agent name
-            self.token = data.token; //get guest token
+            self.$store.state.token = data.token; //get guest token
             console.log(`Your agentId is ${self.agentId}`);
             console.log(`Your agentName is ${self.agentName}`);
             console.log(`Your token is ${self.token}`);
             self.connecting=true;
             self.startCall();
-        });
-
-
-        // this.getConnection(); DEPRECATED
+        }
     },
     methods: {
         checkCall: function() {
@@ -187,10 +195,13 @@ export default {
                 await rainbowSDK.connection.signinSandBoxWithToken(this.token); //login to rainbow server with guest token
                 self.loading=50;
                 let contact = await rainbowSDK.contacts.searchById(this.agentId); //get contact from agent id
-                self.call = rainbowSDK.webRTC.callInAudio(contact);      //start to call the contact with available agent
+                var res = rainbowSDK.webRTC.callInAudio(contact); //start to call the contact with available agent
+                if (res.label === "OK") {
+                    console.log("calling");
+                }
                 self.loading=100;
                 self.start=true;
-                document.addEventListener(rainbowSDK.webRTC.RAINBOW_ONWEBRTCCALLSTATECHANGED, this.onWebRTCCallChanged);
+                document.addEventListener(rainbowSDK.webRTC.RAINBOW_ONWEBRTCCALLSTATECHANGED, self.onWebRTCCallChanged);
             } catch(err) {
                 console.log(err)
             }
@@ -198,21 +209,29 @@ export default {
 
 
     /**********************CALL FUNCS**********************/
-    onWebRTCCallChanged: function(event) {
-      //console.log("OnWebRTCCallChanged event", event.detail.status);
-      if (event.detail.status.value==="Unknown"){    //if agent ends the call first, user will be directed to Feedback Page
-          this.$router.push({path: "/feedback"});
-      }
+    onWebRTCCallChanged: async function(event) {
+        let self=this;
+        self.call=event.detail;
+        //console.log("OnWebRTCCallChanged event", event.detail.status);
+        if (event.detail.status.value==="Unknown"){    //if agent ends the call first, user will be directed to Feedback Page
+            document.removeEventListener(rainbowSDK.webRTC.RAINBOW_ONWEBRTCCALLSTATECHANGED, self.onWebRTCCallChanged);
+            if (self.exit){
+                await self.$router.push({ path: "/feedback" });
+                this.$store.state.agentId="";
+                self.$socket.disconnect();
+            }
+        }
     },
     endCall: async function() {
-      console.log("removing call");
-      document.addEventListener(
-        rainbowSDK.webRTC.RAINBOW_ONWEBRTCCALLSTATECHANGED,
-        this.onWebRTCCallChanged
-      );
-      await rainbowSDK.webRTC.release(this.call);
-      await console.log("released");
-      await this.$router.push({ path: "/feedback" });
+        let self=this;
+        self.exit=true;
+        await rainbowSDK.webRTC.release(self.call);
+        console.log("Session Ended");
+    },
+    moveToChat: async function () {
+        console.log("moving to chat");
+        await rainbowSDK.webRTC.release(this.call);
+        await this.$router.push({ path: "/chat" });
     }
   },
   /**********************CLEANUP FUNCS (DEPRECATED ON SOCKETING VERSION)**********************/
@@ -241,8 +260,6 @@ export default {
   //},
   /**********************BACKUP CLEANUP METHOD**********************/
   beforeDestroy() {
-    let self = this;
-    self.socket.disconnect();
     console.log("Exiting");
     // DEPRECATED METHODS ON SOCKETING VERSION
     // self.leaveQueue();

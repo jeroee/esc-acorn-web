@@ -28,6 +28,9 @@
             <v-btn id = 'send message' @click="message" height="58px" x-large depressed tile class="green white--text">
                 <h3>Send</h3><v-icon right>send</v-icon>
             </v-btn>
+            <v-btn id ='moveToCall' @click="moveToCall" height="58px" x-large depressed tile class="blue white--text">
+                <h3>Move To Call</h3><v-icon right>call</v-icon>
+            </v-btn>
             <v-btn id ='exit chat' @click="exitChat" height="58px" x-large depressed tile class="red white--text">
                 <h3>Leave</h3><v-icon right>input</v-icon>
             </v-btn>
@@ -41,13 +44,11 @@
     import rainbowSDK from "rainbow-web-sdk";
     // import axios from "axios";
     import Waitpage from "./Waitpage";
-    import io from "socket.io-client";
 
     export default {
         name: "Chatpage",
         components: {Waitpage},
         data: () => ({
-            token: "", // String variable for guest account token
             items: [
                 {
                     message: "You have been connected with our agent. Please let them know how they may assist you today.",
@@ -63,7 +64,6 @@
             cancelled: false, // sets a guard for polling during early exits - on true, prevents polling
             ended: false, //stops read receipts
             loading: 0, // updates the spin loader progress after agent found - values [0,100]
-            socket:"" // holds the socket object
         }),
         computed: {
             categoryIndex() {
@@ -80,6 +80,37 @@
             },
             lastName(){
                 return this.$store.state.lastName;
+            },
+            token(){
+                return this.$store.state.token;
+            }
+        },
+        /**********************MOUNT ALL SOCKET METHODS HERE**********************/
+        sockets: {
+            handshake: function (data) {
+                let self=this;
+                console.log(data);
+                console.log("Socket.io getAgent");
+                console.log(self.categoryIndex);
+                console.log(self.firstName);
+                console.log(self.lastName);
+                self.$socket.emit("getAgent", {
+                    category: self.categoryIndex,
+                    firstName: self.firstName,
+                    lastName: self.lastName
+                })
+            },
+            getAgentSuccess: function (data) {
+                let self=this;
+                console.log("Socket.io getAgentSuccess");
+                self.$store.state.agentId = data.agentId;
+                self.$store.state.agentName = data.agentName; //get agent name
+                self.$store.state.token = data.token; //get guest token
+                console.log(`Your agentId is ${self.agentId}`);
+                console.log(`Your agentName is ${self.agentName}`);
+                console.log(`Your token is ${self.token}`);
+                self.connecting=true;
+                self.startChat();
             }
         },
         methods: {
@@ -195,45 +226,30 @@
                         break;
                 }
             },
-
-            /*********************        EXITING CHAT         *********************/
             exitChat: async function() {
                 let self=this;
+                await rainbowSDK.conversations.closeConversation(self.conversation);
+                console.log("Conversation Closed");
+                self.$socket.disconnect();
+                this.$store.state.agentId="";
+                await this.$router.push({path: "/feedback"});
+            },
+            moveToCall: async function() {
+                let self=this;
                 await rainbowSDK.conversations.closeConversation(self.conversation)
-                .then(console.log("Conversation Closed"))
-                .then(this.$router.push({path: "/feedback"}));
+                    .then(console.log("Conversation Closed"))
+                    .then(this.$router.push({path: "/call"}));
             }
         },
 
         mounted() {
             let self = this;
-            self.socket = io.connect('https://esc-acorn-backend.herokuapp.com/');
-            // self.socket = io.connect('http://localhost:4000/');
-            /**********************MOUNT ALL SOCKET METHODS HERE**********************/
-            self.socket.on("handshake", function (data) {
-                console.log(data);
-                console.log("Socket.io getAgent");
-                console.log(self.categoryIndex);
-                console.log(self.firstName);
-                console.log(self.lastName);
-                self.socket?.emit("getAgent", {
-                    category: self.categoryIndex,
-                    firstName: self.firstName,
-                    lastName: self.lastName
-                })
-            });
-
-            self.socket.on("getAgentSuccess", function (data) {
-                console.log("Socket.io getAgentSuccess");
-                self.$store.state.agentId = data.agentId;
-                self.$store.state.agentName = data.agentName; //get agent name
-                self.token = data.token; //get guest token
-                console.log(`Your agentId is ${self.agentId}`);
-                console.log(`Your agentName is ${self.agentName}`);
-                console.log(`Your token is ${self.token}`);
+            if (self.agentId==="") {
+                this.$socket.connect()
+            } else {
                 self.connecting=true;
                 self.startChat();
-            });
+            }
 
             window.addEventListener('keyup', function (event) { // invoke message on enter
                 if (event.keyCode === 13) {
@@ -254,7 +270,6 @@
             let self=this;
             document.removeEventListener(rainbowSDK.im.RAINBOW_ONNEWIMMESSAGERECEIVED, self.receive);
             document.removeEventListener(rainbowSDK.im.RAINBOW_ONNEWIMRECEIPTRECEIVED, self.receipt);
-            self.socket.disconnect();
             console.log("Exiting");
             // DEPRECATED METHODS ON SOCKETING VERSION
             // self.leaveQueue();
