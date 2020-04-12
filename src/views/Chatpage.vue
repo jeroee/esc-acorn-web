@@ -1,43 +1,82 @@
 <template>
-    <div class="chat">
-        <transition name="fade">
-            <Waitpage v-bind:connecting="connecting" v-bind:loading="loading" v-if="!start"/>
-        </transition>
-        <div class="chatBox" id="chatBox" ref="chatBox">
-            <h1 class="font-weight-light mb-5" id="header" ref="header">Let's chat <v-icon x-large color="black">chat</v-icon></h1>
-            <v-card class="ma-5 green white--text" v-bind:class="item.position" flat width="500px" v-for="(item, index) in items" :key="index">
-                <v-card-subtitle class="white--text pb-0">{{item.sender}}</v-card-subtitle>
-                <v-card-title style="word-break: keep-all">
-                    {{item.message}}
-                </v-card-title>
-                <v-card-subtitle class="white--text text-right pr-2 pb-1">{{item.time}}</v-card-subtitle>
-            </v-card>
-        </div>
-        <v-footer width="100%" padless >
-            <v-textarea
-                    id="WriteMessage"
-                    v-model="txt"
-                    filled
-                    hide-details
-                    rows="1"
-                    loading
-                    style="font-size: 1.25rem"
-                    color="green"
-                    auto-grow
-                    placeholder="Send a message..."
-            />
-            <v-btn id = 'SendMessage' @click="message" height="58px" x-large depressed tile class="green white--text">
-                <h3>Send</h3><v-icon right>send</v-icon>
-            </v-btn>
-            
-            <v-btn id ='moveToCall' @click="moveToCall" height="58px" x-large depressed tile class="blue white--text">
-                <h3>Move To Call</h3><v-icon right>call</v-icon>
-            </v-btn>
-            <v-btn id ='exit chat' @click="exitChat" height="58px" x-large depressed tile class="red white--text">
-                <h3>Leave</h3><v-icon right>input</v-icon>
-            </v-btn>
-        </v-footer>
+
+  <div class="chat">
+    <transition name="fade">
+      <Waitpage v-bind:connecting="connecting" v-bind:loading="loading" v-if="!start" />
+    </transition>
+    <div class="chatBox" id="chatBox" ref="chatBox">
+      <h1 class="font-weight-light mb-5" id="header" ref="header">
+        Let's chat
+        <v-icon x-large color="black">chat</v-icon>
+      </h1>
+      <v-card
+        class="ma-5 green white--text"
+        v-bind:class="item.position"
+        elevation="5"
+        flat
+        width="500px"
+        v-for="(item, index) in items"
+        :key="index"
+      >
+        <v-card-subtitle class="white--text pb-0">{{item.sender}}</v-card-subtitle>
+        <v-card-text>
+          <br />
+          <p style="color:white;font-size:120%">{{item.message}}</p>
+        </v-card-text>
+        <v-card-subtitle class="white--text text-right pr-2 pb-1">{{item.time}}</v-card-subtitle>
+      </v-card>
     </div>
+    <v-footer width="100%" padless>
+      <v-textarea
+        class="scroll-y"
+        v-model="txt"
+        filled
+        height="70px"
+        hide-details
+        rows="1"
+        loading
+        style="font-size: 1.25rem"
+        color="green"
+        placeholder="Send a message..."
+      />
+      <v-btn
+        id="send message"
+        @click="message"
+        height="60px"
+        x-large
+        depressed
+        tile
+        class="green white--text"
+      >
+        <h3>Send</h3>
+        <v-icon right>send</v-icon>
+      </v-btn>
+      <v-btn
+        id="moveToCall"
+        @click="moveToCall"
+        height="60px"
+        x-large
+        depressed
+        tile
+        class="blue white--text"
+      >
+        <h3>Move To Call</h3>
+        <v-icon right>call</v-icon>
+      </v-btn>
+      <v-btn
+        id="exit chat"
+        @click="exitChat"
+        height="60px"
+        x-large
+        depressed
+        tile
+        class="red white--text"
+      >
+        <h3>Leave</h3>
+        <v-icon right>input</v-icon>
+      </v-btn>
+    </v-footer>
+  </div>
 </template>
 
 <script>
@@ -46,14 +85,13 @@
     import rainbowSDK from "rainbow-web-sdk";
     // import axios from "axios";
     import Waitpage from "./Waitpage";
-
     export default {
         name: "Chatpage",
         components: {Waitpage},
         data: () => ({
             items: [
                 {
-                    message: "You have been connected with our agent. Please let them know how they may assist you today.",
+                    message: "You have been connected with our agent!",
                     position: "left",
                     sender: "System",
                     time: moment().format("h:mm a")
@@ -66,6 +104,8 @@
             cancelled: false, // sets a guard for polling during early exits - on true, prevents polling
             ended: false, //stops read receipts
             loading: 0, // updates the spin loader progress after agent found - values [0,100]
+            chatStop: false,
+            connectionType: ""
         }),
         computed: {
             categoryIndex() {
@@ -85,6 +125,12 @@
             },
             token(){
                 return this.$store.state.token;
+            },
+            chatStop(){
+                return this.$store.state.chatStop;
+            },
+            connectionType(){
+                return this.$store.state.chatStop;
             }
         },
         /**********************MOUNT ALL SOCKET METHODS HERE**********************/
@@ -94,12 +140,16 @@
                 console.log(data);
                 console.log("Socket.io getAgent");
                 console.log(self.categoryIndex);
+                console.log(self.agentName);
                 console.log(self.firstName);
                 console.log(self.lastName);
                 self.$socket.emit("getAgent", {
                     category: self.categoryIndex,
+                    agentName: self.agentName,
                     firstName: self.firstName,
-                    lastName: self.lastName
+                    lastName: self.lastName,
+                    chatStop: self.chatStop,
+                    connectionType:self.connectionType
                 })
             },
             getAgentSuccess: function (data) {
@@ -141,7 +191,6 @@
             //         console.log(err);
             //     }
             // },
-
             /**********************POLLING GET (DEPRECATED ON SOCKETING VERSION)**********************/
             // pollConnection: function() {
             //     let self=this;
@@ -165,8 +214,6 @@
             //         }
             //     },3000)
             // },
-
-
             startChat: async function () {
                 let self=this;
                 try {
@@ -183,7 +230,6 @@
                     console.log(err)
                 }
             },
-
             /**********************CLEANUP FUNCS (DEPRECATED ON SOCKETING VERSION)**********************/
             // leaveQueue: function(){ // remove queue entry
             //     let self=this;
@@ -197,7 +243,6 @@
             //         .then(res => console.log(res))
             //         .catch(err => console.log(err))
             // },
-
             /**********************MESSAGE FUNCS**********************/
             message() {
                 let self=this;
@@ -215,7 +260,6 @@
                 self.items.push({message: event.detail.message.data, position: "left", sender: self.agentName, time: moment().format("h:mm a")});
                 $("#chatBox").animate({scrollTop: $('#chatBox')[0].scrollHeight}, 500);
             },
-
             receipt: function(event) {
                 switch (event.detail.evt) {
                     case "server":
@@ -234,25 +278,29 @@
                 console.log("Conversation Closed");
                 self.$socket.disconnect();
                 this.$store.state.agentId="";
+                this.$store.state.chatStop=true;
                 await this.$router.push({path: "/feedback"});
             },
             moveToCall: async function() {
                 let self=this;
+                this.$store.state.chatStop=true;
+                this.$store.state.connectionType =
+                    "Connecting you to an agent for call service now";
                 await rainbowSDK.conversations.closeConversation(self.conversation)
                     .then(console.log("Conversation Closed"))
                     .then(this.$router.push({path: "/call"}));
             }
         },
-
         mounted() {
             let self = this;
+            this.$store.state.chatStop=false;
+            self.items.push({message: "Dear  "+ self.firstName+", My name is "+ self.agentName+". How may I assist you today?", position: "left", sender: self.agentName, time: moment().format("h:mm a")});
             if (self.agentId==="") {
                 this.$socket.connect()
             } else {
                 self.connecting=true;
                 self.startChat();
             }
-
             window.addEventListener('keyup', function (event) { // invoke message on enter
                 if (event.keyCode === 13) {
                     self.message();
@@ -284,41 +332,38 @@
 
 <style scoped>
 .chat {
-    display:flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
 }
-
 .right {
-    margin-left: auto !important;
-    background-color: green !important;
+  margin-left: auto !important;
+  background-color: green !important;
 }
-
 #header {
-    background-color: #f1f1f1;
-    text-align: center;
-    font-size: 60px;
-    width: 100%;
-    transition: 0.2s;
+  background-color: #f1f1f1;
+  text-align: center;
+  font-size: 60px;
+  width: 100%;
+  transition: 0.2s;
 }
-
 .chatBox {
-    height:100%;
-    width:100%;
-    overflow:auto;
-    -ms-overflow-style: none;  /* Internet Explorer 10+ */
-    scrollbar-width: none;  /* Firefox */
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
 }
 .chatBox::-webkit-scrollbar {
-    display: none;  /* Safari and Chrome */
+  display: none; /* Safari and Chrome */
 }
-
-.fade-enter-active, .fade-leave-active {
-    transition: opacity .5s;
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-    opacity: 0;
+  opacity: 0;
 }
 </style>

@@ -1,11 +1,11 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Homepage from "../views/Homepage";
+import { store } from './store.js';
 
+Vue.use(Router)
 
-Vue.use(Router);
-
-export default new Router({
+let router = new Router({
     mode: 'history',
     base: process.env.BASE_URL,
     routes: [
@@ -93,4 +93,28 @@ export default new Router({
             component: () => import('../views/Popmotion.vue')
         },
     ]
-})
+});
+router.beforeEach((to, from, next) => {
+    if (to.name !== 'home' && !store.state.support) {
+        next({ name: 'home' });
+    } else {
+        next();
+    }
+});
+router.beforeEach((to, from, next) => {
+    if (to.name == 'reivew' || to.name == 'call' && from.name == 'chat' && !store.state.chatStop) {
+        next({ name: 'home'});
+    }
+    else{
+        next();
+    }
+    if ((to.name == 'chat' || to.name == 'call') && from.name == 'Feedback' && !store.state.feedback) {
+                next({ name: 'home'});
+            }
+});
+
+
+
+
+
+export default router;
