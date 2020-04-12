@@ -47,6 +47,7 @@
 
             <div style="flex-direction: row">
                 <v-btn
+                        id="Chat"
                         @click="requestChat"
                         id="Chat Support"
                         x-large
@@ -59,6 +60,7 @@
                 </v-btn>
 
                 <v-btn
+                        id="Call"
                         @click="requestCall"
                         x-large
                         id="Call Support"

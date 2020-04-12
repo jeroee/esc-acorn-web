@@ -77,6 +77,7 @@
       </v-card>
     </v-card>
   </v-container>
+
 </template>
 
 
@@ -112,14 +113,7 @@ export default {
 
   methods: {
     sendDetails: async function() {
-      // let response= await axios.patch(
-      //     `https://still-sea-41149.herokuapp.com/api/review`,
-      //     {
-      //         'agentId' :this.agentId,
-      //         'raiting1' :this.rating1,
-      //         'raiting2' :this.rating2
-      //     }
-      // );
+      
       await axios.patch(
         `https://still-sea-41149.herokuapp.com/api/review?agentId=${this.agentId}&rating1=${this.rating1}&rating2=${this.rating2}&rating3=${this.rating3}&email=${this.email}&comment=${this.comments}`
       );

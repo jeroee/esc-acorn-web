@@ -281,6 +281,7 @@ export default {
         "Call is currently unavailable. We will be directly you to an agent via chat service now. Sorry for the inconvinience caused";
       await rainbowSDK.webRTC.release(this.call);
       await this.$router.push({ path: "/chat" });
+
     },
     moveToChat: async function() {
       let self = this;

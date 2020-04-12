@@ -1,4 +1,5 @@
 <template>
+
   <div class="chat">
     <transition name="fade">
       <Waitpage v-bind:connecting="connecting" v-bind:loading="loading" v-if="!start" />
