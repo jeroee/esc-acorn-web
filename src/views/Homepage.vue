@@ -49,7 +49,6 @@
                 <v-btn
                         id="Chat"
                         @click="requestChat"
-                        id="Chat Support"
                         x-large
                         depressed
                         class="ma-5 green white--text"
@@ -63,7 +62,6 @@
                         id="Call"
                         @click="requestCall"
                         x-large
-                        id="Call Support"
                         depressed
                         class="ma-5 blue white--text"
                         :disabled="isSelected"
