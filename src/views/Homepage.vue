@@ -48,6 +48,7 @@
             <div style="flex-direction: row">
                 <v-btn
                         @click="requestChat"
+                        id="Chat Support"
                         x-large
                         depressed
                         class="ma-5 green white--text"
@@ -60,6 +61,7 @@
                 <v-btn
                         @click="requestCall"
                         x-large
+                        id="Call Support"
                         depressed
                         class="ma-5 blue white--text"
                         :disabled="isSelected"
@@ -96,7 +98,8 @@
             firstName: "",
             lastName: "",
             name1:"",
-            name2:""
+            name2:"",
+            support: false
 
         }),
         computed: {
@@ -110,10 +113,14 @@
                 this.$store.state.categoryName = this.selected;
                 this.$store.state.firstName = this.name1.charAt(0).toUpperCase() + this.name1.slice(1);
                 this.$store.state.lastName = this.name2.charAt(0).toUpperCase() + this.name2.slice(1);
+                this.$store.state.support = this.support;
+                this.$store.state.connectionType = this.connectionType;
             },
 
             requestChat: function () {
                 if (!this.isSelected) {
+                    this.support=true;
+                    this.connectionType="Connecting you to an agent for chat service now";
                     this.submit();
                     this.$router.push({path: "/chat"});
                 }
@@ -121,6 +128,8 @@
 
             requestCall: function () {
                 if (!this.isSelected) {
+                    this.support=true;
+                    this.connectionType="Connecting you to an agent for call service now";
                     this.submit();
                     this.$router.push({path: "/call"});
                 }
