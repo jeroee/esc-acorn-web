@@ -1,8 +1,7 @@
 <template>
-
     <div class="chat">
         <transition name="fade">
-            <Wait v-bind:connecting="connecting" v-bind:loading="loading" v-if="!start" />
+            <Wait v-bind:connecting="connecting" v-bind:loading="loading" v-bind:color="color" v-if="!start" />
         </transition>
         <div class="chatBox" id="chatBox" ref="chatBox">
             <h1 class="font-weight-light mb-5" id="header" ref="header">
@@ -89,23 +88,14 @@
         name: "Chatpage",
         components: {Wait},
         data: () => ({
-            items: [
-                {
-                    message: "You have been connected with our agent!",
-                    position: "left",
-                    sender: "System",
-                    time: moment().format("h:mm a")
-                },
-            ], // array of messages, updated on receive and send
+            items: [], // array of messages, updated on receive and send
+            color: "green", // sets the color for the wait component
             txt: "", // string buffer for chat text input
             conversation:'', // variable to hold the conversation object
             start: false, // removes the loading page from view - on true, removes loading page
-            connecting: false, // updates the waitpage
+            connecting: false, // updates the wait component to determinate loading
             cancelled: false, // sets a guard for polling during early exits - on true, prevents polling
-            ended: false, //stops read receipts
             loading: 0, // updates the spin loader progress after agent found - values [0,100]
-            chatStop: false,
-            connectionType: ""
         }),
         computed: {
             categoryIndex() {
@@ -125,12 +115,6 @@
             },
             token(){
                 return this.$store.state.token;
-            },
-            chatStop(){
-                return this.$store.state.chatStop;
-            },
-            connectionType(){
-                return this.$store.state.chatStop;
             }
         },
         /**********************MOUNT ALL SOCKET METHODS HERE**********************/
@@ -140,16 +124,12 @@
                 console.log(data);
                 console.log("Socket.io getAgent");
                 console.log(self.categoryIndex);
-                console.log(self.agentName);
                 console.log(self.firstName);
                 console.log(self.lastName);
                 self.$socket.emit("getAgent", {
                     category: self.categoryIndex,
-                    agentName: self.agentName,
                     firstName: self.firstName,
-                    lastName: self.lastName,
-                    chatStop: self.chatStop,
-                    connectionType:self.connectionType
+                    lastName: self.lastName
                 })
             },
             getAgentSuccess: function (data) {
@@ -218,16 +198,16 @@
             startChat: async function () {
                 let self=this;
                 try {
-                    await rainbowSDK.connection.signinSandBoxWithToken(this.token); //login to rainbow server with guest token
+                    await rainbowSDK.connection.signinSandBoxWithToken(self.token); //login to rainbow server with guest token
                     self.loading=50;
-                    let contact = await rainbowSDK.contacts.searchById(this.agentId); //get contact from agent id
-                    this.conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+                    let contact = await rainbowSDK.contacts.searchById(self.agentId); //get contact from agent id
+                    self.conversation = await rainbowSDK.conversations.openConversationForContact(contact);
                     self.loading=100;
-                    await rainbowSDK.im.getMessagesFromConversation(this.conversation); //getting all messages from conversation
+                    await rainbowSDK.im.getMessagesFromConversation(self.conversation); //getting all messages from conversation
                     self.start=true;
                     document.addEventListener(rainbowSDK.im.RAINBOW_ONNEWIMMESSAGERECEIVED, self.receive);
                     document.addEventListener(rainbowSDK.im.RAINBOW_ONNEWIMRECEIPTRECEIVED, self.receipt);
-                    self.items.push({message: "Dear  "+ self.firstName+", My name is "+ self.agentName+". How may I assist you today?", position: "left", sender: self.agentName, time: moment().format("h:mm a")});
+                    self.items.push({message: "Hello "+self.firstName+", You've been connected with "+ self.agentName+". Please let them know how they can help you today.", position: "left", sender: "System", time: moment().format("h:mm a")});
                 } catch(err) {
                     console.log(err)
                 }
@@ -277,30 +257,30 @@
             exitChat: async function() {
                 let self=this;
                 await rainbowSDK.conversations.closeConversation(self.conversation);
-                console.log("Conversation Closed");
+                console.log("Session Ended");
                 self.$socket.disconnect();
-                this.$store.state.chatStop=true;
-                await this.$router.push({path: "/feedback"});
+                self.$store.state.feedback=true;
+                self.$store.state.support=false;
+                await self.$router.push({path: "/feedback"});
             },
             moveToCall: async function() {
                 let self=this;
-                this.$store.state.chatStop=true;
-                this.$store.state.connectionType =
-                    "Connecting you to an agent for call service now";
-                await rainbowSDK.conversations.closeConversation(self.conversation)
-                    .then(console.log("Conversation Closed"))
-                    .then(this.$router.push({path: "/call"}));
+                await rainbowSDK.conversations.closeConversation(self.conversation);
+                console.log("Moving To Call");
+                // self.$store.state.moving=true;
+                await self.$router.push({path: "/call"});
             }
         },
         mounted() {
             let self = this;
-            this.$store.state.chatStop=false;
             if (self.agentId==="") {
-                this.$socket.connect()
+                self.$socket.connect()
             } else {
+                self.$store.state.moving=false;
                 self.connecting=true;
                 self.startChat();
             }
+
             window.addEventListener('keyup', function (event) { // invoke message on enter
                 if (event.keyCode === 13) {
                     self.message();
@@ -321,6 +301,7 @@
             document.removeEventListener(rainbowSDK.im.RAINBOW_ONNEWIMMESSAGERECEIVED, self.receive);
             document.removeEventListener(rainbowSDK.im.RAINBOW_ONNEWIMRECEIPTRECEIVED, self.receipt);
             console.log("Exiting");
+
             // DEPRECATED METHODS ON SOCKETING VERSION
             // self.leaveQueue();
             // self.cancelled=true;
@@ -369,6 +350,7 @@
     .message{
         color:white;
         font-size: 1.25rem;
+        line-height: 2rem;
         margin-bottom: 0;
     }
 </style>

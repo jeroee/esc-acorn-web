@@ -1,6 +1,6 @@
 <template>
     <v-container class="feedback px-5">
-        <h1 class="font-weight-light mb-10 text-center" >{{this.headertext}}</h1>
+        <h1 class="font-weight-light mb-10 text-center" >{{this.headerText}}</h1>
         <transition name="bounce">
             <v-card v-if="feedback">
                 <v-toolbar dark color="blue">
@@ -92,7 +92,7 @@
             rating3: -1,
             comments: "",
             email: "",
-            headertext: "Help us improve our customer service",
+            headerText: "Help us improve our customer service",
             feedback: true,
             hasError: false
         }),
@@ -120,23 +120,23 @@
                 let self=this;
                 self.hasError=false;
                 if (self.rating1 !==-1 && self.rating2 !==-1 && self.rating3 !==-1) {
-                    self.feedback=!self.feedback;
-                    self.headertext="Thanks for the feedback!";
+                    self.feedback=false;
+                    self.headerText="Thanks for the feedback!";
                     try {
                         await axios.patch(
                             `https://still-sea-41149.herokuapp.com/api/review?agentId=${self.agentId}&rating1=${self.rating1}&rating2=${self.rating2}&rating3=${self.rating3}&email=${self.email}&comment=${self.comments}`
-                        );
+                        ).then(response => console.log(response));
                     } catch (e) {
                         console.log(e.message());
                     }
                     finally {
-                        self.$store.state.connectionType = true;
                         self.$store.state.agentId="";
+                        self.$store.state.feedback = false;
                         await this.$router.push({ path: "/" });
                     }
                 } else self.hasError=true;
             },
-        }
+        },
     };
 </script>
 

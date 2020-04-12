@@ -99,8 +99,6 @@
             lastName: "",
             name1:"",
             name2:"",
-            support: false
-
         }),
         computed: {
             isSelected() {
@@ -113,14 +111,11 @@
                 this.$store.state.categoryName = this.selected;
                 this.$store.state.firstName = this.name1.charAt(0).toUpperCase() + this.name1.slice(1);
                 this.$store.state.lastName = this.name2.charAt(0).toUpperCase() + this.name2.slice(1);
-                this.$store.state.support = this.support;
-                this.$store.state.connectionType = this.connectionType;
+                this.$store.state.support = true;
             },
 
             requestChat: function () {
                 if (!this.isSelected) {
-                    this.support=true;
-                    this.connectionType="Connecting you to an agent for chat service now";
                     this.submit();
                     this.$router.push({path: "/chat"});
                 }
@@ -128,8 +123,6 @@
 
             requestCall: function () {
                 if (!this.isSelected) {
-                    this.support=true;
-                    this.connectionType="Connecting you to an agent for call service now";
                     this.submit();
                     this.$router.push({path: "/call"});
                 }

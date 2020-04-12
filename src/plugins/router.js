@@ -16,7 +16,7 @@ let router = new Router({
         {
             path: '/chat',
             name: 'chat',
-            component: () => import('../views/Chatpage.vue')
+            component: () => import('../views/ChatPage.vue')
         },
 
         {
@@ -27,31 +27,39 @@ let router = new Router({
         },
 
         {
-            path: '/FeedBack',
-            name: 'FeedBack',
+            path: '/feedback',
+            name: 'feedback',
             component: () => import('../views/FeedBack.vue')
         },
     ]
 });
 
 router.beforeEach((to, from, next) => {
-    if (to.name !== 'home' && !store.state.support) {
+    //prevent people from entering call, chat, review pages directly
+    if ((to.name === 'call' || to.name === 'chat') && !store.state.support) {
+        next({ name: 'home' });
+    } else if ( to.name === 'feedback' && !store.state.feedback) {
         next({ name: 'home' });
     } else {
         next();
     }
-});
 
-router.beforeEach((to, from, next) => {
-    if (to.name === 'review' || to.name === 'call' && from.name === 'chat' && !store.state.chatStop) {
-        next({ name: 'home'});
+    //prevent people from going back to the home page from the chat or call pages
+    if ((from.name === 'chat' || from.name === 'call') && to.name === 'home' && store.state.support) {
+        alert("Please do not use the back button to go back to the home page.");
+        next(from.name);
     }
-    else{
-        next();
+
+    //prevent people from going back to the chat page from the call page (preventing rainbow lockout for call websockets)
+    if (from.name === 'call' && to.name === 'chat' && !store.state.moving) {
+        alert("Please do not use the back button to switch between chat and call.");
+        next({ name: 'call' });
     }
-    if ((to.name === 'chat' || to.name === 'call') && from.name === 'Feedback' && !store.state.feedback) {
-                next({ name: 'home'});
-            }
+
+    //prevent people from going back to the chat and call page from feedback
+    if ((to.name === 'chat' || to.name === 'call') && from.name === 'feedback') {
+        alert("Please start a new support session!")
+    }
 });
 
 

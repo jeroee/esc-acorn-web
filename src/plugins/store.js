@@ -13,9 +13,7 @@ export const store = new Vuex.Store({
         agentId:"",
         token:"",
         support: false,
-        chatStop: false,
-        callStop: false,
-        connectionType:"",
-        feedback: false
+        feedback: false,
+        moving:false,
     },
 });

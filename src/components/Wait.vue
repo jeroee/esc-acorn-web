@@ -1,12 +1,12 @@
 <template>
     <div class="wait">
         <h1 v-if="!connecting" class="font-weight-light ma-10">Finding you an {{categoryName}} agent...</h1>
-        <h1 v-if="connecting" class="font-weight-light ma-10">{{connectionType}}</h1>
+        <h1 v-if="connecting" class="font-weight-light ma-10">We're connecting you with our agent, please hold on.</h1>
         <v-progress-circular
                 v-if="!connecting"
                 :size="200"
                 :width="7"
-                color="green"
+                :color="color"
                 indeterminate
         ></v-progress-circular>
         <v-progress-circular
@@ -15,10 +15,10 @@
                 :width="7"
                 :value="loading"
                 :rotate="-90"
-                color="green"
+                :color="color"
         >{{loading}}</v-progress-circular>
 
-        <v-btn id="cancel" @click="cancel" v-if="!connecting" x-large depressed class="ma-10 green white--text">
+        <v-btn id="cancel" @click="cancel" v-if="!connecting" x-large depressed :color="color" class="ma-10 white--text">
             <v-icon large left>close</v-icon>
             <h2 class="font-weight-medium">Cancel</h2>
         </v-btn>
@@ -31,19 +31,20 @@ export default {
     name: "Wait",
     props:{
         connecting: Boolean,
-        loading: Number
+        loading: Number,
+        color: String
     },
     methods: {
         cancel: function () {
+            this.$store.state.support=false;
             this.$router.push({path: "/"});
+            this.$socket.disconnect();
+            console.log("Session Ended")
         }
     },
     computed: {
         categoryName() {
             return this.$store.state.categoryName;
-        },
-        connectionType(){
-            return this.$store.state.connectionType;
         }
     },
 }

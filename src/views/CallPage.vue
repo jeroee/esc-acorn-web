@@ -1,7 +1,7 @@
 <template>
     <div class="call" id="call">
         <transition name="fade">
-            <Wait v-bind:connecting="connecting" v-bind:loading="loading" v-if="!start" />
+            <Wait v-bind:connecting="connecting" v-bind:loading="loading" v-bind:color="color" v-if="!start" />
         </transition>
         <h1 class="font-weight-light mb-5 header">
             Let's talk
@@ -28,7 +28,7 @@
                 </h3>
             </v-btn>
             <v-btn
-                    @click="endCall"
+                    @click="exitCall"
                     height="58px"
                     width="50%"
                     x-large
@@ -57,13 +57,10 @@
             defaultOptions: { animationData: animationData },
             start: false,
             connecting: false,
-            cancelled: false,
             loading: 0,
             call: "",
             exit: false,
-            callStop: false,
-            connectionType: "",
-            movetoChat: false
+            color: "blue"
         }),
         computed: {
             categoryIndex() {
@@ -83,29 +80,9 @@
             },
             token() {
                 return this.$store.state.token;
-            },
-            callStop() {
-                return this.$store.state.callStop;
-            },
-            connectionType() {
-                return this.$store.state.connectionType;
             }
         },
-        mounted() {
-            let self = this;
-            this.$store.state.callStop = false;
-            self.checkCall();
 
-            if (self.agentId === "") {
-                console.log("trying");
-                self.$socket.connect();
-            } else {
-                self.connecting = true;
-                self.startCall();
-            }
-            // self.socket = io.connect('http://localhost:4000/');
-            // this.getConnection(); DEPRECATED
-        },
         /**********************MOUNT ALL SOCKET METHODS HERE**********************/
         sockets: {
             handshake: function(data) {
@@ -119,8 +96,6 @@
                     category: self.categoryIndex,
                     firstName: self.firstName,
                     lastName: self.lastName,
-                    callStop: self.callStop,
-                    connectionType: self.connectionType
                 });
             },
             getAgentSuccess: function(data) {
@@ -232,67 +207,66 @@
                     await rainbowSDK.connection.signinSandBoxWithToken(this.token); //login to rainbow server with guest token
                     self.loading = 50;
                     let contact = await rainbowSDK.contacts.searchById(this.agentId); //get contact from agent id
-                    var res = rainbowSDK.webRTC.callInAudio(contact); //start to call the contact with available agent
+                    let res = rainbowSDK.webRTC.callInAudio(contact); //start to call the contact with available agent
                     if (res.label === "OK") {
                         console.log("calling");
                     }
+                    document.addEventListener(rainbowSDK.webRTC.RAINBOW_ONWEBRTCCALLSTATECHANGED, self.onWebRTCCallChanged);
+                    await self.sleep(2000); //sleep to prevent rapid switches which break the rainbow websocket connection
                     self.loading = 100;
+                    await self.sleep(100); //sleep for effect
                     self.start = true;
-                    document.addEventListener(
-                        rainbowSDK.webRTC.RAINBOW_ONWEBRTCCALLSTATECHANGED,
-                        self.onWebRTCCallChanged
-                    );
                 } catch (err) {
                     console.log(err);
+                    await self.moveToChat();
                 }
             },
-
+            sleep: async function(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            },
             /**********************CALL FUNCS**********************/
-            onWebRTCCallChanged: async function(event) {
+            onWebRTCCallChanged: function(event) {
                 let self = this;
                 self.call = event.detail;
                 console.log("event is: " + event.detail);
                 //console.log("OnWebRTCCallChanged event", event.detail.status);
                 if (event.detail.status.value === "Unknown") {
-                    //if agent ends the call first, user will be directed to Feedback Page
-                    document.removeEventListener(
-                        rainbowSDK.webRTC.RAINBOW_ONWEBRTCCALLSTATECHANGED,
-                        self.onWebRTCCallChanged
-                    );
-                    if (self.exit) {
-                        await self.$router.push({ path: "/feedback" });
-                        this.$store.state.agentId = "";
+                    document.removeEventListener(rainbowSDK.webRTC.RAINBOW_ONWEBRTCCALLSTATECHANGED, self.onWebRTCCallChanged);
+                    if (self.exit) { // only leave the call if customer wants to exit
+                        console.log("Session Ended");
                         self.$socket.disconnect();
-                    } else if(!self.movetoChat){
-                        this.glitch();
+                        self.$store.state.feedback=true;
+                        self.$store.state.support=false;
+                        self.$router.push({ path: "/feedback" });
+                    } else {
+                        self.$store.state.moving=true;
+                        self.$router.push({ path: "/chat" });
                     }
                 }
             },
-            endCall: async function() {
-                this.$store.state.callStop = false;
+            exitCall: async function() {
                 let self = this;
                 self.exit = true;
                 await rainbowSDK.webRTC.release(self.call);
-                console.log("Session Ended");
-            },
-            glitch: async function() {
-                this.$store.state.callStop = false;
-                this.$store.state.connectionType =
-                    "Call is currently unavailable. We will be directly you to an agent via chat service now. Sorry for the inconvenience caused";
-                await rainbowSDK.webRTC.release(this.call);
-                await this.$router.push({ path: "/chat" });
-
             },
             moveToChat: async function() {
                 let self = this;
-                self.movetoChat = true;
-                this.$store.state.connectionType="Connecting you to an agent for chat service now";
-                console.log("moving to chat");
-                console.log(this.$store.state.connectionType);
-                this.$store.state.callStop = false;
-                await rainbowSDK.webRTC.release(this.call);
-                await this.$router.push({ path: "/chat" });
+                await rainbowSDK.webRTC.release(self.call);
+                console.log("Moving to Chat");
             }
+        },
+        mounted() {
+            let self = this;
+            self.checkCall();
+            if (self.agentId === "") {
+                self.$socket.connect();
+            } else {
+                // self.$store.state.moving=false;
+                self.connecting = true;
+                self.startCall();
+            }
+            // self.socket = io.connect('http://localhost:4000/');
+            // this.getConnection(); DEPRECATED
         },
         /**********************CLEANUP FUNCS (DEPRECATED ON SOCKETING VERSION)**********************/
         // leaveQueue: async function(){ // remove queue entry
@@ -308,16 +282,7 @@
         //         .catch(err => console.log(err))
         // }
         //},
-        //DONT REMOVE THE COMMENTED PART HERE
-        // endCall: function() {
-        // //function to end call from the customer's side when pressing End Call   //currently not working yet!!
-        //   console.log("removing call");
-        //   window.location.href = 'Feedback';
-        //console.log(event.detail.status.value);
-        //document.addEventListener(rainbowSDK.webRTC.RAINBOW_ONWEBRTCCALLSTATECHANGED, this.onWebRTCCallChanged);
-        //rainbowSDK.webRTC.release(this.call); //cannot get this line of code working
-        // console.log("res:", res);
-        //},
+
         /**********************BACKUP CLEANUP METHOD**********************/
         beforeDestroy() {
             console.log("Exiting");
