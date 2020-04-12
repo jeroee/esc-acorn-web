@@ -1,7 +1,7 @@
 <template>
     <div class="wait">
         <h1 v-if="!connecting" class="font-weight-light ma-10">Finding you an {{categoryName}} agent...</h1>
-        <h1 v-if="connecting" class="font-weight-light ma-10">{{connectionType}}</h1>  
+        <h1 v-if="connecting" class="font-weight-light ma-10">{{connectionType}}</h1>
         <v-progress-circular
                 v-if="!connecting"
                 :size="200"
@@ -28,7 +28,7 @@
 <script>
 
 export default {
-    name: "Waitpage",
+    name: "Wait",
     props:{
         connecting: Boolean,
         loading: Number

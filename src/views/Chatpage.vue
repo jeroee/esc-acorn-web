@@ -1,82 +1,82 @@
 <template>
 
-  <div class="chat">
-    <transition name="fade">
-      <Waitpage v-bind:connecting="connecting" v-bind:loading="loading" v-if="!start" />
-    </transition>
-    <div class="chatBox" id="chatBox" ref="chatBox">
-      <h1 class="font-weight-light mb-5" id="header" ref="header">
-        Let's chat
-        <v-icon x-large color="black">chat</v-icon>
-      </h1>
-      <v-card
-        class="ma-5 green white--text"
-        v-bind:class="item.position"
-        elevation="5"
-        flat
-        width="500px"
-        v-for="(item, index) in items"
-        :key="index"
-      >
-        <v-card-subtitle class="white--text pb-0">{{item.sender}}</v-card-subtitle>
-        <v-card-text>
-          <br />
-          <p style="color:white;font-size:120%">{{item.message}}</p>
-        </v-card-text>
-        <v-card-subtitle class="white--text text-right pr-2 pb-1">{{item.time}}</v-card-subtitle>
-      </v-card>
+    <div class="chat">
+        <transition name="fade">
+            <Wait v-bind:connecting="connecting" v-bind:loading="loading" v-if="!start" />
+        </transition>
+        <div class="chatBox" id="chatBox" ref="chatBox">
+            <h1 class="font-weight-light mb-5" id="header" ref="header">
+                Let's chat
+                <v-icon x-large color="black">chat</v-icon>
+            </h1>
+            <v-card
+                    class="ma-5 green white--text"
+                    v-bind:class="item.position"
+                    elevation="5"
+                    flat
+                    width="500px"
+                    v-for="(item, index) in items"
+                    :key="index"
+            >
+                <v-card-subtitle class="white--text pb-0">{{item.sender}}</v-card-subtitle>
+                <v-card-text>
+                    <br />
+                    <p class="message">{{item.message}}</p>
+                </v-card-text>
+                <v-card-subtitle class="white--text text-right pr-2 pb-1">{{item.time}}</v-card-subtitle>
+            </v-card>
+        </div>
+        <v-footer width="100%" padless>
+            <v-textarea
+                    class="scroll-y"
+                    v-model="txt"
+                    filled
+                    height="70px"
+                    hide-details
+                    rows="1"
+                    loading
+                    style="font-size: 1.25rem"
+                    color="green"
+                    placeholder="Send a message..."
+            />
+            <v-btn
+                    id="send message"
+                    @click="message"
+                    height="70px"
+                    x-large
+                    depressed
+                    tile
+                    class="green white--text"
+            >
+                <h3>Send</h3>
+                <v-icon right>send</v-icon>
+            </v-btn>
+            <v-btn
+                    id="moveToCall"
+                    @click="moveToCall"
+                    height="70px"
+                    x-large
+                    depressed
+                    tile
+                    class="blue white--text"
+            >
+                <h3>Move To Call</h3>
+                <v-icon right>call</v-icon>
+            </v-btn>
+            <v-btn
+                    id="exit chat"
+                    @click="exitChat"
+                    height="70px"
+                    x-large
+                    depressed
+                    tile
+                    class="red white--text"
+            >
+                <h3>Leave</h3>
+                <v-icon right>input</v-icon>
+            </v-btn>
+        </v-footer>
     </div>
-    <v-footer width="100%" padless>
-      <v-textarea
-        class="scroll-y"
-        v-model="txt"
-        filled
-        height="70px"
-        hide-details
-        rows="1"
-        loading
-        style="font-size: 1.25rem"
-        color="green"
-        placeholder="Send a message..."
-      />
-      <v-btn
-        id="send message"
-        @click="message"
-        height="60px"
-        x-large
-        depressed
-        tile
-        class="green white--text"
-      >
-        <h3>Send</h3>
-        <v-icon right>send</v-icon>
-      </v-btn>
-      <v-btn
-        id="moveToCall"
-        @click="moveToCall"
-        height="60px"
-        x-large
-        depressed
-        tile
-        class="blue white--text"
-      >
-        <h3>Move To Call</h3>
-        <v-icon right>call</v-icon>
-      </v-btn>
-      <v-btn
-        id="exit chat"
-        @click="exitChat"
-        height="60px"
-        x-large
-        depressed
-        tile
-        class="red white--text"
-      >
-        <h3>Leave</h3>
-        <v-icon right>input</v-icon>
-      </v-btn>
-    </v-footer>
-  </div>
 </template>
 
 <script>
@@ -84,10 +84,10 @@
     import moment from 'moment';
     import rainbowSDK from "rainbow-web-sdk";
     // import axios from "axios";
-    import Waitpage from "./Waitpage";
+    import Wait from "../components/Wait";
     export default {
         name: "Chatpage",
-        components: {Waitpage},
+        components: {Wait},
         data: () => ({
             items: [
                 {
@@ -163,6 +163,7 @@
                 console.log(`Your token is ${self.token}`);
                 self.connecting=true;
                 self.startChat();
+
             }
         },
         methods: {
@@ -226,6 +227,7 @@
                     self.start=true;
                     document.addEventListener(rainbowSDK.im.RAINBOW_ONNEWIMMESSAGERECEIVED, self.receive);
                     document.addEventListener(rainbowSDK.im.RAINBOW_ONNEWIMRECEIPTRECEIVED, self.receipt);
+                    self.items.push({message: "Dear  "+ self.firstName+", My name is "+ self.agentName+". How may I assist you today?", position: "left", sender: self.agentName, time: moment().format("h:mm a")});
                 } catch(err) {
                     console.log(err)
                 }
@@ -277,7 +279,6 @@
                 await rainbowSDK.conversations.closeConversation(self.conversation);
                 console.log("Conversation Closed");
                 self.$socket.disconnect();
-                this.$store.state.agentId="";
                 this.$store.state.chatStop=true;
                 await this.$router.push({path: "/feedback"});
             },
@@ -294,7 +295,6 @@
         mounted() {
             let self = this;
             this.$store.state.chatStop=false;
-            self.items.push({message: "Dear  "+ self.firstName+", My name is "+ self.agentName+". How may I assist you today?", position: "left", sender: self.agentName, time: moment().format("h:mm a")});
             if (self.agentId==="") {
                 this.$socket.connect()
             } else {
@@ -331,39 +331,44 @@
 </script>
 
 <style scoped>
-.chat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-}
-.right {
-  margin-left: auto !important;
-  background-color: green !important;
-}
-#header {
-  background-color: #f1f1f1;
-  text-align: center;
-  font-size: 60px;
-  width: 100%;
-  transition: 0.2s;
-}
-.chatBox {
-  height: 100%;
-  width: 100%;
-  overflow: auto;
-  -ms-overflow-style: none; /* Internet Explorer 10+ */
-  scrollbar-width: none; /* Firefox */
-}
-.chatBox::-webkit-scrollbar {
-  display: none; /* Safari and Chrome */
-}
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s;
-}
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-  opacity: 0;
-}
+    .chat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+    }
+    .right {
+        margin-left: auto !important;
+        background-color: green !important;
+    }
+    #header {
+        background-color: #f1f1f1;
+        text-align: center;
+        font-size: 60px;
+        width: 100%;
+        transition: 0.2s;
+    }
+    .chatBox {
+        height: 100%;
+        width: 100%;
+        overflow: auto;
+        -ms-overflow-style: none; /* Internet Explorer 10+ */
+        scrollbar-width: none; /* Firefox */
+    }
+    .chatBox::-webkit-scrollbar {
+        display: none; /* Safari and Chrome */
+    }
+    .fade-enter-active,
+    .fade-leave-active {
+        transition: opacity 0.5s;
+    }
+    .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+        opacity: 0;
+    }
+    .message{
+        color:white;
+        font-size: 1.25rem;
+        margin-bottom: 0;
+    }
 </style>
