@@ -10,10 +10,10 @@
             <Lottie :options="defaultOptions" :height="450" :width="450" style="padding-bottom: 100px"/>
         </div>
         <v-footer width="100%" padless>
-            <v-btn @click="moveToChat" height="58px" width="50%" x-large depressed tile class="green white--text">
+            <v-btn id="moveToChat" @click="moveToChat" height="58px" width="50%" x-large depressed tile class="green white--text">
                 <h3><v-icon left>message</v-icon>Move To Chat</h3>
             </v-btn>
-            <v-btn @click="endCall" height="58px" width="50%" x-large depressed tile class="red white--text">
+            <v-btn id="endCall" @click="endCall" height="58px" width="50%" x-large depressed tile class="red white--text">
                 <h3>Leave Call</h3><v-icon right>input</v-icon>
             </v-btn>
         </v-footer>
@@ -227,6 +227,7 @@ export default {
         self.exit=true;
         await rainbowSDK.webRTC.release(self.call);
         console.log("Session Ended");
+        await this.$router.push({path: "/feedback"});
     },
     moveToChat: async function () {
         console.log("moving to chat");

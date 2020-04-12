@@ -15,6 +15,7 @@
         </div>
         <v-footer width="100%" padless >
             <v-textarea
+                    id="WriteMessage"
                     v-model="txt"
                     filled
                     hide-details
@@ -25,9 +26,10 @@
                     auto-grow
                     placeholder="Send a message..."
             />
-            <v-btn id = 'send message' @click="message" height="58px" x-large depressed tile class="green white--text">
+            <v-btn id = 'SendMessage' @click="message" height="58px" x-large depressed tile class="green white--text">
                 <h3>Send</h3><v-icon right>send</v-icon>
             </v-btn>
+            
             <v-btn id ='moveToCall' @click="moveToCall" height="58px" x-large depressed tile class="blue white--text">
                 <h3>Move To Call</h3><v-icon right>call</v-icon>
             </v-btn>
