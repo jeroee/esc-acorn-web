@@ -27,6 +27,7 @@
         </div>
         <v-footer width="100%" padless>
             <v-textarea
+                    id="WriteMessage"
                     class="scroll-y"
                     v-model="txt"
                     filled
@@ -38,8 +39,8 @@
                     color="green"
                     placeholder="Send a message..."
             />
-            <v-btn
-                    id="send message"
+            <v-btn  
+                    id="SendMessage"
                     @click="message"
                     height="70px"
                     x-large

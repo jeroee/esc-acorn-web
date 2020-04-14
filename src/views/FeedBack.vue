@@ -7,7 +7,7 @@
                     <v-toolbar-title>Rate your experience with {{agentName}}</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <v-toolbar-items>
-                        <v-btn to="/" text>
+                        <v-btn id="skip" to="/" text>
                             Skip
                             <v-icon right>redo</v-icon>
                         </v-btn>
@@ -22,6 +22,7 @@
                                 <v-list-item cols="100" sm="6">
                                     <h3 class="font-weight-regular">How helpful was this session?</h3>
                                     <v-rating
+                                            id="rating1"
                                             style="position: absolute; right: 0"
                                             hover
                                             :size="30"
@@ -32,6 +33,7 @@
                                 <v-list-item cols="12" sm="6">
                                     <h3 class="font-weight-regular">How was our service?</h3>
                                     <v-rating
+                                            id="rating2"
                                             style="position: absolute; right: 0"
                                             hover
                                             :size="30"
@@ -42,6 +44,7 @@
                                 <v-list-item cols="12" sm="6">
                                     <h3 class="font-weight-regular">How was the quality of the chat/call experience?</h3>
                                     <v-rating
+                                            id="rating3"
                                             style="position: absolute; right: 0"
                                             hover
                                             :size="30"
@@ -54,6 +57,7 @@
                                 </v-alert>
                                 <v-col cols="12">
                                     <v-textarea
+                                            id="comments"
                                             background-color="white"
                                             :rows="1"
                                             auto-grow
@@ -64,12 +68,13 @@
                                 </v-col>
                                 <v-col cols="12">
                                     <v-text-field
+                                            id="email"
                                             v-model="email"
                                             label="Email"
                                             hint="Leave us your email if you would like us to get back to you."
                                     ></v-text-field>
                                 </v-col>
-                                <v-btn @click="sendDetails" outlined color="blue" text x-large width="100%">
+                                <v-btn id="Submit" @click="sendDetails" outlined color="blue" text x-large width="100%">
                                     <h3>Submit</h3>
                                 </v-btn>
                             </v-row>
