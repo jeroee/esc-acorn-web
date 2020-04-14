@@ -15,6 +15,7 @@
     </div>
     <v-footer width="100%" padless>
       <v-btn
+        id="moveToChat"
         @click="moveToChat"
         height="58px"
         width="50%"
@@ -28,6 +29,7 @@
         </h3>
       </v-btn>
       <v-btn
+        id="endcall"
         @click="endCall"
         height="58px"
         width="50%"
@@ -273,7 +275,9 @@ export default {
       let self = this;
       self.exit = true;
       await rainbowSDK.webRTC.release(self.call);
+      await this.$router.push({ path: "/feedback" });
       console.log("Session Ended");
+
     },
     glitch: async function() {
       this.$store.state.callStop = false;
