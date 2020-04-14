@@ -1,9 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Homepage from "../views/Homepage";
 import { store } from './store.js';
 
-Vue.use(Router)
+Vue.use(Router);
 
 let router = new Router({
     mode: 'history',
@@ -12,108 +11,56 @@ let router = new Router({
         {
             path: '/',
             name: 'home',
-            component: Homepage
+            component: () => import('../views/Homepage')
         },
         {
             path: '/chat',
             name: 'chat',
-            component: () => import('../views/Chatpage.vue')
-        },
-
-        {
-            path: '/WaitPage',
-            name: 'WaitPage',
-            component: () => import('../views/Waitpage.vue')
+            component: () => import('../views/ChatPage.vue')
         },
 
         {
             path: '/call',
             name: 'call',
             props: true,
-            component: () => import('../views/Call.vue')
+            component: () => import('../views/CallPage.vue')
         },
 
         {
-            path: '/QandAPage1',
-            name: 'QandAPage1',
-            component: () => import('../views/QandAPage1.vue')
-        },
-
-        {
-            path: '/ThanksForSubmit',
-            name: 'ThanksForSubmit',
-            component: () => import('../components/ThanksForSubmit.vue')
-        },
-
-        {
-            path: '/FeedBack',
-            name: 'FeedBack',
+            path: '/feedback',
+            name: 'feedback',
             component: () => import('../views/FeedBack.vue')
-        },
-
-        {
-            path: '/ExitPopup',
-            name: 'ExitPopup',
-            component: () => import('../components/ExitPopup.vue')
-        },
-
-        {
-            path: '/Pic',
-            name: 'Pic',
-            component: () => import('../components/Pic.vue')
-        },
-
-        {
-            path: '/FirstPagePic',
-            name: 'FirstPagePic',
-            component: () => import('../components/FirstPagePic.vue')
-        },
-
-        {
-            path: '/Menu',
-            name: 'Menu',
-            component: () => import('../components/Menu.vue')
-        },
-
-        {
-            path: '/ProductCard',
-            name: 'ProductCard',
-            component: () => import('../components/ProductCard.vue')
-        },
-
-        {
-            path: '/ManyCard',
-            name: 'ManyCard',
-            component: () => import('../components/ManyCard.vue')
-        },
-
-        {
-            path: '/Popmotion',
-            name: 'Popmotion',
-            component: () => import('../views/Popmotion.vue')
         },
     ]
 });
+
 router.beforeEach((to, from, next) => {
-    if (to.name !== 'home' && !store.state.support) {
+    //prevent people from entering call, chat, review pages directly
+    if ((to.name === 'call' || to.name === 'chat') && !store.state.support) {
+        next({ name: 'home' });
+    } else if ( to.name === 'feedback' && !store.state.feedback) {
         next({ name: 'home' });
     } else {
         next();
     }
-});
-router.beforeEach((to, from, next) => {
-    if (to.name == 'reivew' || to.name == 'call' && from.name == 'chat' && !store.state.chatStop) {
-        next({ name: 'home'});
-    }
-    else{
-        next();
-    }
-    if ((to.name == 'chat' || to.name == 'call') && from.name == 'Feedback' && !store.state.feedback) {
-                next({ name: 'home'});
-            }
-});
 
+    //prevent people from going back to the home page from the chat or call pages
+    if ((from.name === 'chat' || from.name === 'call') && to.name === 'home' && store.state.support) {
+        alert("Please do not use the back button to go back to the home page.");
+        next(from.name);
+    }
 
+    //prevent people from going back to the chat page from the call page (preventing rainbow lockout for call websockets)
+    if (from.name === 'call' && to.name === 'chat' && !store.state.moving) {
+        alert("Please do not use the back button to switch between chat and call.");
+        next({ name: 'call' });
+    }
+
+    //prevent people from going back to the chat and call page from feedback
+    if ((to.name === 'chat' || to.name === 'call') && from.name === 'feedback') {
+        alert("Please start a new support session!")
+    }
+});
 
 
 
