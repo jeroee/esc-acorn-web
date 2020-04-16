@@ -1,6 +1,6 @@
 <template>
     <v-container class="feedback px-5">
-        <h1 class="font-weight-light mb-10 text-center" >{{this.headerText}}</h1>
+        <h1 class="font-weight-light mb-10 text-center" >{{headerText}}</h1>
         <transition name="bounce">
             <v-card v-if="feedback">
                 <v-toolbar dark color="blue">
@@ -52,14 +52,20 @@
                                             v-model="rating3"
                                     />
                                 </v-list-item>
+                                <v-alert v-if="ok" dense style="width: 100%" class="mt-5">    <!-- Fill the space up to prevent the layout from shifting when actual alert pops up -->
+                                        {{okMessage}}
+                                        <br>
+                                        {{okMessage}}
+                                </v-alert>    
                                 <v-alert type="error" v-if="hasError" dense style="width: 100%" class="mt-5">
-                                    Please fill up all rating fields above!
+                                    {{errorMessage}}
                                 </v-alert>
                                 <v-col cols="12">
                                     <v-textarea
                                             id="comments"
                                             background-color="white"
                                             :rows="1"
+                                            :counter="200"
                                             auto-grow
                                             label="Additional Comments"
                                             v-model="comments"
@@ -69,6 +75,7 @@
                                 <v-col cols="12">
                                     <v-text-field
                                             id="email"
+                                            :counter="50"
                                             v-model="email"
                                             label="Email"
                                             hint="Leave us your email if you would like us to get back to you."
@@ -99,7 +106,10 @@
             email: "",
             headerText: "Help us improve our customer service",
             feedback: true,
-            hasError: false
+            hasError: false,
+            errorMessage:"",
+            okMessage: " ",
+            ok:true,
         }),
         computed: {
             agentName() {
@@ -124,7 +134,8 @@
             sendDetails: async function() {
                 let self=this;
                 self.hasError=false;
-                if (self.rating1 !==-1 && self.rating2 !==-1 && self.rating3 !==-1) {
+                if (self.rating1 !==-1 && self.rating2 !==-1 && self.rating3 !==-1 && self.comments.length<=200 && 
+                (self.email.length==0 || self.email.includes("@gmail") || self.email.includes("@live") || self.email.includes("@mymail") || self.email.includes("@yahoo"))) {
                     self.feedback=false;
                     self.headerText="Thanks for the feedback!";
                     try {
@@ -139,8 +150,37 @@
                         self.$store.state.feedback = false;
                         await this.$router.push({ path: "/" });
                     }
-                } else self.hasError=true;
+                }
+                else if(self.rating1 !==-1 && self.rating2 !==-1 && self.rating3 !==-1 && self.comments.length>200){
+                    self.ok=false;
+                    self.okMessage="";
+                    this.errorMessage="Please provide a comment of suitable length!"
+                    self.hasError=true;
+                    setTimeout(this.closePopup,2000);
+                } 
+                else if(self.rating1 !==-1 && self.rating2 !==-1 && self.rating3 !==-1 && self.comments.length<=200 &&
+                (self.email.length>50 || !self.email.includes("@gmail") || !self.email.includes("@live") || !self.email.includes("@mymail") || !self.email.includes("@yahoo"))){
+                    self.ok=false;
+                    self.okMessage="";
+                    this.errorMessage="Please provide a valid email of suitable length!"
+                    self.hasError=true;
+                    setTimeout(this.closePopup,2000);
+
+                } 
+                else {
+                    self.ok=false;
+                    self.okMessage="";
+                    self.hasError=true;
+                    self.errorMessage="Please fill up all rating fields above!"
+                    setTimeout(this.closePopup,2000);
+                }
             },
+            closePopup: function(){
+                this.ok=true;
+                this.hasError=false;
+                this.errorMessage="";
+                this.okMessage=" ";
+            }
         },
     };
 </script>

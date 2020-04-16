@@ -37,9 +37,11 @@ let router = new Router({
 router.beforeEach((to, from, next) => {
     //prevent people from entering call, chat, review pages directly
     if ((to.name === 'call' || to.name === 'chat') && !store.state.support) {
-        next({ name: 'home' });
+        next({name:'home'});
+        alert("Please do not navigate to the chat/call page by URL");
     } else if ( to.name === 'feedback' && !store.state.feedback) {
-        next({ name: 'home' });
+        next({ name: 'home' })
+        alert("Please do not navigate to the feedback page by URL");
     } else {
         next();
     }
