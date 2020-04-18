@@ -134,13 +134,17 @@
             sendDetails: async function() {
                 let self=this;
                 self.hasError=false;
-                if (self.rating1 !==-1 && self.rating2 !==-1 && self.rating3 !==-1 && self.comments.length<=200 && 
+                //works if all ratings are filled
+                //works if all raitings and filled with comments not exceeding 200 characters and email does not consist of other charaters other than a-z A-Z 0-9 . @
+                if (self.rating1 !==-1 && self.rating2 !==-1 && self.rating3 !==-1 && self.comments.length<=200 && (/^[a-zA-Z0-9.@]+$/.test(self.email)||self.email.length==0) &&   
                 (self.email.length==0 || self.email.includes("@gmail") || self.email.includes("@live") || self.email.includes("@mymail") || self.email.includes("@yahoo"))) {
+                    var replacement = self.comments.replace(/&/g, 'and');   //replace all "&" symbol to and
+                    console.log(replacement);
                     self.feedback=false;
                     self.headerText="Thanks for the feedback!";
                     try {
                         await axios.patch(
-                            `https://still-sea-41149.herokuapp.com/api/review?agentId=${self.agentId}&rating1=${self.rating1}&rating2=${self.rating2}&rating3=${self.rating3}&email=${self.email}&comment=${self.comments}`
+                            `https://still-sea-41149.herokuapp.com/api/review?agentId=${self.agentId}&rating1=${self.rating1}&rating2=${self.rating2}&rating3=${self.rating3}&email=${self.email}&comment=${replacement}`
                         ).then(response => console.log(response));
                     } catch (e) {
                         console.log(e.message());
@@ -158,7 +162,7 @@
                     self.hasError=true;
                     setTimeout(this.closePopup,2000);
                 } 
-                else if(self.rating1 !==-1 && self.rating2 !==-1 && self.rating3 !==-1 && self.comments.length<=200 &&
+                else if(self.rating1 !==-1 && self.rating2 !==-1 && self.rating3 !==-1 && self.comments.length<=200 && !/^[a-zA-Z0-9.@]+$/.test(self.email) &&
                 (self.email.length>50 || !self.email.includes("@gmail") || !self.email.includes("@live") || !self.email.includes("@mymail") || !self.email.includes("@yahoo"))){
                     self.ok=false;
                     self.okMessage="";

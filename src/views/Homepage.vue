@@ -102,8 +102,8 @@
         }),
         computed: {
             isSelected() {
-                return this.name2 === "" || this.name2.length > this.limit || this.name1 === "" || this.selected === "" || this.name1.length > this.limit;
-            }
+                return !/^[a-zA-Z]+$/.test(this.name2)  || !/^[a-zA-Z]+$/.test(this.name1) ||this.name2 === "" || this.name2.length > this.limit || this.name1 === "" || this.selected === "" || this.name1.length > this.limit;
+            }   //query form only allows names with only alphabets a-z A-Z  and length from 1-20
         },
         methods: {
             submit() {
