@@ -1,7 +1,7 @@
 <template>
     <div class="wait">
-        <h1 v-if="!connecting" class="font-weight-light ma-10">Finding you an {{categoryName}} agent...</h1>
-        <h1 v-if="connecting" class="font-weight-light ma-10">We're connecting you with our agent, please hold on.</h1>
+        <h1 v-if="!connecting" class="font-weight-light text-center ma-10">Finding you an {{categoryName}} agent...</h1>
+        <h1 v-if="connecting" class="font-weight-light text-center ma-10">We're connecting you with our agent, please hold on.</h1>
         <v-progress-circular
                 v-if="!connecting"
                 :size="200"
@@ -61,5 +61,11 @@ export default {
     width: 100vw;
     z-index: 100;
     background-color: white;
+}
+
+@media only screen and (max-width: 768px) {
+    h1{
+
+    }
 }
 </style>

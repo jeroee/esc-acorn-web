@@ -1,58 +1,56 @@
 <template>
     <div>
         <Menu/>
-        <div class="hero mb-10">
-            <v-container class="flex-col">
-                <h1 class="display-2 font-weight-medium">Welcome to Acorn Support</h1>
-            </v-container>
-
+        <div class="hero mb-5 pa-8 flex-col">
+            <span class="display-2 font-weight-medium mb-5">Welcome to <span>Acorn Support</span></span>
+            <h3 class="white--text font-weight-medium pa-2" style="background-color: #4CAF50">the best support in the world. probably.</h3>
         </div>
 
-<!--        <FirstPagePic></FirstPagePic>-->
-
-        <v-container class="flex-col">
+        <v-container class="flex-col pa-8">
+            <h2 class="font-weight-medium pb-5" >Please enter your details to get started.</h2>
             <div class="flex-row">
                 <v-text-field
-                        id="FirstName"
-                        outlined
-                        v-model="name1"
-                        class="name-field"
-                        color="green"
-                        :counter="limit"
-                        label="Please provide your first name"
-                        solo
-                        flat/>
+                    id="FirstName"
+                    outlined
+                    v-model="name1"
+                    class="name-field responsive"
+                    color="green"
+                    :maxlength="limit"
+                    :counter="limit"
+                    :rules="rules"
+                    label="Please provide your first name"/>
 
                 <v-text-field
-                        id="LastName"
-                        outlined
-                        v-model="name2"
-                        class="name-field"
-                        color="green"
-                        :counter="limit"
-                        label="Please provide your last name"
-                        solo
-                        flat/>
+                    id="LastName"
+                    outlined
+                    v-model="name2"
+                    class="name-field responsive"
+                    color="green"
+                    :maxlength="limit"
+                    :counter="limit"
+                    :rules="rules"
+                    label="Please provide your last name"/>
             </div>
-            <v-select
+            <div class="flex-row">
+                <v-select
                     id="category"
                     v-model="selected"
-                    style="width: 400px"
+                    class="select-field"
                     :items="categories"
                     outlined
                     color="green"
                     :menu-props="{ offsetY:true, openOnClick:false }"
                     label="Choose a support category..."
-            />
-
-            <div style="flex-direction: row">
+                />
+            </div>
+            <div class="flex-row">
                 <v-btn
                         id="Chat"
                         @click="requestChat"
                         x-large
                         depressed
-                        class="ma-5 green white--text"
-                        :disabled="isSelected"
+                        class="ma-5 green white--text responsive"
+                        :disabled="rulesFailed"
                         style="transition: all 500ms"
                 >
                     <v-icon left>message</v-icon>Get Chat Support
@@ -63,31 +61,24 @@
                         @click="requestCall"
                         x-large
                         depressed
-                        class="ma-5 blue white--text"
-                        :disabled="isSelected"
+                        class="ma-5 blue white--text responsive"
+                        :disabled="rulesFailed"
                         style="transition: all 500ms"
                 >
                     <v-icon left>phone</v-icon>Get Call Support
                 </v-btn>
 
             </div>
-<!--            <ManyCard/>-->
         </v-container>
     </div>
 </template>
 
 <script>
-    // import popup from '../components/popup' // this is the popup table
     import Menu from "../components/Menu";
-    // import ManyCard from "../components/ManyCard";
-    // import FirstPagePic from "../components/FirstPagePic";
-
 
     export default {
         components: {
             Menu,
-            // ManyCard,
-            // FirstPagePic
         },
 
         name: "Home",
@@ -101,9 +92,25 @@
             name2:"",
         }),
         computed: {
-            isSelected() {
-                return !/^[a-zA-Z]+$/.test(this.name2)  || !/^[a-zA-Z]+$/.test(this.name1) ||this.name2 === "" || this.name2.length > this.limit || this.name1 === "" || this.selected === "" || this.name1.length > this.limit;
-            }   //query form only allows names with only alphabets a-z A-Z  and length from 1-20
+            /*
+            * This computed function provides visual feedback to the user on whether all conditions are necessary to fill the form.
+            */
+            rules () {
+                return [
+                    value => !!value || 'Please enter this field to proceed',
+                    value => (value && /^[a-zA-Z]+$/.test(value)) || 'Only alphabetical characters allowed',
+                    value => value.length <= this.limit || `A maximum of ${this.limit} characters is allowed`,
+                ]
+            },
+            /*
+            * This computed function creates the functional guard to prevent users from proceeding without the proper conditions. Namely:
+            * First name field must be strictly alphabetical and not empty
+            * Last name field must be strictly alphabetical and not empty
+            * A category must be selected
+            */
+            rulesFailed() {
+                return !/^[a-zA-Z]+$/.test(this.name2)  || !/^[a-zA-Z]+$/.test(this.name1) || this.name2 === "" || this.name2.length > this.limit || this.name1 === "" || this.selected === "" || this.name1.length > this.limit;
+            }
         },
         methods: {
             submit() {
@@ -115,14 +122,14 @@
             },
 
             requestChat: function () {
-                if (!this.isSelected) {
+                if (!this.rulesFailed) {
                     this.submit();
                     this.$router.push({path: "/chat"});
                 }
             },
 
             requestCall: function () {
-                if (!this.isSelected) {
+                if (!this.rulesFailed) {
                     this.submit();
                     this.$router.push({path: "/call"});
                 }
@@ -136,6 +143,7 @@
 <style scoped>
     .flex-col {
         display: flex;
+        flex-wrap: wrap;
         flex-direction: column;
         align-items: center;
         justify-content: center;
@@ -144,22 +152,47 @@
 
     .flex-row {
         display: flex;
+        flex-wrap: wrap;
         flex-direction: row;
         align-items: center;
         justify-content: center;
+        width: 100%;
     }
 
     .hero{
-        background-image: url("../assets/acorn_bg.png");
+        background-image: url("../assets/acorn_bg.jpg");
         height: 400px;
-        background-position: center;
+        background-position: 50% 40%;
         background-size: cover;
+        background-color: black;
     }
 
     .name-field {
         font-size: 1.25rem;
-        width: 300px;
-        padding: 16px;
+        max-width: 300px;
+        margin: 8px 16px 8px 16px;
     }
 
+    .select-field {
+        font-size: 1.25rem;
+        max-width: 400px;
+        margin: 8px 16px 8px 16px;
+    }
+
+    .responsive{
+        width: 250px;
+        margin: 8px 16px 8px 16px;
+    }
+
+    @media only screen and (max-width: 768px) {
+        .hero {
+            align-items: flex-start;
+        }
+        .responsive{
+            max-width: 400px;
+            width: 100%;
+            margin: 8px 16px 8px 16px;
+        }
+
+    }
 </style>

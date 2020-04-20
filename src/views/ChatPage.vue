@@ -9,11 +9,10 @@
                 <v-icon x-large color="black">chat</v-icon>
             </h1>
             <v-card
-                    class="ma-5 green white--text"
+                    class="ma-5 green white--text chatBubble"
                     v-bind:class="item.position"
                     elevation="5"
                     flat
-                    width="500px"
                     v-for="(item, index) in items"
                     :key="index"
             >
@@ -39,7 +38,7 @@
                     color="green"
                     placeholder="Send a message..."
             />
-            <v-btn  
+            <v-btn
                     id="SendMessage"
                     @click="message"
                     height="70px"
@@ -51,30 +50,32 @@
                 <h3>Send</h3>
                 <v-icon right>send</v-icon>
             </v-btn>
-            <v-btn
-                    id="moveToCall"
-                    @click="moveToCall"
-                    height="70px"
-                    x-large
-                    depressed
-                    tile
-                    class="blue white--text"
-            >
-                <h3>Move To Call</h3>
-                <v-icon right>call</v-icon>
-            </v-btn>
-            <v-btn
-                    id="exit chat"
-                    @click="exitChat"
-                    height="70px"
-                    x-large
-                    depressed
-                    tile
-                    class="red white--text"
-            >
-                <h3>Leave</h3>
-                <v-icon right>input</v-icon>
-            </v-btn>
+            <div class="responsive">
+                <v-btn
+                        id="moveToCall"
+                        @click="moveToCall"
+                        height="70px"
+                        x-large
+                        depressed
+                        tile
+                        class="blue white--text"
+                >
+                    <h3>Move To Call</h3>
+                    <v-icon right>call</v-icon>
+                </v-btn>
+                <v-btn
+                        id="exitChat"
+                        @click="exitChat"
+                        height="70px"
+                        x-large
+                        depressed
+                        tile
+                        class="red white--text"
+                >
+                    <h3>Leave</h3>
+                    <v-icon right>input</v-icon>
+                </v-btn>
+            </div>
         </v-footer>
     </div>
 </template>
@@ -241,7 +242,7 @@
                     if(message.length>=400 && !message.includes(" ")){
                         self.forceExit();
                     }
-                    if(self.spamCounter>50){
+                    if(self.spamCounter>20){
                         self.forceExit();
                     }
                 }
@@ -251,7 +252,7 @@
                 rainbowSDK.im.markMessageFromConversationAsRead(event.detail.conversation, event.detail.message);
                 self.items.push({message: event.detail.message.data, position: "left", sender: self.agentName, time: moment().format("h:mm a")});
                 $("#chatBox").animate({scrollTop: $('#chatBox')[0].scrollHeight}, 500);
-                this.spamCounter-=1;
+                this.spamCounter=0;
                 console.log(self.spamCounter);
             },
             receipt: function(event) {
@@ -287,7 +288,6 @@
                 await rainbowSDK.conversations.closeConversation(self.conversation);
                 console.log("Spam message, terminating Session");
                 self.$socket.disconnect();
-                self.$store.state.feedback=true;
                 self.$store.state.support=false;
                 await self.$router.push({path: "/"}).then(alert("Spam Message Detected"));
             },
@@ -373,5 +373,26 @@
         font-size: 1.25rem;
         line-height: 2rem;
         margin-bottom: 0;
+    }
+    .chatBubble{
+        width: 500px;
+    }
+
+    @media only screen and (max-width: 1024px) {
+        .chatBubble{
+            width: 350px;
+        }
+        .responsive{
+            width: 100vw;
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+        }
+        #exitChat,#moveToCall {
+            width: 50%;
+        }
+        #SendMessage {
+            width: 150px;
+        }
     }
 </style>

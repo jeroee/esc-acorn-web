@@ -17,7 +17,7 @@
             <v-btn
                     id="moveToChat"
                     @click="moveToChat"
-                    height="58px"
+                    height="70px"
                     width="50%"
                     x-large
                     depressed
@@ -25,13 +25,13 @@
                     class="green white--text"
             >
                 <h3>
-                    <v-icon left>message</v-icon>Move To Chat
+                    Move To Chat<v-icon right>message</v-icon>
                 </h3>
             </v-btn>
             <v-btn
                     id="endcall"
                     @click="exitCall"
-                    height="58px"
+                    height="70px"
                     width="50%"
                     x-large
                     depressed

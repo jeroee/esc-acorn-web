@@ -36,11 +36,11 @@ let router = new Router({
 
 router.beforeEach((to, from, next) => {
     //prevent people from entering call, chat, review pages directly
-    if ((to.name === 'call' || to.name === 'chat') && !store.state.support) {
+    if ((to.name === 'call' || to.name === 'chat') && !store.state.support && !store.state.feedback) {
         next({name:'home'});
         alert("Please do not navigate to the chat/call page by URL");
     } else if ( to.name === 'feedback' && !store.state.feedback) {
-        next({ name: 'home' })
+        next({ name: 'home' });
         alert("Please do not navigate to the feedback page by URL");
     } else {
         next();
@@ -52,7 +52,7 @@ router.beforeEach((to, from, next) => {
         next(from.name);
     }
 
-    //prevent people from going back to the chat page from the call page (preventing rainbow lockout for call websockets)
+    //prevent people from going back to the chat page from the call page (cannot prevent both ways, so protecting more important transition)
     if (from.name === 'call' && to.name === 'chat' && !store.state.moving) {
         alert("Please do not use the back button to switch between chat and call.");
         next({ name: 'call' });
@@ -60,10 +60,10 @@ router.beforeEach((to, from, next) => {
 
     //prevent people from going back to the chat and call page from feedback
     if ((to.name === 'chat' || to.name === 'call') && from.name === 'feedback') {
+        next(from.name);
         alert("Please start a new support session!")
     }
 });
-
 
 
 export default router;

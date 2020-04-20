@@ -1,6 +1,7 @@
 const fs = require('fs');
 
 module.exports = {
+  chainWebpack: config => config.optimization.minimize(false),
   "transpileDependencies": [
     "vuetify"
   ],
