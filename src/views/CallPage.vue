@@ -15,6 +15,7 @@
         </div>
         <v-footer width="100%" padless>
             <v-btn
+                    id="moveToChat"
                     @click="moveToChat"
                     height="58px"
                     width="50%"
@@ -28,6 +29,7 @@
                 </h3>
             </v-btn>
             <v-btn
+                    id="endcall"
                     @click="exitCall"
                     height="58px"
                     width="50%"

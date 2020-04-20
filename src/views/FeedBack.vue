@@ -1,13 +1,13 @@
 <template>
     <v-container class="feedback px-5">
-        <h1 class="font-weight-light mb-10 text-center" >{{this.headerText}}</h1>
+        <h1 class="font-weight-light mb-10 text-center" >{{headerText}}</h1>
         <transition name="bounce">
             <v-card v-if="feedback">
                 <v-toolbar dark color="blue">
                     <v-toolbar-title>Rate your experience with {{agentName}}</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <v-toolbar-items>
-                        <v-btn to="/" text>
+                        <v-btn id="skip" to="/" text>
                             Skip
                             <v-icon right>redo</v-icon>
                         </v-btn>
@@ -22,6 +22,7 @@
                                 <v-list-item cols="100" sm="6">
                                     <h3 class="font-weight-regular">How helpful was this session?</h3>
                                     <v-rating
+                                            id="rating1"
                                             style="position: absolute; right: 0"
                                             hover
                                             :size="30"
@@ -32,6 +33,7 @@
                                 <v-list-item cols="12" sm="6">
                                     <h3 class="font-weight-regular">How was our service?</h3>
                                     <v-rating
+                                            id="rating2"
                                             style="position: absolute; right: 0"
                                             hover
                                             :size="30"
@@ -42,6 +44,7 @@
                                 <v-list-item cols="12" sm="6">
                                     <h3 class="font-weight-regular">How was the quality of the chat/call experience?</h3>
                                     <v-rating
+                                            id="rating3"
                                             style="position: absolute; right: 0"
                                             hover
                                             :size="30"
@@ -49,13 +52,20 @@
                                             v-model="rating3"
                                     />
                                 </v-list-item>
+                                <v-alert v-if="ok" dense style="width: 100%" class="mt-5">    <!-- Fill the space up to prevent the layout from shifting when actual alert pops up -->
+                                        {{okMessage}}
+                                        <br>
+                                        {{okMessage}}
+                                </v-alert>    
                                 <v-alert type="error" v-if="hasError" dense style="width: 100%" class="mt-5">
-                                    Please fill up all rating fields above!
+                                    {{errorMessage}}
                                 </v-alert>
                                 <v-col cols="12">
                                     <v-textarea
+                                            id="comments"
                                             background-color="white"
                                             :rows="1"
+                                            :counter="200"
                                             auto-grow
                                             label="Additional Comments"
                                             v-model="comments"
@@ -64,12 +74,14 @@
                                 </v-col>
                                 <v-col cols="12">
                                     <v-text-field
+                                            id="email"
+                                            :counter="50"
                                             v-model="email"
                                             label="Email"
                                             hint="Leave us your email if you would like us to get back to you."
                                     ></v-text-field>
                                 </v-col>
-                                <v-btn @click="sendDetails" outlined color="blue" text x-large width="100%">
+                                <v-btn id="Submit" @click="sendDetails" outlined color="blue" text x-large width="100%">
                                     <h3>Submit</h3>
                                 </v-btn>
                             </v-row>
@@ -94,7 +106,10 @@
             email: "",
             headerText: "Help us improve our customer service",
             feedback: true,
-            hasError: false
+            hasError: false,
+            errorMessage:"",
+            okMessage: " ",
+            ok:true,
         }),
         computed: {
             agentName() {
@@ -119,12 +134,17 @@
             sendDetails: async function() {
                 let self=this;
                 self.hasError=false;
-                if (self.rating1 !==-1 && self.rating2 !==-1 && self.rating3 !==-1) {
+                //works if all ratings are filled
+                //works if all raitings and filled with comments not exceeding 200 characters and email does not consist of other charaters other than a-z A-Z 0-9 . @
+                if (self.rating1 !==-1 && self.rating2 !==-1 && self.rating3 !==-1 && self.comments.length<=200 && (/^[a-zA-Z0-9.@]+$/.test(self.email)||self.email.length==0) &&   
+                (self.email.length==0 || self.email.includes("@gmail") || self.email.includes("@live") || self.email.includes("@mymail") || self.email.includes("@yahoo"))) {
+                    var replacement = self.comments.replace(/&/g, 'and');   //replace all "&" symbol to and
+                    console.log(replacement);
                     self.feedback=false;
                     self.headerText="Thanks for the feedback!";
                     try {
                         await axios.patch(
-                            `https://still-sea-41149.herokuapp.com/api/review?agentId=${self.agentId}&rating1=${self.rating1}&rating2=${self.rating2}&rating3=${self.rating3}&email=${self.email}&comment=${self.comments}`
+                            `https://still-sea-41149.herokuapp.com/api/review?agentId=${self.agentId}&rating1=${self.rating1}&rating2=${self.rating2}&rating3=${self.rating3}&email=${self.email}&comment=${replacement}`
                         ).then(response => console.log(response));
                     } catch (e) {
                         console.log(e.message());
@@ -134,8 +154,37 @@
                         self.$store.state.feedback = false;
                         await this.$router.push({ path: "/" });
                     }
-                } else self.hasError=true;
+                }
+                else if(self.rating1 !==-1 && self.rating2 !==-1 && self.rating3 !==-1 && self.comments.length>200){
+                    self.ok=false;
+                    self.okMessage="";
+                    this.errorMessage="Please provide a comment of suitable length!"
+                    self.hasError=true;
+                    setTimeout(this.closePopup,2000);
+                } 
+                else if(self.rating1 !==-1 && self.rating2 !==-1 && self.rating3 !==-1 && self.comments.length<=200 && !/^[a-zA-Z0-9.@]+$/.test(self.email) &&
+                (self.email.length>50 || !self.email.includes("@gmail") || !self.email.includes("@live") || !self.email.includes("@mymail") || !self.email.includes("@yahoo"))){
+                    self.ok=false;
+                    self.okMessage="";
+                    this.errorMessage="Please provide a valid email of suitable length!"
+                    self.hasError=true;
+                    setTimeout(this.closePopup,2000);
+
+                } 
+                else {
+                    self.ok=false;
+                    self.okMessage="";
+                    self.hasError=true;
+                    self.errorMessage="Please fill up all rating fields above!"
+                    setTimeout(this.closePopup,2000);
+                }
             },
+            closePopup: function(){
+                this.ok=true;
+                this.hasError=false;
+                this.errorMessage="";
+                this.okMessage=" ";
+            }
         },
     };
 </script>

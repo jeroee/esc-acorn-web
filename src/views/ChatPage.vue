@@ -27,6 +27,7 @@
         </div>
         <v-footer width="100%" padless>
             <v-textarea
+                    id="WriteMessage"
                     class="scroll-y"
                     v-model="txt"
                     filled
@@ -38,8 +39,8 @@
                     color="green"
                     placeholder="Send a message..."
             />
-            <v-btn
-                    id="send message"
+            <v-btn  
+                    id="SendMessage"
                     @click="message"
                     height="70px"
                     x-large
@@ -96,6 +97,7 @@
             connecting: false, // updates the wait component to determinate loading
             cancelled: false, // sets a guard for polling during early exits - on true, prevents polling
             loading: 0, // updates the spin loader progress after agent found - values [0,100]
+            spamCounter: 0,
         }),
         computed: {
             categoryIndex() {
@@ -234,6 +236,14 @@
                     self.items.push({message: message, position: "right", sender: self.firstName +" "+ self.lastName, time: moment().format("h:mm a")});
                     $("#chatBox").animate({scrollTop: $('#chatBox')[0].scrollHeight}, 500);
                     self.txt = "";
+                    self.spamCounter+=1;
+                    console.log(self.spamCounter);
+                    if(message.length>=400 && !message.includes(" ")){
+                        self.forceExit();
+                    }
+                    if(self.spamCounter>50){
+                        self.forceExit();
+                    }
                 }
             },
             receive: function(event) {
@@ -241,6 +251,8 @@
                 rainbowSDK.im.markMessageFromConversationAsRead(event.detail.conversation, event.detail.message);
                 self.items.push({message: event.detail.message.data, position: "left", sender: self.agentName, time: moment().format("h:mm a")});
                 $("#chatBox").animate({scrollTop: $('#chatBox')[0].scrollHeight}, 500);
+                this.spamCounter-=1;
+                console.log(self.spamCounter);
             },
             receipt: function(event) {
                 switch (event.detail.evt) {
@@ -269,7 +281,16 @@
                 console.log("Moving To Call");
                 // self.$store.state.moving=true;
                 await self.$router.push({path: "/call"});
-            }
+            },
+            forceExit: async function(){
+                let self=this;
+                await rainbowSDK.conversations.closeConversation(self.conversation);
+                console.log("Spam message, terminating Session");
+                self.$socket.disconnect();
+                self.$store.state.feedback=true;
+                self.$store.state.support=false;
+                await self.$router.push({path: "/"}).then(alert("Spam Message Detected"));
+            },
         },
         mounted() {
             let self = this;
