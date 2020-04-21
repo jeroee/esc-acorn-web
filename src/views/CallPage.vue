@@ -10,33 +10,35 @@
         <audio id="globalAudioTag" autoplay />
         <!--to allow customer to receive audio from agent-->
         <div class="callBox">
+            <div class="lottie">
+                <Lottie :options="defaultOptions" :height="450" :width="450" />
+            </div>
             <h1 class="font-weight-light agent-text">You're on the phone with {{agentName}}</h1>
-            <Lottie :options="defaultOptions" :height="450" :width="450" style="padding-bottom: 100px" />
         </div>
         <v-footer width="100%" padless>
             <v-btn
-                    id="moveToChat"
-                    @click="moveToChat"
-                    height="58px"
-                    width="50%"
-                    x-large
-                    depressed
-                    tile
-                    class="green white--text"
+                id="moveToChat"
+                @click="moveToChat"
+                height="70px"
+                width="50%"
+                x-large
+                depressed
+                tile
+                class="green white--text"
             >
                 <h3>
-                    <v-icon left>message</v-icon>Move To Chat
+                    Move To Chat<v-icon right>message</v-icon>
                 </h3>
             </v-btn>
             <v-btn
-                    id="endcall"
-                    @click="exitCall"
-                    height="58px"
-                    width="50%"
-                    x-large
-                    depressed
-                    tile
-                    class="red white--text"
+                id="endcall"
+                @click="exitCall"
+                height="70px"
+                width="50%"
+                x-large
+                depressed
+                tile
+                class="red white--text"
             >
                 <h3>Leave Call</h3>
                 <v-icon right>input</v-icon>
@@ -309,20 +311,15 @@
 
     .callBox {
         height: 100%;
-        width: 100%;
+        width: 100vw;
         display: flex;
+        padding:32px;
         flex-direction: column;
         justify-content: center;
-        justify-items: center;
-        align-content: center;
-        overflow: auto;
     }
 
     .agent-text {
         text-align: center;
-        position: absolute;
-        width: 100%;
-        margin-top: 150px;
     }
 
     .header {
@@ -331,6 +328,15 @@
         font-size: 60px;
         width: 100%;
         transition: 0.2s;
+    }
+
+    .lottie {
+        width: 100%;
+        height: 350px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
     }
 
     .fade-enter-active,

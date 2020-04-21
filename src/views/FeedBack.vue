@@ -1,10 +1,10 @@
 <template>
-    <v-container class="feedback px-5">
-        <h1 class="font-weight-light mb-10 text-center" >{{headerText}}</h1>
+    <v-container class="feedback">
+        <h1 class="font-weight-light mb-5 text-center" >{{headerText}}</h1>
         <transition name="bounce">
-            <v-card v-if="feedback">
-                <v-toolbar dark color="blue">
-                    <v-toolbar-title>Rate your experience with {{agentName}}</v-toolbar-title>
+            <v-card v-if="!submitted" class="feedbackCard">
+                <v-toolbar dark flat color="blue">
+                    <v-toolbar-title>Provide your feedback</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <v-toolbar-items>
                         <v-btn id="skip" to="/" text>
@@ -13,81 +13,77 @@
                         </v-btn>
                     </v-toolbar-items>
                 </v-toolbar>
-
-                <!-- Write your opinions  -->
-                <v-card>
-                    <v-card-text>
-                        <v-container>
-                            <v-row>
-                                <v-list-item cols="100" sm="6">
-                                    <h3 class="font-weight-regular">How helpful was this session?</h3>
-                                    <v-rating
-                                            id="rating1"
-                                            style="position: absolute; right: 0"
-                                            hover
-                                            :size="30"
-                                            clearable
-                                            v-model="rating1"
-                                    />
-                                </v-list-item>
-                                <v-list-item cols="12" sm="6">
-                                    <h3 class="font-weight-regular">How was our service?</h3>
-                                    <v-rating
-                                            id="rating2"
-                                            style="position: absolute; right: 0"
-                                            hover
-                                            :size="30"
-                                            clearable
-                                            v-model="rating2"
-                                    />
-                                </v-list-item>
-                                <v-list-item cols="12" sm="6">
-                                    <h3 class="font-weight-regular">How was the quality of the chat/call experience?</h3>
-                                    <v-rating
-                                            id="rating3"
-                                            style="position: absolute; right: 0"
-                                            hover
-                                            :size="30"
-                                            clearable
-                                            v-model="rating3"
-                                    />
-                                </v-list-item>
-                                <v-alert v-if="ok" dense style="width: 100%" class="mt-5">    <!-- Fill the space up to prevent the layout from shifting when actual alert pops up -->
-                                        {{okMessage}}
-                                        <br>
-                                        {{okMessage}}
-                                </v-alert>    
-                                <v-alert type="error" v-if="hasError" dense style="width: 100%" class="mt-5">
-                                    {{errorMessage}}
-                                </v-alert>
-                                <v-col cols="12">
-                                    <v-textarea
-                                            id="comments"
-                                            background-color="white"
-                                            :rows="1"
-                                            :counter="200"
-                                            auto-grow
-                                            label="Additional Comments"
-                                            v-model="comments"
-                                            hint="Any additional feedback will be greatly appreciated!"
-                                    />
-                                </v-col>
-                                <v-col cols="12">
-                                    <v-text-field
-                                            id="email"
-                                            :counter="50"
-                                            v-model="email"
-                                            label="Email"
-                                            hint="Leave us your email if you would like us to get back to you."
-                                    ></v-text-field>
-                                </v-col>
-                                <v-btn id="Submit" @click="sendDetails" outlined color="blue" text x-large width="100%">
-                                    <h3>Submit</h3>
-                                </v-btn>
-                            </v-row>
-                        </v-container>
-                    </v-card-text>
-                </v-card>
+                <div class="pa-5">
+                    <div class="item-row">
+                        <h3 class="font-weight-regular">How helpful was {{agentName}} during this session?</h3>
+                        <v-rating
+                            id="rating1"
+                            hover
+                            :size="40"
+                            clearable
+                            v-model="rating1"
+                        />
+                    </div>
+                    <div class="item-row">
+                        <h3 class="font-weight-regular">How friendly was {{agentName}} during this session?</h3>
+                        <v-rating
+                                id="rating2"
+                                hover
+                                :size="40"
+                                clearable
+                                v-model="rating2"
+                        />
+                    </div>
+                    <div class="item-row">
+                        <h3 class="font-weight-regular">How was the quality of the chat/call experience?</h3>
+                        <v-rating
+                                id="rating3"
+                                hover
+                                :size="40"
+                                clearable
+                                v-model="rating3"
+                        />
+                    </div>
+                    <div class="item-row">
+                        <v-textarea
+                                id="comments"
+                                background-color="white"
+                                :rows="1"
+                                :maxlength="240"
+                                :counter="240"
+                                auto-grow
+                                label="Additional Comments"
+                                v-model="comments"
+                                autofocus
+                                :rules="rulesComments"
+                                hint="Any additional feedback will be greatly appreciated!"
+                        />
+                    </div>
+                    <div class="item-row">
+                        <v-text-field
+                                id="email"
+                                :maxlength="40"
+                                :counter="40"
+                                v-model="email"
+                                autofocus
+                                :rules="rulesEmail"
+                                label="Email"
+                                hint="Leave us your email if you would like us to get back to you."
+                        ></v-text-field>
+                    </div>
+                    <v-btn id="Submit"
+                        v-if="!hasError"
+                        @click="sendDetails"
+                        depressed
+                        outlined
+                        class="white--text mt-4"
+                        color="blue"
+                        x-large
+                        block>
+                        <h3>Submit</h3>
+                    </v-btn>
+                    <v-alert type="error" v-if="hasError" style="width: 100%; margin:16px 0 0 0">{{errorMessage}}</v-alert>
+                </div>
             </v-card>
         </transition>
     </v-container>
@@ -97,19 +93,19 @@
 
 <script>
     import axios from "axios";
+    const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
     export default {
         data: () => ({
-            rating1: -1,
-            rating2: -1,
-            rating3: -1,
+            rating1: 0,
+            rating2: 0,
+            rating3: 0,
             comments: "",
             email: "",
             headerText: "Help us improve our customer service",
-            feedback: true,
+            submitted: false,
             hasError: false,
             errorMessage:"",
-            okMessage: " ",
-            ok:true,
         }),
         computed: {
             agentName() {
@@ -117,30 +113,49 @@
             },
             agentId() {
                 return this.$store.state.agentId;
+            },
+            rulesEmail () {
+                let self=this;
+                if (self.comments) {
+                    return [
+                        value => !!value || 'Please leave your email so we can follow up with your comments',
+                        value => pattern.test(value) || 'Please submit a valid email.'
+                    ]
+                } else {
+                    return []
+                }
+            },
+            rulesComments () {
+                let self=this;
+                if (self.email) {
+                    return [
+                        value => !!value || 'Please leave some feedback with your email'
+                    ]
+                } else {
+                    return []
+                }
+            },
+            //works if all ratings and filled with comments not exceeding 200 characters and email does not consist of other charaters other than a-z A-Z 0-9 . @
+            rulesFailed () {
+                let self=this;
+                return (self.rating1===0 || self.rating2 ===0 || self.rating3 ===0)
+                   || ((self.email!=="" || self.comments!=="") && (self.comments==="" || self.email==="" || !pattern.test(self.email)))
+                // return (pattern.test(self.email))
             }
         },
         created() {
             console.log(this.agentName);
             console.log(this.agentId);
         },
-        mounted() { //to prevent back button from working to access chats/calls
-            history.pushState(null, null, location.href);
-            window.onpopstate = function() {
-                history.go(1);
-            };
-        },
-
         methods: {
             sendDetails: async function() {
                 let self=this;
                 self.hasError=false;
-                //works if all ratings are filled
-                //works if all raitings and filled with comments not exceeding 200 characters and email does not consist of other charaters other than a-z A-Z 0-9 . @
-                if (self.rating1 !==-1 && self.rating2 !==-1 && self.rating3 !==-1 && self.comments.length<=200 && (/^[a-zA-Z0-9.@]+$/.test(self.email)||self.email.length==0) &&   
-                (self.email.length==0 || self.email.includes("@gmail") || self.email.includes("@live") || self.email.includes("@mymail") || self.email.includes("@yahoo"))) {
+
+                if (!self.rulesFailed) {
                     var replacement = self.comments.replace(/&/g, 'and');   //replace all "&" symbol to and
                     console.log(replacement);
-                    self.feedback=false;
+                    self.submitted=true;
                     self.headerText="Thanks for the feedback!";
                     try {
                         await axios.patch(
@@ -154,36 +169,20 @@
                         self.$store.state.feedback = false;
                         await this.$router.push({ path: "/" });
                     }
+                } else if (self.rating1 !==0 && self.rating2 !==0 && self.rating3 !==0){
+                    this.errorMessage="Please leave a valid email with any comments, and vice-versa";
+                    self.hasError=true;
+                    setTimeout(this.closePopup,2000);
                 }
-                else if(self.rating1 !==-1 && self.rating2 !==-1 && self.rating3 !==-1 && self.comments.length>200){
-                    self.ok=false;
-                    self.okMessage="";
-                    this.errorMessage="Please provide a comment of suitable length!"
-                    self.hasError=true;
-                    setTimeout(this.closePopup,2000);
-                } 
-                else if(self.rating1 !==-1 && self.rating2 !==-1 && self.rating3 !==-1 && self.comments.length<=200 && !/^[a-zA-Z0-9.@]+$/.test(self.email) &&
-                (self.email.length>50 || !self.email.includes("@gmail") || !self.email.includes("@live") || !self.email.includes("@mymail") || !self.email.includes("@yahoo"))){
-                    self.ok=false;
-                    self.okMessage="";
-                    this.errorMessage="Please provide a valid email of suitable length!"
-                    self.hasError=true;
-                    setTimeout(this.closePopup,2000);
-
-                } 
                 else {
-                    self.ok=false;
-                    self.okMessage="";
                     self.hasError=true;
-                    self.errorMessage="Please fill up all rating fields above!"
+                    self.errorMessage="Please fill up all rating fields above!";
                     setTimeout(this.closePopup,2000);
                 }
             },
             closePopup: function(){
-                this.ok=true;
                 this.hasError=false;
                 this.errorMessage="";
-                this.okMessage=" ";
             }
         },
     };
@@ -195,11 +194,45 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        transition: height 500ms;
+        align-items: center;
+        transition: height 400ms;
     }
 
-    .required {
-        border: red 2px !important;
+    .feedbackCard{
+        max-width: 960px;
+    }
+
+    .item-row {
+        width: 100%;
+        display: flex;
+        flex-wrap: nowrap;
+        padding: 0 12px 0 12px;
+    }
+
+    .item-row h3 {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        margin-right: 32px;
+    }
+
+
+    @media only screen and (max-width: 700px) {
+        .feedbackCard{
+            width: 90vw;
+        }
+        .item-row {
+            justify-content: center;
+            flex-wrap: wrap;
+            padding-top: 32px;
+        }
+        .item-row h3 {
+            justify-content: center;
+            flex-wrap: wrap;
+            text-align: center;
+            margin-right: 0;
+        }
+
     }
 
     .bounce-enter-active {
