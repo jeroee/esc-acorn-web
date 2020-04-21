@@ -1,10 +1,10 @@
 <template>
-    <v-container class="feedback px-5">
+    <v-container class="feedback">
         <h1 class="font-weight-light mb-5 text-center" >{{headerText}}</h1>
         <transition name="bounce">
-            <v-card v-if="!submitted">
-                <v-toolbar dark color="blue">
-                    <v-toolbar-title>Rate your experience with {{agentName}}</v-toolbar-title>
+            <v-card v-if="!submitted" class="feedbackCard">
+                <v-toolbar dark flat color="blue">
+                    <v-toolbar-title>Provide your feedback</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <v-toolbar-items>
                         <v-btn id="skip" to="/" text>
@@ -13,23 +13,23 @@
                         </v-btn>
                     </v-toolbar-items>
                 </v-toolbar>
-                <v-card class="pa-5">
+                <div class="pa-5">
                     <div class="item-row">
-                        <h3 class="font-weight-regular">How helpful was this session?</h3>
+                        <h3 class="font-weight-regular">How helpful was {{agentName}} during this session?</h3>
                         <v-rating
                             id="rating1"
                             hover
-                            :size="50"
+                            :size="40"
                             clearable
                             v-model="rating1"
                         />
                     </div>
                     <div class="item-row">
-                        <h3 class="font-weight-regular">How was our service?</h3>
+                        <h3 class="font-weight-regular">How friendly was {{agentName}} during this session?</h3>
                         <v-rating
                                 id="rating2"
                                 hover
-                                :size="50"
+                                :size="40"
                                 clearable
                                 v-model="rating2"
                         />
@@ -39,21 +39,18 @@
                         <v-rating
                                 id="rating3"
                                 hover
-                                :size="50"
+                                :size="40"
                                 clearable
                                 v-model="rating3"
                         />
-                    </div>
-                    <div style="margin-top: 16px; height: 50px; width: 100%">
-                        <v-alert type="error" v-if="hasError" dense style="width: 100%">{{errorMessage}}</v-alert>
                     </div>
                     <div class="item-row">
                         <v-textarea
                                 id="comments"
                                 background-color="white"
                                 :rows="1"
-                                :maxlength="250"
-                                :counter="250"
+                                :maxlength="240"
+                                :counter="240"
                                 auto-grow
                                 label="Additional Comments"
                                 v-model="comments"
@@ -65,8 +62,8 @@
                     <div class="item-row">
                         <v-text-field
                                 id="email"
-                                :maxlength="50"
-                                :counter="50"
+                                :maxlength="40"
+                                :counter="40"
                                 v-model="email"
                                 autofocus
                                 :rules="rulesEmail"
@@ -75,6 +72,7 @@
                         ></v-text-field>
                     </div>
                     <v-btn id="Submit"
+                        v-if="!hasError"
                         @click="sendDetails"
                         depressed
                         outlined
@@ -84,7 +82,8 @@
                         block>
                         <h3>Submit</h3>
                     </v-btn>
-                </v-card>
+                    <v-alert type="error" v-if="hasError" style="width: 100%; margin:16px 0 0 0">{{errorMessage}}</v-alert>
+                </div>
             </v-card>
         </transition>
     </v-container>
@@ -195,7 +194,12 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        transition: height 500ms;
+        align-items: center;
+        transition: height 400ms;
+    }
+
+    .feedbackCard{
+        max-width: 960px;
     }
 
     .item-row {
@@ -209,9 +213,14 @@
         width: 100%;
         display: flex;
         align-items: center;
+        margin-right: 32px;
     }
 
+
     @media only screen and (max-width: 700px) {
+        .feedbackCard{
+            width: 90vw;
+        }
         .item-row {
             justify-content: center;
             flex-wrap: wrap;
@@ -220,6 +229,8 @@
         .item-row h3 {
             justify-content: center;
             flex-wrap: wrap;
+            text-align: center;
+            margin-right: 0;
         }
 
     }

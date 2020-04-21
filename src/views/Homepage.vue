@@ -67,7 +67,32 @@
                 >
                     <v-icon left>phone</v-icon>Get Call Support
                 </v-btn>
-
+                <div class="recaptchabg" v-if="showCaptcha">
+                    <div class="recaptcha" :class="{'shake': shake}">
+                        <h1 class="display-2 pb-5">reCAPTCHA!</h1>
+                        <v-img src="https://picsum.photos/300/200" max-height="200px"></v-img>
+                        <v-text-field
+                            id="recaptcha"
+                            class="mt-2"
+                            color="orange"
+                            v-model="captcha"
+                            label="Are you human?"
+                            block/>
+                        <v-btn
+                                id="recaptchaCheck"
+                                ref="recaptchaCheck"
+                                @click="recaptchaCheck"
+                                x-large
+                                depressed
+                                class=" mb-1 white--text"
+                                :class="{'red accent-4': shake, 'orange': !shake}"
+                                block
+                                style="transition: all 500ms">
+                            Verify Me<v-icon right>verified_user</v-icon>
+                        </v-btn>
+                        <span id="captchaHint">You have {{captchaCount}} tries left</span>
+                    </div>
+                </div>
             </div>
         </v-container>
     </div>
@@ -90,6 +115,10 @@
             lastName: "",
             name1:"",
             name2:"",
+            showCaptcha: false,
+            captcha: "",
+            captchaCount: 3,
+            shake: false
         }),
         computed: {
             /*
@@ -122,19 +151,34 @@
             },
 
             requestChat: function () {
+                let self=this;
                 if (!this.rulesFailed) {
-                    this.submit();
-                    this.$router.push({path: "/chat"});
+                    self.showCaptcha=true;
                 }
             },
 
             requestCall: function () {
+                let self=this;
                 if (!this.rulesFailed) {
-                    this.submit();
-                    this.$router.push({path: "/call"});
+                    self.showCaptcha=true;
                 }
             },
-
+            recaptchaCheck: function() {
+                let self=this;
+                console.log(self.$refs["recaptchaCheck"]);
+                if (self.captcha==="yes") {
+                    self.submit();
+                    self.$router.push({path: "/call"});
+                } else if (self.captchaCount>1) {
+                    self.captchaCount--;
+                    self.shake=true;
+                    setTimeout(function(){ self.shake = false; }, 300);
+                } else {
+                    self.captchaCount--;
+                    window.location.href="/";
+                    setTimeout(function(){alert("You failed the recaptcha!")}, 1);
+                }
+            }
 
         }
     };
@@ -184,6 +228,40 @@
         margin: 8px 16px 8px 16px;
     }
 
+    .recaptchabg {
+        position: fixed;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        top:0;
+        bottom: 0;
+        height: 100vh;
+        width: 100vw;
+        z-index: 10;
+        background-color: rgba(0,0,0,0.3);
+    }
+
+    .recaptcha {
+        position: fixed;
+        background-color: white;
+        width: 90%;
+        max-width: 500px;
+        padding: 32px;
+        border-radius: 10px;
+        -webkit-animation: shake 0.3s;
+        -o-animation: shake 0.3s;
+    }
+
+    #captchaHint {
+        color: red;
+        font-size: small;
+    }
+
+    .shake {
+        animation: shake 0.3s;
+        animation-iteration-count: infinite;
+    }
+
     @media only screen and (max-width: 768px) {
         .hero {
             align-items: flex-start;
@@ -194,5 +272,19 @@
             margin: 8px 16px 8px 16px;
         }
 
+    }
+
+    @keyframes shake {
+        0% { transform: translate(1px, 1px) rotate(0deg); }
+        10% { transform: translate(-1px, -2px) rotate(-1deg); }
+        20% { transform: translate(-3px, 0px) rotate(1deg); }
+        30% { transform: translate(3px, 2px) rotate(0deg); }
+        40% { transform: translate(1px, -1px) rotate(1deg); }
+        50% { transform: translate(-1px, 2px) rotate(-1deg); }
+        60% { transform: translate(-3px, 1px) rotate(0deg); }
+        70% { transform: translate(3px, 1px) rotate(-1deg); }
+        80% { transform: translate(-1px, -1px) rotate(1deg); }
+        90% { transform: translate(1px, 2px) rotate(0deg); }
+        100% { transform: translate(1px, -2px) rotate(-1deg); }
     }
 </style>

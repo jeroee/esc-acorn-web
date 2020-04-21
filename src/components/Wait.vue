@@ -1,7 +1,7 @@
 <template>
     <div class="wait">
-        <h1 v-if="!connecting" class="font-weight-light text-center ma-10">Finding you an {{categoryName}} agent...</h1>
-        <h1 v-if="connecting" class="font-weight-light text-center ma-10">We're connecting you with our agent, please hold on.</h1>
+        <h1 v-if="!connecting" class="font-weight-light text-center mx-10 mb-10">Finding you an {{categoryName}} agent...</h1>
+        <h1 v-if="connecting" class="font-weight-light text-center mx-10 mb-10">We're connecting you with our agent, please hold on.</h1>
         <v-progress-circular
                 v-if="!connecting"
                 :size="200"

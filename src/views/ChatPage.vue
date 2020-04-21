@@ -392,7 +392,7 @@
             width: 50%;
         }
         #SendMessage {
-            width: 150px;
+            display: none;
         }
     }
 </style>
