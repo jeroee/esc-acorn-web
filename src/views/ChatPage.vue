@@ -156,6 +156,14 @@
                     alert("Moving you to the home page");
                     self.$router.push({path: "/"});
                 },1000);
+            },
+            rainbowError: function () {
+                let self=this;
+                self.$store.state.support = false;
+                setTimeout(function () {
+                    alert("Sorry, our group has run out of Rainbow guest tokens, please try again at a later point of time!");
+                    self.$router.push({path: "/"});
+                },1000);
             }
         },
         methods: {
