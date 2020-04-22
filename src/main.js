@@ -14,7 +14,6 @@ const socketKey= "BBO5e7IVtK9TeSAQ3RTYGsQOWOZ0QAe8k9jbvomydoOUEjK1lwTLIkK4J3yu";
 Vue.use(new VueSocketIO({
     debug: true,
     connection: "https://esc-acorn-backend.herokuapp.com/",
-    // connection: "http://localhost:4000/",
     options: { autoConnect: false, query: { key: socketKey }}
 }));
 

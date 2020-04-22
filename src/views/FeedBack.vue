@@ -135,7 +135,7 @@
                     return []
                 }
             },
-            //works if all ratings and filled with comments not exceeding 200 characters and email does not consist of other charaters other than a-z A-Z 0-9 . @
+            //works if all ratings are filled or if all ratings filled and both comments and emails are filled validly
             rulesFailed () {
                 let self=this;
                 return (self.rating1===0 || self.rating2 ===0 || self.rating3 ===0)
@@ -143,9 +143,12 @@
                 // return (pattern.test(self.email))
             }
         },
-        created() {
-            console.log(this.agentName);
-            console.log(this.agentId);
+        beforeDestroy() {
+            let self=this;
+            self.$store.state.agentId="";
+            self.$store.state.agentName="";
+            self.$store.state.token="";
+            self.$store.state.feedback = false;
         },
         methods: {
             sendDetails: async function() {
@@ -165,8 +168,6 @@
                         console.log(e.message());
                     }
                     finally {
-                        self.$store.state.agentId="";
-                        self.$store.state.feedback = false;
                         await this.$router.push({ path: "/" });
                     }
                 } else if (self.rating1 !==0 && self.rating2 !==0 && self.rating3 !==0){

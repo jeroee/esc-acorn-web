@@ -1,7 +1,7 @@
 <template>
     <div class="chat">
         <transition name="fade">
-            <Wait v-bind:connecting="connecting" v-bind:loading="loading" v-bind:color="color" v-if="!start" />
+            <Wait v-bind:connecting="connecting" v-bind:loading="loading" v-bind:disconnected="disconnected" v-bind:color="color" v-if="!start" />
         </transition>
         <div class="chatBox" id="chatBox" ref="chatBox">
             <h1 class="font-weight-light mb-5" id="header" ref="header">
@@ -96,6 +96,7 @@
             conversation:'', // variable to hold the conversation object
             start: false, // removes the loading page from view - on true, removes loading page
             connecting: false, // updates the wait component to determinate loading
+            disconnected: false, //updates the wait component to display no agents message
             cancelled: false, // sets a guard for polling during early exits - on true, prevents polling
             loading: 0, // updates the spin loader progress after agent found - values [0,100]
             spamCounter: 0,
@@ -146,7 +147,15 @@
                 console.log(`Your token is ${self.token}`);
                 self.connecting=true;
                 self.startChat();
-
+            },
+            noAgentsWorking: function () {
+                let self=this;
+                self.disconnected=true;
+                self.$store.state.support = false;
+                setTimeout(function () {
+                    alert("Moving you to the home page");
+                    self.$router.push({path: "/"});
+                },1000);
             }
         },
         methods: {
