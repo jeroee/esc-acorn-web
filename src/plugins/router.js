@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import { store } from './store.js';
 
+//Enables router plugin to be used in Vue
 Vue.use(Router);
 
 let router = new Router({

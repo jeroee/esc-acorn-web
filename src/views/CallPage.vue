@@ -52,37 +52,47 @@
     import rainbowSDK from "rainbow-web-sdk";
     import Lottie from "vue-lottie";
     import animationData from "../assets/customer-support";
-    // import axios from "axios";
 
     export default {
         name: "Call",
         components: { Wait, Lottie },
         data: () => ({
-            defaultOptions: { animationData: animationData },
-            start: false,
-            connecting: false,
-            disconnected: false,
-            loading: 0,
-            call: "",
-            exit: false,
-            color: "blue"
+            defaultOptions: { animationData: animationData },  //displays animation
+            start: false,           // removes the loading page from view - on true, removes loading page
+            connecting: false,      // updates the wait component to determinate loading
+            disconnected: false,    // updates the wait component to display no agents message
+            loading: 0,             // updates the spin loader progress after agent found - values [0,100]
+            call: "",               // takes in an established call object during connection
+            exit: false,            // boolean logic to indicate extiting of page
+            color: "blue"           // sets the color for the wait component
         }),
         computed: {
+            // To retrieve category Index for the Vuex Store to send request to Rainbow Server to establish chat connection            
             categoryIndex() {
                 return this.$store.state.categoryIndex;
             },
+
+            // To retrieve agent name for the Vuex Store to display it in Vue component
             agentName() {
                 return this.$store.state.agentName;
             },
+
+            //To retrieve agentID from the Vuex Store to search for contact in the Rainbow Server
             agentId() {
                 return this.$store.state.agentId;
             },
+
+            //To retrieve first name from the Vuex Store to create guest Account and to display in Vue component
             firstName() {
                 return this.$store.state.firstName;
             },
+
+            //To retrieve last name from the Vuex Store to create guest Account and to display in Vue component
             lastName() {
                 return this.$store.state.lastName;
             },
+
+            // To retrieve guest account token from the Vuex Store to sign in to Rainbow Server establish chat/call connection
             token() {
                 return this.$store.state.token;
             }
@@ -103,40 +113,43 @@
                     lastName: self.lastName,
                 });
             },
+            // indicating agent found
             getAgentSuccess: function(data) {
                 let self = this;
                 console.log("Socket.io getAgentSuccess");
-                self.$store.state.agentId = data.agentId;
+                self.$store.state.agentId = data.agentId; //get agent id
                 self.$store.state.agentName = data.agentName; //get agent name
                 self.$store.state.token = data.token; //get guest token
                 console.log(`Your agentId is ${self.agentId}`);
                 console.log(`Your agentName is ${self.agentName}`);
                 console.log(`Your token is ${self.token}`);
-                self.connecting = true;
-                self.startCall();
+                self.connecting = true;     //indicate agent found
+                self.startCall();           //start establishing call connection with agent 
             },
+            //Manage a situation where no agents are avaiable 
             noAgentsWorking: function () {
                 let self=this;
-                self.disconnected=true;
-                self.$store.state.support = false;
+                self.disconnected=true;                //indicate no agents found
+                self.$store.state.support = false;     //to allow navigation to home page
                 setTimeout(function () {
                     alert("Moving you to the home page");
-                    self.$router.push({path: "/"});
+                    self.$router.push({path: "/"});     //move back to home page
                 },1000);
             },
+            //Manage a situation where Rainbow Guest tokens are unavailable
             rainbowError: function () {
                 let self=this;
-                self.$store.state.support = false;
+                self.$store.state.support = false;      //to allow nagvigation to home page
                 setTimeout(function () {
                     alert("Sorry, our group has run out of Rainbow guest tokens, please try again at a later point of time!");
-                    self.$router.push({path: "/"});
+                    self.$router.push({path: "/"});     //move back to home page
                 },1000);
             }
         },
         methods: {
+            // pre-connection checks to make sure the requried hardware/software is availablt to support call connection
             checkCall: function() {
-                if (rainbowSDK.webRTC.canMakeAudioVideoCall()) {
-                    //check if browser is compatible for audio calls
+                if (rainbowSDK.webRTC.canMakeAudioVideoCall()) {    //check if browser is compatible for audio calls (need https)
                     console.log("Browser supports calls");
                 } else {
                     console.log("Browser does not support calls");
@@ -146,13 +159,13 @@
                     this.$router.push({ path: "/feedback" });
                 }
                 console.log("requesting microphone access");
-                navigator.mediaDevices //authorise the application to access media device
+                navigator.mediaDevices         //authorise the application to access media device
                     .getUserMedia({ audio: true })
                     .then(function(stream) {
                         stream.getTracks().forEach(function(track) {
                             track.stop();
                         });
-                        navigator.mediaDevices
+                        navigator.mediaDevices      //check for available devices
                             .enumerateDevices()
                             .then(function(devices) {
                                 devices.forEach(function(device) {
@@ -165,8 +178,8 @@
                             .catch(function(error) {
                                 console.log(error);
                             });
-                        rainbowSDK.webRTC.useMicrophone("default");
-                        rainbowSDK.webRTC.useSpeaker("default");
+                        rainbowSDK.webRTC.useMicrophone("default"); //to enable microphone
+                        rainbowSDK.webRTC.useSpeaker("default");    //to enable speaker
                     })
                     .catch(function(error) {
                         console.log(error);
@@ -223,6 +236,8 @@
             //     },3000)
             // },
 
+
+            // To establish a conection with an Agent to start audio calls
             startCall: async function() {
                 let self = this;
                 try {
@@ -233,59 +248,65 @@
                     if (res.label === "OK") {
                         console.log("calling");
                     }
-                    document.addEventListener(rainbowSDK.webRTC.RAINBOW_ONWEBRTCCALLSTATECHANGED, self.onWebRTCCallChanged);
-                    await self.sleep(2000); //sleep to prevent rapid switches which break the rainbow websocket connection
+                    document.addEventListener(rainbowSDK.webRTC.RAINBOW_ONWEBRTCCALLSTATECHANGED, self.onWebRTCCallChanged); //add event listener to run function whenever call state changes
+                    await self.sleep(2000);     //sleep to prevent rapid switches which break the rainbow websocket connection
                     self.loading = 100;
-                    await self.sleep(100); //sleep for effect
-                    self.start = true;
+                    await self.sleep(100);      //sleep for effect
+                    self.start = true;          //indicate connection established and starting call
                 } catch (err) {
                     console.log(err);
-                    await self.moveToChat();
+                    await self.moveToChat();   //prompts to move to chat if connection via calls fail
                 }
             },
             sleep: async function(ms) {
                 return new Promise(resolve => setTimeout(resolve, ms));
             },
             /**********************CALL FUNCS**********************/
+            
+            // run functions when call event listener detects a change in call status
             onWebRTCCallChanged: function(event) {
                 let self = this;
-                self.call = event.detail;
+                self.call = event.detail;          //seting call object after call connection has been established
                 console.log("event is: " + event.detail);
                 //console.log("OnWebRTCCallChanged event", event.detail.status);
-                if (event.detail.status.value === "Unknown") {
+                if (event.detail.status.value === "Unknown") {      //if call is disconnected 
                     document.removeEventListener(rainbowSDK.webRTC.RAINBOW_ONWEBRTCCALLSTATECHANGED, self.onWebRTCCallChanged);
                     if (self.exit) { // only leave the call if customer wants to exit
                         console.log("Session Ended");
-                        self.$socket.disconnect();
-                        self.$store.state.feedback=true;
-                        self.$store.state.support=false;
-                        self.$router.push({ path: "/feedback" });
-                    } else {
-                        self.$store.state.moving=true;
-                        self.$router.push({ path: "/chat" });
+                        self.$socket.disconnect();          //disconnecting socket
+                        self.$store.state.feedback=true;    //allow access to feedback page
+                        self.$store.state.support=false;    //allow access to feedback page
+                        self.$router.push({ path: "/feedback" });   //move to feedback page
+                    } else {    // if customer changes to chat from call
+                        self.$store.state.moving=true;      //allow access to move to chat
+                        self.$router.push({ path: "/chat" });  //move to chat page
                     }
                 }
             },
+
+            // Disconnecting customer when leaving call support
             exitCall: async function() {
                 let self = this;
-                self.exit = true;
-                await rainbowSDK.webRTC.release(self.call);
+                self.exit = true;                            //indicate exiting
+                await rainbowSDK.webRTC.release(self.call);  //close call between customer and agent
             },
+
+            // manages transition from call to chat
             moveToChat: async function() {
                 let self = this;
-                await rainbowSDK.webRTC.release(self.call);
+                await rainbowSDK.webRTC.release(self.call);    //remove call between customer and agent
                 console.log("Moving to Chat");
             }
         },
         mounted() {
             let self = this;
-            self.checkCall();
-            if (self.agentId === "") {
-                self.$socket.connect();
+            self.checkCall();               //checking call connection
+            if (self.agentId === "") {      //if an agent is not found
+                self.$socket.connect();     //find an agent
             } else {
                 // self.$store.state.moving=false;
                 self.connecting = true;
-                self.startCall();
+                self.startCall();           //start establishing conenction with agent to call
             }
             // self.socket = io.connect('http://localhost:4000/');
             // this.getConnection(); DEPRECATED
