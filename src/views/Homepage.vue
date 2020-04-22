@@ -118,7 +118,8 @@
             showCaptcha: false,
             captcha: "",
             captchaCount: 3,
-            shake: false
+            shake: false,
+            destination: ""
         }),
         computed: {
             /*
@@ -154,6 +155,7 @@
                 let self=this;
                 if (!this.rulesFailed) {
                     self.showCaptcha=true;
+                    self.destination="chat";
                 }
             },
 
@@ -161,14 +163,15 @@
                 let self=this;
                 if (!this.rulesFailed) {
                     self.showCaptcha=true;
+                    self.destination="call";
                 }
             },
             recaptchaCheck: function() {
                 let self=this;
                 console.log(self.$refs["recaptchaCheck"]);
-                if (self.captcha==="yes") {
+                if (self.captcha==="yes") { //more interesting or real captcha logic can be implemented here
                     self.submit();
-                    self.$router.push({path: "/call"});
+                    self.$router.push({path: `/${self.destination}`});
                 } else if (self.captchaCount>1) {
                     self.captchaCount--;
                     self.shake=true;

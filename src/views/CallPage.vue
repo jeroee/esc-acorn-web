@@ -1,7 +1,7 @@
 <template>
     <div class="call" id="call">
         <transition name="fade">
-            <Wait v-bind:connecting="connecting" v-bind:loading="loading" v-bind:color="color" v-if="!start" />
+            <Wait v-bind:connecting="connecting" v-bind:loading="loading" v-bind:disconnected="disconnected" v-bind:color="color" v-if="!start" />
         </transition>
         <h1 class="font-weight-light mb-5 header">
             Let's talk
@@ -61,6 +61,7 @@
             defaultOptions: { animationData: animationData },
             start: false,
             connecting: false,
+            disconnected: false,
             loading: 0,
             call: "",
             exit: false,
@@ -113,6 +114,23 @@
                 console.log(`Your token is ${self.token}`);
                 self.connecting = true;
                 self.startCall();
+            },
+            noAgentsWorking: function () {
+                let self=this;
+                self.disconnected=true;
+                self.$store.state.support = false;
+                setTimeout(function () {
+                    alert("Moving you to the home page");
+                    self.$router.push({path: "/"});
+                },1000);
+            },
+            rainbowError: function () {
+                let self=this;
+                self.$store.state.support = false;
+                setTimeout(function () {
+                    alert("Sorry, our group has run out of Rainbow guest tokens, please try again at a later point of time!");
+                    self.$router.push({path: "/"});
+                },1000);
             }
         },
         methods: {
