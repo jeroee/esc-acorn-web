@@ -2,7 +2,7 @@ import Vue from 'vue';
 import App from './App.vue';
 import vuetify from './plugins/vuetify';
 import router from './plugins/router';
-import {store} from './plugins/store';
+import { store } from './plugins/store';
 import VueSocketIO from 'vue-socket.io';
 
 /*
@@ -23,8 +23,8 @@ Vue.config.performance = true;
 This injects all the different plugins (Vuetify, Vuex, Vue-Router) used in the app.
 */
 new Vue({
-    store:store,
-    vuetify,router,
+    store: store,
+    vuetify, router,
     render: h => h(App)
 }).$mount('#app');
 

@@ -93,27 +93,40 @@
 
 <script>
     import axios from "axios";
+    /*
+    * Determines the the structure of a valid email and what it should ideally contain
+    */
     const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
     export default {
         data: () => ({
-            rating1: 0,
-            rating2: 0,
-            rating3: 0,
-            comments: "",
-            email: "",
-            headerText: "Help us improve our customer service",
-            submitted: false,
-            hasError: false,
-            errorMessage:"",
+            rating1: 0,                                             //Rating for first Question which takes in rating provided by the customer
+            rating2: 0,                                             //Rating for second Question which takes in rating provided by the customer
+            rating3: 0,                                             //Rating for third Question which takes in rating provided by the customer
+            comments: "",                                           //Text input field which takes in comments provided by the customer
+            email: "",                                              //Text input field which takes in emails provided by the customer
+            headerText: "Help us improve our customer service",     //Header display at the top of the Vue component
+            submitted: false,                                       //boolean logic to indicate valid feedback submission entry
+            hasError: false,                                        //boolean logic to indicate signs of error in submission entry
+            errorMessage:"",                                        //display of error message depending the type of error indicated during submission
         }),
         computed: {
+            /*
+            * To retrieve agent name for the Vuex Store to display it in Vue component
+            */
             agentName() {
                 return this.$store.state.agentName;
             },
+            /*
+            * To retrieve the agent ID from the Vuex Store to send request to API to submit agent feedback
+            */
             agentId() {
                 return this.$store.state.agentId;
             },
+            /*
+            * Prompts customer to provide an email when submitting feedback
+            * Prompts customer to input a valid email which follows the email pattern if an invalid email is inserted into the text field
+            */
             rulesEmail () {
                 let self=this;
                 if (self.comments) {
@@ -125,6 +138,9 @@
                     return []
                 }
             },
+            /*
+            * Prompts customer to provide some comments if only email is provided
+            */
             rulesComments () {
                 let self=this;
                 if (self.email) {
@@ -135,7 +151,9 @@
                     return []
                 }
             },
-            //works if all ratings are filled or if all ratings filled and both comments and emails are filled validly
+            /*
+            * works if all ratings are filled or if all ratings filled and both comments and emails are filled validly
+            */
             rulesFailed () {
                 let self=this;
                 return (self.rating1===0 || self.rating2 ===0 || self.rating3 ===0)
@@ -145,22 +163,31 @@
         },
         beforeDestroy() {
             let self=this;
+            //set all the data stored in the Vuex store to its default values
             self.$store.state.agentId="";
             self.$store.state.agentName="";
             self.$store.state.token="";
             self.$store.state.feedback = false;
         },
         methods: {
+            /*
+            * To submit feedback details which are provided by the customer which will be sent as a patch request to update the agent's ratings.
+            * The Submission of feedback will only deem successful if the following conditions are met:
+            * All raitings have to be filled
+            * Addtional comments and a valid email address is required
+            *
+            * send customer back to the Homepage after successful submission
+            */
             sendDetails: async function() {
                 let self=this;
                 self.hasError=false;
-
-                if (!self.rulesFailed) {
-                    var replacement = self.comments.replace(/&/g, 'and');   //replace all "&" symbol to and
+                if (!self.rulesFailed) {                                    //filled details meet the conditions
+                    var replacement = self.comments.replace(/&/g, 'and');   //text sanitsation: replace all "&" symbol to and (might affect mongo db query)
                     console.log(replacement);
-                    self.submitted=true;
+                    self.submitted=true;                                    //indicate that feedback submission entry is valid
                     self.headerText="Thanks for the feedback!";
                     try {
+                        //sending patch request to API via axios to update agent's rating
                         const applicationSignature= "BBO5e7IVtK9TeSAQ3RTYGsQOWOZ0QAe8k9jbvomydoOUEjK1lwTLIkK4J3yu";
                         await axios.patch(`https://still-sea-41149.herokuapp.com/api/review?agentId=${self.agentId}&rating1=${self.rating1}&rating2=${self.rating2}&rating3=${self.rating3}&email=${self.email}&comment=${replacement}`,
                             null,
@@ -170,19 +197,22 @@
                         console.log(e.message());
                     }
                     finally {
-                        await this.$router.push({ path: "/" });
+                        await this.$router.push({ path: "/" }); //navigate back to home page
                     }
-                } else if (self.rating1 !==0 && self.rating2 !==0 && self.rating3 !==0){
+                } else if (self.rating1 !==0 && self.rating2 !==0 && self.rating3 !==0){    //if only ratings are filled
                     this.errorMessage="Please leave a valid email with any comments, and vice-versa";
-                    self.hasError=true;
+                    self.hasError=true;                         //prompts error message
                     setTimeout(this.closePopup,2000);
                 }
-                else {
-                    self.hasError=true;
+                else {      //if not all raiting are filled
+                    self.hasError=true;                         //prompts error mesage
                     self.errorMessage="Please fill up all rating fields above!";
                     setTimeout(this.closePopup,2000);
                 }
             },
+            /*
+            * dismissal of the error message
+            */
             closePopup: function(){
                 this.hasError=false;
                 this.errorMessage="";

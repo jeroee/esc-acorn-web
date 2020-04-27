@@ -108,22 +108,20 @@
 
         name: "Home",
         data: () => ({
-            categories: ["Acorn Products", "Acorn Services", "Acorn Applications", "Acorn Pay", "Acorn ID"],
-            limit: 20,
-            selected: "",
-            firstName: "",
-            lastName: "",
-            name1:"",
-            name2:"",
-            showCaptcha: false,
-            captcha: "",
-            captchaCount: 3,
-            shake: false,
-            destination: ""
+            categories: ["Acorn Products", "Acorn Services", "Acorn Applications", "Acorn Pay", "Acorn ID"],    //displays the list of Support Categories
+            limit: 20,          //limit of input text fields for First Name and Last Name
+            selected: "",       //takes in name of selected choice for Support Category
+            name1:"",           //takes in text input for first name
+            name2:"",           //tales in text input for last name
+            showCaptcha: false, //to display reCaptcha Check implementation after selecting request, currently set at false not hide implementation
+            captcha: "",        //takes in text input in reCaptcha Check
+            captchaCount: 3,    //limit the number of reCaptcha tries to 3
+            shake: false,       //does not allow shaking of component when set to false
+            destination: ""     //Determines which route destination to take after passing reCaptcha Check
         }),
         computed: {
             /*
-            * This computed function provides visual feedback to the user on whether all conditions are necessary to fill the form.
+            * Provides visual feedback to the user on whether all conditions are necessary to fill the form.
             */
             rules () {
                 return [
@@ -133,7 +131,7 @@
                 ]
             },
             /*
-            * This computed function creates the functional guard to prevent users from proceeding without the proper conditions. Namely:
+            * Creates the functional guard to prevent users from proceeding without the proper conditions. Namely:
             * First name field must be strictly alphabetical and not empty
             * Last name field must be strictly alphabetical and not empty
             * A category must be selected
@@ -143,6 +141,11 @@
             }
         },
         methods: {
+            /**
+             * Stores selected data in the current Vue component into the Vuex Store
+             * Need category index, category name, firstname, lastname data to be sent over to other components to establish chat/call connection
+             * Support data indicates leaving of Home component and  serves as boolean logic for Routing guard.
+             */
             submit() {
                 this.$store.state.categoryIndex = this.categories.indexOf(this.selected);
                 this.$store.state.categoryName = this.selected;
@@ -150,36 +153,44 @@
                 this.$store.state.lastName = this.name2.charAt(0).toUpperCase() + this.name2.slice(1);
                 this.$store.state.support = true;
             },
-
+            /**
+             * Does Recaptcha check upon selecting Chat request
+             */
             requestChat: function () {
                 let self=this;
-                if (!this.rulesFailed) {
-                    self.showCaptcha=true;
-                    self.destination="chat";
+                if (!this.rulesFailed) {            //if conditions for the support page form is met
+                    self.showCaptcha=true;          //display reCaptcha
+                    self.destination="chat";        //set route destination
                 }
             },
-
+            /**
+             * Does recaptcha check upon selecting Call request
+             */
             requestCall: function () {
                 let self=this;
-                if (!this.rulesFailed) {
-                    self.showCaptcha=true;
-                    self.destination="call";
+                if (!this.rulesFailed) {            //if conditions for the support page form is met
+                    self.showCaptcha=true;          //display reCaptcha
+                    self.destination="call";        //set route destination
                 }
             },
+            /**
+             * Runs the recaptcha test and proceeds to Chat/Call support when customer has passed the test
+             * Provides 3 tries to pass the test, customer will be sent to the Homepage if he/she exceeds 3 tries
+             */
             recaptchaCheck: function() {
                 let self=this;
                 console.log(self.$refs["recaptchaCheck"]);
                 if (self.captcha==="yes") { //more interesting or real captcha logic can be implemented here
-                    self.submit();
-                    self.$router.push({path: `/${self.destination}`});
+                    self.submit();          //submit all the required data to the Vuex store
+                    self.$router.push({path: `/${self.destination}`});  //routes to the destination previously stored in the function which calls reCaptchaCheck
                 } else if (self.captchaCount>1) {
-                    self.captchaCount--;
-                    self.shake=true;
-                    setTimeout(function(){ self.shake = false; }, 300);
+                    self.captchaCount--;                                    //decrement of counter
+                    self.shake=true;                                        //enable shaking of reCaptcha 
+                    setTimeout(function(){ self.shake = false; }, 300);     //disable shake 
                 } else {
                     self.captchaCount--;
-                    window.location.href="/";
-                    setTimeout(function(){alert("You failed the recaptcha!")}, 1);
+                    window.location.href="/";                               //Send to homepage (windows reload to reset count)
+                    setTimeout(function(){alert("You failed the recaptcha!")}, 1);  //alert customer (or bot) of failed reCaptcha
                 }
             }
 
