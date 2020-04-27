@@ -161,8 +161,10 @@
                     self.submitted=true;
                     self.headerText="Thanks for the feedback!";
                     try {
-                        await axios.patch(
-                            `https://still-sea-41149.herokuapp.com/api/review?agentId=${self.agentId}&rating1=${self.rating1}&rating2=${self.rating2}&rating3=${self.rating3}&email=${self.email}&comment=${replacement}`
+                        const applicationSignature= "BBO5e7IVtK9TeSAQ3RTYGsQOWOZ0QAe8k9jbvomydoOUEjK1lwTLIkK4J3yu";
+                        await axios.patch(`https://still-sea-41149.herokuapp.com/api/review?agentId=${self.agentId}&rating1=${self.rating1}&rating2=${self.rating2}&rating3=${self.rating3}&email=${self.email}&comment=${replacement}`,
+                            null,
+                            {headers: {"authorization":applicationSignature}}
                         ).then(response => console.log(response));
                     } catch (e) {
                         console.log(e.message());
