@@ -13,7 +13,7 @@
     "es6-promise": "^4.2.8",
     "jquery": "^3.4.1",
     "material-design-icons-iconfont": "^5.0.1",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "rainbow-web-sdk": "^1.69.0",
     "vue": "^2.6.11",
     "vue-lottie": "^0.2.1",
